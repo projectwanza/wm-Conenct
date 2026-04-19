@@ -156,7 +156,7 @@ body::before{
 @media(hover:hover){.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}}
 .btn-call{background:linear-gradient(135deg,#00b857,#00e073);color:#fff}
 .btn-wa{background:linear-gradient(135deg,#25d366,#075e54);color:#fff}
-.btn-email{background:linear-gradient(135deg,#4f8ef7,#2563eb);color:#fff}
+.btn-email{background:linear-gradient(135deg,#25d366,#075e54);color:#fff}
 
 /* ── PAY NOW BUTTON (NEW) ── */
 .btn-pay-wrap{padding:0 16px 14px}
@@ -387,25 +387,72 @@ body::before{
 #toast.err{border-left:4px solid var(--red);color:var(--red)}
 
 /* ── FOOTER ── */
-.foot{
-  text-align:center;padding:28px 16px 20px;
-  border-top:2px solid var(--bdr);margin-top:8px;
-  background:linear-gradient(135deg,rgba(255,106,0,.03),rgba(255,159,0,.02))
+/* FOOTER */
+.footer{
+  text-align:center;
+  padding:var(--sp-4) var(--sp-4) var(--sp-3);
+  border-top:1px solid var(--border);
+  margin-top:var(--sp-2);
 }
-.foot-logo{width:50px;height:50px;border-radius:50%;margin-bottom:10px;object-fit:cover;display:block;margin-left:auto;margin-right:auto}
-.foot-logo-placeholder{
-  width:50px;height:50px;border-radius:50%;
-  background:linear-gradient(135deg,var(--org1),var(--org2));
-  display:flex;align-items:center;justify-content:center;font-size:1.5rem;
-  margin:0 auto 10px
+.footer-logo{
+  width:clamp(36px,9vw,48px);
+  margin-bottom:var(--sp-2);
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+  border-radius:var(--radius-sm);
 }
-.foot-name{font-size:15px;font-weight:700;color:var(--txt)}
-.foot-tag{font-size:12px;color:var(--muted);margin-top:3px}
-.foot-links{display:flex;justify-content:center;gap:20px;margin-top:12px;flex-wrap:wrap}
-.foot-link{
-  font-size:12px;color:var(--org1);text-decoration:none;font-weight:600;
-  min-height:44px;display:inline-flex;align-items:center;gap:5px
+.footer-name{
+  font-family:'Outfit',sans-serif;
+  font-size:var(--fs-sm);
+  font-weight:700;
+  color:var(--text);
+  line-height:1.25;
 }
+.footer-tagline{
+  font-size:var(--fs-xs);
+  color:var(--muted);
+  margin-top:2px;
+  line-height:1.35;
+}
+.footer-links{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:var(--sp-2);
+  margin-top:var(--sp-2);
+  flex-wrap:wrap;
+}
+.footer-link{
+  font-size:var(--fs-xs);
+  color:var(--accent);
+  text-decoration:none;
+  min-height:32px;
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  padding:0 var(--sp-2);
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:var(--radius-pill);
+  transition:border-color var(--t-fast);
+}
+.footer-link:active{border-color:var(--accent);}
+
+/* GREETING BAR */
+.greeting-bar{
+  text-align:center;
+  padding:var(--sp-3) var(--sp-4) 0;
+  font-family:'Outfit',sans-serif;
+  font-size:var(--fs-sm);
+  font-weight:600;
+  color:var(--muted);
+  letter-spacing:0.5px;
+}
+.greeting-bar span{
+  color:var(--accent);
+}
+
 
 /* ── ERROR ── */
 .err-page{
@@ -796,8 +843,9 @@ function render(client, settings, social) {
     ? '<img class="foot-logo" src="' + esc(settings.logo_url) + '" alt="' + esc(compName) + '" loading="lazy" onerror="this.style.display=\'none\'">'
     : '<div class="foot-logo-placeholder">⭐</div>';
 
-  document.getElementById('pg').innerHTML =
-    headerHtml
+ var g = getGreeting();
+  document.getElementById('page-content').innerHTML =
+    '<div class="greeting-bar fade-up s1">' + g.emoji + ' <span>' + g.text + '</span></div>'
     + '<div class="hero">'
     + logoHtml
     + '<div class="biz-name au d2">' + esc(client.name || '') + '</div>'
