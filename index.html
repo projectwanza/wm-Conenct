@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -579,6 +578,12 @@ async function loadClient() {
     BANNERS  = Array.isArray(result.banners)  ? result.banners  : [];
     ADS      = Array.isArray(result.ads)      ? result.ads      : [];
 
+    // ✅ DEBUG: Log what we got (check browser console)
+    console.log('📦 CLIENT:', CLIENT);
+    console.log('⚙️ SETTINGS:', SETTINGS);
+    console.log('📌 Footer will show → Name:', SETTINGS.company_name, '| Phone:', SETTINGS.phone, '| Email:', SETTINGS.email);
+
+    render(CLIENT, SETTINGS, SOCIAL);
     render(CLIENT, SETTINGS, SOCIAL);
     renderBanners(BANNERS);
 
@@ -852,12 +857,14 @@ var _g = getGreeting();
     + '</div>'
     + '<footer class="foot">'
     + footLogoHtml
-    + '<div class="foot-name">' + esc(compName) + '</div>'
-    + '<div class="foot-tag">' + esc(settings.tagline || 'Grow Your Business with Digital Presence') + '</div>'
+    + '<div class="foot-name">' + esc(SETTINGS.company_name || compName) + '</div>'
+    + '<div class="foot-tag">' + esc(SETTINGS.tagline || 'Grow Your Business with Digital Presence') + '</div>'
     + '<nav class="foot-links">'
-    + (settings.phone ? '<a class="foot-link" href="tel:' + esc(settings.phone) + '">📞 ' + esc(settings.phone) + '</a>' : '')
-    + (settings.email ? '<a class="foot-link" href="mailto:' + esc(settings.email) + '">✉️ ' + esc(settings.email) + '</a>' : '')
-    + '</nav></footer>';
+    + (SETTINGS.phone ? '<a class="foot-link" href="tel:' + esc(SETTINGS.phone) + '">📞 ' + esc(SETTINGS.phone) + '</a>' : '')
+    + (SETTINGS.email ? '<a class="foot-link" href="mailto:' + esc(SETTINGS.email) + '">✉️ ' + esc(SETTINGS.email) + '</a>' : '')
+    + '</nav>'
+    + '<!-- DEBUG: settings loaded at ' + new Date().toLocaleTimeString() + ' -->'
+    + '</footer>';
 }
 
 // ── RATING ────────────────────────────────────────────────────
