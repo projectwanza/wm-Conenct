@@ -692,6 +692,32 @@ body::after {
 .hero { padding-left: 24px; padding-right: 24px; }
 }
 </style>
+</head>
+<body>
+
+<!-- ── LOADER ── -->
+<div id="ls">
+  <div class="ld-logo">⭐</div>
+  <div class="ld-ring"></div>
+  <div class="ld-txt">Loading Profile…</div>
+</div>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<!-- ── OFFER BANNER ── -->
+<div id="offer-banner">
+  <div class="banner-bar" id="banner-bar">
+    <span class="banner-ico">🔥</span>
+    <div class="banner-ticker-wrap">
+      <div class="banner-ticker" id="banner-ticker"></div>
+    </div>
+    <button class="banner-close" onclick="closeBanner()" aria-label="Close">✕</button>
+  </div>
+</div>
+
+<!-- ── PAGE ── -->
+<div id="pg"></div>
 
 <script>
 // ════════════════════════════════════════════════════════════════
