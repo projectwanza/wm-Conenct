@@ -387,71 +387,50 @@ body::before{
 #toast.err{border-left:4px solid var(--red);color:var(--red)}
 
 /* ── FOOTER ── */
-/* FOOTER */
-.footer{
+.foot{
   text-align:center;
-  padding:var(--sp-4) var(--sp-4) var(--sp-3);
-  border-top:1px solid var(--border);
-  margin-top:var(--sp-2);
+  padding:20px 16px 16px;
+  border-top:2px solid var(--bdr);
+  margin-top:8px;
+  background:linear-gradient(135deg,rgba(255,106,0,.03),rgba(255,159,0,.02));
 }
-.footer-logo{
-  width:clamp(36px,9vw,48px);
-  margin-bottom:var(--sp-2);
-  display:block;
-  margin-left:auto;
-  margin-right:auto;
-  border-radius:var(--radius-sm);
+.foot-logo{
+  width:44px;height:44px;border-radius:12px;
+  object-fit:cover;display:block;
+  margin:0 auto 10px;
+  border:1.5px solid var(--bdr2);
 }
-.footer-name{
-  font-family:'Outfit',sans-serif;
-  font-size:var(--fs-sm);
-  font-weight:700;
-  color:var(--text);
-  line-height:1.25;
+.foot-logo-placeholder{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--org1),var(--org2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;margin:0 auto 10px;
 }
-.footer-tagline{
-  font-size:var(--fs-xs);
-  color:var(--muted);
-  margin-top:2px;
-  line-height:1.35;
+.foot-name{
+  font-size:14px;font-weight:700;
+  color:var(--txt);line-height:1.25;
 }
-.footer-links{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:var(--sp-2);
-  margin-top:var(--sp-2);
-  flex-wrap:wrap;
+.foot-tag{
+  font-size:11.5px;color:var(--muted);
+  margin-top:3px;line-height:1.4;
 }
-.footer-link{
-  font-size:var(--fs-xs);
-  color:var(--accent);
+.foot-links{
+  display:flex;justify-content:center;
+  align-items:center;gap:8px;
+  margin-top:10px;flex-wrap:wrap;
+}
+.foot-link{
+  font-size:11.5px;color:var(--org1);
   text-decoration:none;
-  min-height:32px;
-  display:inline-flex;
-  align-items:center;
-  gap:3px;
-  padding:0 var(--sp-2);
-  background:var(--glass);
-  border:1px solid var(--border);
-  border-radius:var(--radius-pill);
-  transition:border-color var(--t-fast);
-}
-.footer-link:active{border-color:var(--accent);}
-
-/* GREETING BAR */
-.greeting-bar{
-  text-align:center;
-  padding:var(--sp-3) var(--sp-4) 0;
-  font-family:'Outfit',sans-serif;
-  font-size:var(--fs-sm);
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px 12px;min-height:30px;
+  background:rgba(255,106,0,.07);
+  border:1px solid var(--bdr2);
+  border-radius:999px;
+  transition:border-color .2s ease;
   font-weight:600;
-  color:var(--muted);
-  letter-spacing:0.5px;
 }
-.greeting-bar span{
-  color:var(--accent);
-}
+.foot-link:active{border-color:var(--org1);}
 
 
 /* ── ERROR ── */
@@ -771,13 +750,14 @@ function render(client, settings, social) {
   var compName = settings.company_name || 'Wanza Marketing';
 
   // Header with share button (works on all devices)
+var _g = getGreeting();
   var headerHtml =
     '<div class="page-header au">'
     + '<div class="ph-brand">'
     + (settings.logo_url
-        ? '<div class="ph-logo"><img src="' + esc(settings.logo_url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"  style="width:30px;height:30px;border-radius:8px;object-fit:cover"></div>'
+        ? '<div class="ph-logo"><img src="' + esc(settings.logo_url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'" style="width:30px;height:30px;border-radius:8px;object-fit:cover"></div>'
         : '<div class="ph-logo">⭐</div>')
-    + '<span class="ph-name">' + esc(compName) + '</span>'
+    + '<span class="ph-name">' + _g.emoji + ' ' + _g.text + '</span>'
     + '</div>'
     + '<button class="ph-share" onclick="doShare()">📤 Share</button>'
     + '</div>';
@@ -843,10 +823,7 @@ function render(client, settings, social) {
     ? '<img class="foot-logo" src="' + esc(settings.logo_url) + '" alt="' + esc(compName) + '" loading="lazy" onerror="this.style.display=\'none\'">'
     : '<div class="foot-logo-placeholder">⭐</div>';
 
- var g = getGreeting();
-  document.getElementById('page-content').innerHTML =
-    '<div class="greeting-bar fade-up s1">' + g.emoji + ' <span>' + g.text + '</span></div>'
-    + '<div class="hero">'
+ '<div class="hero">'
     + logoHtml
     + '<div class="biz-name au d2">' + esc(client.name || '') + '</div>'
     + (client.business_type ? '<div class="au d2"><span class="biz-type">' + esc(client.business_type) + '</span></div>' : '')
@@ -1026,6 +1003,16 @@ function shareViaWa(msg, url) {
   toast('WhatsApp opened!', 'ok');
 }
 
+
+   // ── GREETING ──────────────────────────────────────────────────
+function getGreeting() {
+  var h = new Date().getHours();
+  if (h >= 5  && h < 12) return { emoji: '🌤️', text: 'Good Morning' };
+  if (h >= 12 && h < 17) return { emoji: '☀️',  text: 'Good Afternoon' };
+  return { emoji: '🌙', text: 'Good Evening' };
+}
+
+   
 // ── ANALYTICS ─────────────────────────────────────────────────
 function logAction(type, value) {
   apiPost('logAnalytics', {
