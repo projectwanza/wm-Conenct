@@ -1819,19 +1819,32 @@ function delAd(adId){
 function loadSettings(){
   document.getElementById('cfg-gas').value=GAS_URL||'';
   document.getElementById('cfg-cl').value=CLIENT_URL||'';
-  api('getSettings')
+  
+  console.log('📥 Loading settings (live bypass)...'); // ✅ DEBUG LOG
+  
+  // ✅ FIX: Use getSettingsLive to bypass cache on admin panel
+  apiGet('getSettingsLive', {})
     .then(function(d){
-      document.getElementById('s-cn').value=d.company_name||'';
-      document.getElementById('s-lo').value=d.logo_url||'';
-      document.getElementById('s-tg').value=d.tagline||'';
-      document.getElementById('s-ph').value=d.phone||'';
-      document.getElementById('s-em').value=d.email||'';
-      document.getElementById('s-sm').value=d.share_message||'';
+      console.log('📥 Loaded settings:', d); // ✅ DEBUG LOG
+      
+      document.getElementById('s-cn').value = d.company_name  || '';
+      document.getElementById('s-lo').value = d.logo_url      || '';
+      document.getElementById('s-tg').value = d.tagline       || '';
+      document.getElementById('s-ph').value = d.phone         || '';
+      document.getElementById('s-em').value = d.email         || '';
+      document.getElementById('s-sm').value = d.share_message || '';
+      
       if(d.logo_url) previewCompLogoUrl(d.logo_url);
+      
+      toast('Settings loaded ✅', 'ok', 2000);
     })
-    .catch(function(e){ toast('Settings load failed: '+e.message,'err'); });
+    .catch(function(e){
+      console.error('❌ Settings load failed:', e);
+      toast('Settings load failed: '+e.message,'err');
+    });
 }
 
+// FIND THIS:
 function saveSettings(){
   showLoad('Saving settings…');
   var logoUrl=_compLogoUrl||(document.getElementById('s-lo').value||'').trim();
@@ -1845,6 +1858,45 @@ function saveSettings(){
   }})
   .then(function(){ hideLoad(); toast('Settings saved! 🎉','ok'); _compLogoUrl=''; })
   .catch(function(e){ hideLoad(); toast('Save failed: '+e.message,'err'); });
+}
+
+// REPLACE WITH:
+function saveSettings(){
+  showLoad('Saving settings…');
+  var logoUrl=_compLogoUrl||(document.getElementById('s-lo').value||'').trim();
+  var newSettings = {
+    company_name: (document.getElementById('s-cn').value||'').trim(),
+    logo_url:     logoUrl,
+    tagline:      (document.getElementById('s-tg').value||'').trim(),
+    phone:        (document.getElementById('s-ph').value||'').trim(),
+    email:        (document.getElementById('s-em').value||'').trim(),
+    share_message:(document.getElementById('s-sm').value||'').trim()
+  };
+  
+  console.log('💾 Saving settings:', newSettings); // ✅ DEBUG LOG
+  
+  apiPost('saveSettings', {settings: newSettings})
+  .then(function(result){
+    console.log('✅ Settings save result:', result); // ✅ DEBUG LOG
+    hideLoad();
+    toast('Settings saved! 🎉 Verifying…','ok');
+    _compLogoUrl='';
+    
+    // ✅ FIX: Verify save by re-fetching live (bypass cache)
+    return apiGet('getSettingsLive', {});
+  })
+  .then(function(live){
+    console.log('✅ Live settings after save:', live); // ✅ DEBUG LOG
+    toast('Verified! Name: ' + (live.company_name||'?') + ' | Phone: ' + (live.phone||'?'), 'ok', 5000);
+    
+    // ✅ FIX: Reload settings panel with fresh data
+    loadSettings();
+  })
+  .catch(function(e){
+    hideLoad();
+    console.error('❌ Settings save failed:', e); // ✅ DEBUG LOG
+    toast('Save failed: '+e.message,'err');
+  });
 }
 
 function saveConfig(){
