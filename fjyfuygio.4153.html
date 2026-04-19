@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ff6a00">
+<title>Wanza Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   WANZA ADMIN v7 — Premium Orange Theme
+   All Bugs Fixed + New Features
+   ═══════════════════════════════════════════════ */
+:root{
+  --org1:#ff6a00;--org2:#ff9f00;--org3:#ffb84d;
+  --bg:#fff8f0;--surf:#ffffff;--card:#ffffff;--card2:#fff3e5;
+  --bdr:rgba(255,106,0,.12);--bdr2:rgba(255,106,0,.22);
+  --txt:#1a1a1a;--txt2:#666;--txt3:#999;
+  --grn:#00c97e;--red:#ff4757;--blue:#4f8ef7;
+  --sh:0 4px 24px rgba(255,106,0,.12);--sh2:0 8px 40px rgba(255,106,0,.2);
+  --r1:8px;--r2:13px;--r3:18px;--pill:999px;
+  --tr:.2s cubic-bezier(.4,0,.2,1)
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;font-size:14px}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 40% at 0% 0%,rgba(255,106,0,.06),transparent 50%),
+  radial-gradient(ellipse 50% 35% at 100% 100%,rgba(255,159,0,.07),transparent 50%)}
+
+/* ── GLOBAL LOADING ── */
+#gload{position:fixed;inset:0;z-index:8888;background:rgba(255,248,240,.85);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+#gload.show{display:flex}
+.gl-ring{width:44px;height:44px;border:3px solid rgba(255,106,0,.2);border-top-color:var(--org1);border-radius:50%;animation:rot .7s linear infinite}
+.gl-txt{font-size:13px;color:var(--txt2);font-weight:500}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ── TOAST ── */
+#tc{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.t-item{background:var(--card);border-radius:var(--r2);padding:12px 18px;display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.12);
+  transform:translateX(120%);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:all;max-width:320px;line-height:1.4;border-left:4px solid transparent}
+.t-item.show{transform:translateX(0);opacity:1}
+.t-item.ok{border-left-color:var(--grn)}.t-item.err{border-left-color:var(--red)}
+.t-item.info{border-left-color:var(--org1)}.t-item.warn{border-left-color:var(--org2)}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#fff8f0 0%,#fff3e0 50%,#fff8f0 100%);padding:20px}
+#login-screen::before{content:'';position:fixed;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,106,0,.12),transparent 70%);top:-100px;right:-100px;pointer-events:none}
+#login-screen::after{content:'';position:fixed;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,159,0,.10),transparent 70%);bottom:-80px;left:-80px;pointer-events:none}
+.login-box{position:relative;z-index:1;background:var(--card);border:1.5px solid var(--bdr2);border-radius:24px;
+  padding:clamp(28px,5vw,44px);width:100%;max-width:400px;box-shadow:var(--sh2)}
+.login-hd{text-align:center;margin-bottom:28px}
+.login-brand{width:68px;height:68px;border-radius:20px;background:linear-gradient(135deg,var(--org1),var(--org2));
+  display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 14px;
+  box-shadow:0 8px 28px rgba(255,106,0,.35)}
+.login-title{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--org1),var(--org2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.login-sub{font-size:12px;color:var(--txt3);font-weight:500;margin-top:4px;text-transform:uppercase;letter-spacing:1.5px}
+.login-err{background:rgba(255,71,87,.07);border:1px solid rgba(255,71,87,.25);border-radius:var(--r1);
+  padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none;line-height:1.4}
+.l-sep{height:1px;background:var(--bdr);margin:18px 0}
+.l-hint{font-size:11px;color:var(--txt3);text-align:center;margin-top:12px}
+.diag-banner{background:rgba(255,159,0,.08);border:1px solid rgba(255,159,0,.3);border-radius:var(--r2);
+  padding:14px 18px;margin-bottom:16px;font-size:13px;line-height:1.6;display:none}
+.diag-banner.show{display:block}
+.diag-banner strong{color:var(--org1)}
+.diag-steps{margin:8px 0 0 18px;color:var(--txt2)}
+.diag-steps li{margin-bottom:4px}
+
+/* ── LAYOUT ── */
+#app{display:none;position:relative;z-index:1}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:230px;flex-shrink:0;background:var(--surf);border-right:2px solid var(--bdr);
+  display:flex;flex-direction:column;padding-bottom:20px;position:fixed;height:100vh;
+  overflow-y:auto;z-index:200;transition:transform .3s ease;box-shadow:4px 0 20px rgba(255,106,0,.06)}
+.sb-logo{padding:22px 18px 18px;border-bottom:2px solid var(--bdr);margin-bottom:10px;
+  background:linear-gradient(135deg,rgba(255,106,0,.06),rgba(255,159,0,.03))}
+.sb-logo-brand{display:flex;align-items:center;gap:10px}
+.sb-logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--org1),var(--org2));
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;box-shadow:0 4px 12px rgba(255,106,0,.3)}
+.sb-logo h2{font-size:1.2rem;font-weight:800;color:var(--txt)}
+.sb-logo p{font-size:10px;color:var(--txt3);font-weight:500;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.sb-section{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px;padding:12px 18px 4px;font-weight:700}
+.nav-btn{display:flex;align-items:center;gap:9px;padding:10px 12px;margin:1px 8px;border-radius:var(--r1);
+  border:none;background:transparent;cursor:pointer;text-align:left;font-family:'Poppins',sans-serif;
+  font-size:13px;font-weight:500;color:var(--txt2);width:calc(100% - 16px);transition:var(--tr)}
+.nav-btn:hover{background:rgba(255,106,0,.06);color:var(--txt)}
+.nav-btn.on{background:linear-gradient(135deg,rgba(255,106,0,.12),rgba(255,159,0,.08));color:var(--org1);font-weight:700;border-right:3px solid var(--org1)}
+.sb-bottom{margin-top:auto;padding:14px 12px;border-top:2px solid var(--bdr)}
+.conn-pill{font-size:11px;padding:5px 12px;border-radius:var(--pill);font-weight:600;display:inline-block;margin-bottom:10px}
+.cp-ok{background:rgba(0,201,126,.1);color:var(--grn)}
+.cp-err{background:rgba(255,71,87,.1);color:var(--red)}
+.cp-wait{background:rgba(255,106,0,.1);color:var(--org1)}
+
+/* ── MAIN ── */
+.main{margin-left:230px;flex:1;padding:24px;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px}
+.tb-title{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--org1),var(--org2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tb-acts{display:flex;gap:8px;align-items:center}
+
+/* ── STAT CARDS ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.stat{background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--r2);padding:18px 16px;position:relative;overflow:hidden;box-shadow:var(--sh);transition:transform .2s ease,box-shadow .2s ease}
+.stat:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.stat::after{content:'';position:absolute;top:-18px;right:-18px;width:80px;height:80px;border-radius:50%;opacity:.1}
+.stat:nth-child(1)::after{background:var(--org1)}.stat:nth-child(2)::after{background:var(--blue)}
+.stat:nth-child(3)::after{background:var(--grn)}.stat:nth-child(4)::after{background:var(--org2)}
+.stat:nth-child(5)::after{background:#9b59b6}
+.stat-ico{font-size:1.3rem;margin-bottom:8px}
+.stat-n{font-size:1.9rem;font-weight:800;line-height:1;color:var(--txt)}
+.stat-l{font-size:11px;color:var(--txt2);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── PANELS ── */
+.panel{display:none}.panel.on{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--r3);margin-bottom:18px;overflow:hidden;box-shadow:var(--sh)}
+.card-hd{padding:15px 20px;border-bottom:2px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(135deg,rgba(255,106,0,.04),rgba(255,159,0,.02))}
+.card-tt{font-size:14px;font-weight:700;color:var(--txt)}
+.card-bd{padding:20px}
+
+/* ── FORMS ── */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
+.fg-full{grid-column:1/-1}
+.fg{display:flex;flex-direction:column;gap:6px}
+.lbl{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.8px}
+.inp,.sel,.ta{background:#fff8f0;border:1.5px solid var(--bdr2);border-radius:var(--r1);color:var(--txt);
+  padding:10px 14px;font-family:'Poppins',sans-serif;font-size:13.5px;outline:none;
+  transition:border-color .2s,box-shadow .2s;width:100%}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--org1);box-shadow:0 0 0 3px rgba(255,106,0,.12)}
+.ta{resize:vertical;min-height:76px}
+.sel option{background:#fff}
+
+/* ── IMAGE UPLOAD WIDGET ── */
+.img-upload-wrap{border:2px dashed var(--bdr2);border-radius:var(--r2);padding:18px;text-align:center;cursor:pointer;
+  transition:border-color .2s,background .2s;position:relative;background:#fff8f0}
+.img-upload-wrap:hover,.img-upload-wrap.drag{border-color:var(--org1);background:rgba(255,106,0,.04)}
+.img-upload-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-preview{width:80px;height:80px;border-radius:var(--r2);object-fit:cover;border:2px solid var(--bdr2);margin:0 auto 10px;display:block}
+.img-upload-ico{font-size:2rem;margin-bottom:8px;display:block}
+.img-upload-txt{font-size:13px;color:var(--txt2);font-weight:500}
+.img-upload-sub{font-size:11px;color:var(--txt3);margin-top:4px}
+.upload-progress{margin-top:10px;height:4px;border-radius:2px;background:var(--bdr);overflow:hidden;display:none}
+.upload-progress-bar{height:100%;border-radius:2px;width:0;background:linear-gradient(90deg,var(--org1),var(--org2));transition:width .3s ease}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:var(--pill);
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;
+  transition:var(--tr);text-decoration:none;white-space:nowrap;-webkit-user-select:none;user-select:none}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.4;cursor:default;transform:none}
+.btn-pri{background:linear-gradient(135deg,var(--org1),var(--org2));color:#fff;box-shadow:0 4px 14px rgba(255,106,0,.3)}
+.btn-pri:hover{box-shadow:0 6px 22px rgba(255,106,0,.45)}
+.btn-ok{background:linear-gradient(135deg,#00b857,var(--grn));color:#fff;box-shadow:0 4px 14px rgba(0,200,100,.25)}
+.btn-del{background:linear-gradient(135deg,var(--red),#ff8c5a);color:#fff;box-shadow:0 4px 14px rgba(255,71,87,.25)}
+.btn-warn{background:linear-gradient(135deg,#e67e00,var(--org2));color:#fff;box-shadow:0 4px 14px rgba(255,159,0,.3)}
+.btn-ghost{background:rgba(255,106,0,.06);border:1.5px solid var(--bdr2);color:var(--org1)}
+.btn-ghost:hover{background:rgba(255,106,0,.12)}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-full{width:100%;justify-content:center}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:linear-gradient(135deg,rgba(255,106,0,.06),rgba(255,159,0,.03));color:var(--txt2);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.8px;padding:12px 16px;text-align:left;border-bottom:2px solid var(--bdr);white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,106,0,.02)}
+.cl-av{width:36px;height:36px;border-radius:var(--r1);object-fit:cover;border:1.5px solid var(--bdr)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:var(--pill);font-size:11px;font-weight:700}
+.b-org{background:rgba(255,106,0,.1);color:var(--org1)}
+.b-grn{background:rgba(0,201,126,.1);color:var(--grn)}
+.b-red{background:rgba(255,71,87,.1);color:var(--red)}
+.b-blue{background:rgba(79,142,247,.1);color:var(--blue)}
+
+/* ── SOCIAL ROW ── */
+.sl-row{display:grid;grid-template-columns:1fr 1fr 1fr 90px auto;gap:8px;align-items:end;
+  background:#fff8f0;border:1.5px solid var(--bdr2);border-radius:var(--r2);padding:12px;margin-bottom:10px}
+.sl-del{width:38px;height:38px;border-radius:var(--r1);background:rgba(255,71,87,.08);color:var(--red);
+  border:1.5px solid rgba(255,71,87,.2);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:var(--tr)}
+.sl-del:hover{background:rgba(255,71,87,.18)}
+
+/* ── AD ROW ── */
+.ad-row{background:#fff8f0;border:1.5px solid var(--bdr2);border-radius:var(--r2);padding:14px;margin-bottom:12px}
+.ad-row-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:start}
+.ad-media-preview{width:100%;height:80px;border-radius:var(--r1);object-fit:cover;display:none;margin-top:8px;border:1.5px solid var(--bdr2)}
+
+/* ── PROGRESS BAR ── */
+.pbar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pbar{flex:1;height:7px;border-radius:var(--pill);background:var(--bdr);overflow:hidden}
+.pbar-fill{height:100%;border-radius:var(--pill);background:linear-gradient(90deg,var(--org1),var(--org2));transition:width .8s ease}
+
+/* ── QR ── */
+.qr-box{background:#fff8f0;border:1.5px solid var(--bdr2);border-radius:var(--r2);padding:24px;text-align:center}
+#qr-render{margin:14px auto;display:inline-block;border-radius:var(--r1);overflow:hidden}
+.url-box{background:#fff;border:1.5px solid var(--bdr2);border-radius:var(--r1);padding:10px 14px;font-size:12px;color:var(--txt2);word-break:break-all;font-family:monospace;margin-top:12px}
+
+/* ── REVIEW ITEM ── */
+.rv-item{background:#fff8f0;border:1.5px solid var(--bdr2);border-radius:var(--r2);padding:14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:10px}
+.rv-text{flex:1;font-size:13px;line-height:1.6}
+
+/* ── BANNER ITEM ── */
+.banner-item{background:#fff;border:1.5px solid var(--bdr2);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px}
+.banner-preview{flex:1;font-size:13px;line-height:1.6}
+.banner-preview strong{display:block;font-weight:700;margin-bottom:3px}
+.banner-preview span{color:var(--txt2);font-size:12px}
+.banner-color-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(0,0,0,.1);flex-shrink:0;margin-top:3px}
+.toggle-switch{position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#ddd;border-radius:var(--pill);transition:.3s}
+.toggle-slider:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+input:checked+.toggle-slider{background:linear-gradient(135deg,var(--org1),var(--org2))}
+input:checked+.toggle-slider:before{transform:translateX(18px)}
+
+/* ── MODALS ── */
+.modal-ov{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.modal-ov.show{opacity:1;pointer-events:all}
+.modal{background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--r3);width:100%;max-width:580px;max-height:90vh;overflow-y:auto;
+  transform:translateY(20px) scale(.97);transition:transform .25s ease;box-shadow:0 24px 64px rgba(0,0,0,.15)}
+.modal-ov.show .modal{transform:translateY(0) scale(1)}
+.modal-hd{padding:18px 24px;border-bottom:2px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--card);z-index:10;background:linear-gradient(135deg,rgba(255,106,0,.05),rgba(255,159,0,.03))}
+.modal-tt{font-size:15px;font-weight:700;color:var(--txt)}
+.modal-x{background:rgba(255,106,0,.08);border:1.5px solid var(--bdr2);color:var(--org1);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:var(--tr)}
+.modal-x:hover{background:rgba(255,106,0,.18)}
+.modal-bd{padding:24px}
+.modal-ft{padding:16px 24px;border-top:2px solid var(--bdr);display:flex;gap:8px;justify-content:flex-end}
+
+/* ── SPINNER & EMPTY ── */
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,106,0,.2);border-top-color:var(--org1);border-radius:50%;animation:rot .7s linear infinite}
+.empty{text-align:center;padding:36px 16px;color:var(--txt2)}
+.empty-ic{font-size:2.2rem;margin-bottom:8px}
+.empty-tx{font-size:13px}
+
+/* ── MOBILE MENU ── */
+.mob-btn{display:none;position:fixed;top:14px;left:14px;z-index:300;width:42px;height:42px;border-radius:var(--r1);
+  background:linear-gradient(135deg,var(--org1),var(--org2));border:none;align-items:center;justify-content:center;
+  font-size:1.1rem;cursor:pointer;color:#fff;box-shadow:0 4px 14px rgba(255,106,0,.35)}
+.sb-ov{display:none;position:fixed;inset:0;z-index:190;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+.sb-ov.show{display:block}
+
+/* ── SHARE BUTTON ── */
+.share-btn-wrap{margin-bottom:10px}
+.btn-share{background:linear-gradient(135deg,#6c5ce7,#a855f7);color:#fff;box-shadow:0 4px 14px rgba(108,92,231,.3)}
+.btn-share:hover{box-shadow:0 6px 22px rgba(108,92,231,.45)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:16px;padding-top:64px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .sl-row{grid-template-columns:1fr 1fr}
+  .mob-btn{display:flex!important}
+  .ad-row-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .stats{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .sl-row{grid-template-columns:1fr}
+  .modal{max-height:95vh}
+  .banner-item{flex-wrap:wrap}
+  .ad-row-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="gload"><div class="gl-ring"></div><div class="gl-txt">Please wait…</div></div>
+<div id="tc"></div>
+<button class="mob-btn" onclick="toggleSb()" aria-label="Menu">☰</button>
+<div class="sb-ov" id="sb-ov" onclick="closeSb()"></div>
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-hd">
+      <div class="login-brand">⭐</div>
+      <div class="login-title">Wanza Admin</div>
+      <div class="login-sub">Marketing Panel v7</div>
+    </div>
+    <div class="login-err" id="login-err"></div>
+    <div class="diag-banner" id="diag-banner">
+      <strong>⚠️ "Failed to fetch" Fix:</strong>
+      <ol class="diag-steps">
+        <li>script.google.com → your project → Deploy → Manage deployments</li>
+        <li>Create <strong>NEW deployment</strong></li>
+        <li>Set <strong>"Who has access" = Anyone</strong></li>
+        <li>Copy new <code>/exec</code> URL below</li>
+      </ol>
+    </div>
+    <div class="fg" style="margin-bottom:13px">
+      <label class="lbl">Username</label>
+      <input class="inp" id="l-user" type="text" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="fg" style="margin-bottom:18px">
+      <label class="lbl">Password</label>
+      <input class="inp" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-pri btn-full" id="l-btn" onclick="doLogin()" style="height:48px;font-size:14px">🔐 Sign In</button>
+    <div class="l-sep"></div>
+    <div class="fg" style="margin-bottom:10px">
+      <label class="lbl">Apps Script URL</label>
+      <input class="inp" id="l-gas" type="url" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:12px;font-family:monospace">
+    </div>
+    <button class="btn btn-ghost btn-sm btn-full" onclick="saveGasUrl()">💾 Save URL &amp; Test</button>
+    <p class="l-hint" style="margin-top:12px">Default: admin / wanza2024</p>
+  </div>
+</div>
+
+<!-- ══ APP ══════════════════════════════════════════════════════ -->
+<div id="app">
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-brand">
+        <div class="sb-logo-icon">⭐</div>
+        <div><h2>Wanza</h2><p>Admin v7</p></div>
+      </div>
+    </div>
+    <span class="sb-section">Main</span>
+    <button class="nav-btn on"  onclick="nav('dash')"      id="nb-dash">📊 Dashboard</button>
+    <button class="nav-btn"     onclick="nav('clients')"   id="nb-clients">🏢 Clients</button>
+    <button class="nav-btn"     onclick="nav('add')"       id="nb-add">➕ Add Client</button>
+    <span class="sb-section">Data</span>
+    <button class="nav-btn"     onclick="nav('reviews')"   id="nb-reviews">⭐ Reviews</button>
+    <button class="nav-btn"     onclick="nav('analytics')" id="nb-analytics">📈 Analytics</button>
+    <span class="sb-section">Marketing</span>
+    <button class="nav-btn"     onclick="nav('banners')"   id="nb-banners">🔥 Offer Banners</button>
+    <button class="nav-btn"     onclick="nav('ads')"       id="nb-ads">📢 Advertisements</button>
+    <span class="sb-section">Config</span>
+    <button class="nav-btn"     onclick="nav('settings')"  id="nb-settings">⚙️ Settings</button>
+    <button class="nav-btn"     onclick="nav('diag')"      id="nb-diag">🔧 Diagnostics</button>
+    <div class="sb-bottom">
+      <div class="conn-pill cp-wait" id="conn-pill">⏳ Checking…</div>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()" style="width:100%;justify-content:center;margin-top:6px">🚪 Logout</button>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- ═══ DASHBOARD ═══════════════════════════════════════════ -->
+    <div class="panel on" id="panel-dash">
+      <div class="topbar">
+        <div class="tb-title">📊 Dashboard</div>
+        <div class="tb-acts">
+          <span id="dash-date" style="font-size:12px;color:var(--txt2)"></span>
+          <button class="btn btn-ghost btn-sm" onclick="loadDash()">🔄 Refresh</button>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-ico">🏢</div><div class="stat-n" id="s-cl">–</div><div class="stat-l">Clients</div></div>
+        <div class="stat"><div class="stat-ico">👁️</div><div class="stat-n" id="s-vi">–</div><div class="stat-l">Visits</div></div>
+        <div class="stat"><div class="stat-ico">⭐</div><div class="stat-n" id="s-rv">–</div><div class="stat-l">Review Redirects</div></div>
+        <div class="stat"><div class="stat-ico">🌐</div><div class="stat-n" id="s-so">–</div><div class="stat-l">Social Clicks</div></div>
+        <div class="stat"><div class="stat-ico">📋</div><div class="stat-n" id="s-cp">–</div><div class="stat-l">Copy Actions</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+        <div class="card">
+          <div class="card-hd"><span class="card-tt">🏆 Top Clients by Visits</span></div>
+          <div class="card-bd" id="top-cl"><div class="empty"><div class="empty-ic">⏳</div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><span class="card-tt">📱 Social Platform Clicks</span></div>
+          <div class="card-bd" id="top-so"><div class="empty"><div class="empty-ic">⏳</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CLIENTS ══════════════════════════════════════════════ -->
+    <div class="panel" id="panel-clients">
+      <div class="topbar">
+        <div class="tb-title">🏢 All Clients</div>
+        <div class="tb-acts">
+          <button class="btn btn-pri btn-sm" onclick="nav('add')">➕ Add Client</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadClients()">🔄</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-bd" style="padding:0">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Logo</th><th>Name</th><th>Type</th><th>Contact</th><th>QR / Share</th><th>Actions</th></tr></thead>
+              <tbody id="cl-tbody"><tr><td colspan="6" style="text-align:center;padding:28px;color:var(--txt2)">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ADD / EDIT CLIENT ════════════════════════════════════ -->
+    <div class="panel" id="panel-add">
+      <div class="topbar">
+        <div class="tb-title" id="form-title">➕ Add Client</div>
+        <button class="btn btn-ghost btn-sm" onclick="resetForm()">✕ Clear</button>
+      </div>
+      <input type="hidden" id="edit-id">
+
+      <!-- Business Details -->
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">📝 Business Details</span></div>
+        <div class="card-bd">
+          <div class="form-grid">
+            <div class="fg"><label class="lbl">Business Name *</label><input class="inp" id="c-nm" placeholder="ABC Restaurant"></div>
+            <div class="fg"><label class="lbl">Business Type</label><input class="inp" id="c-ty" placeholder="Restaurant, Salon…"></div>
+            <div class="fg"><label class="lbl">Phone</label><input class="inp" id="c-ph" type="tel" placeholder="+91 98765 43210"></div>
+            <div class="fg"><label class="lbl">WhatsApp Number</label><input class="inp" id="c-wa" type="tel" placeholder="+91 98765 43210"></div>
+            <div class="fg"><label class="lbl">Email</label><input class="inp" id="c-em" type="email" placeholder="info@business.com"></div>
+            <div class="fg fg-full"><label class="lbl">Address</label><input class="inp" id="c-ad" placeholder="Full address with city"></div>
+            <div class="fg fg-full"><label class="lbl">Google Review Link</label><input class="inp" id="c-gl" placeholder="https://g.page/r/…/review"></div>
+            <!-- FIX: Payment Link field -->
+            <div class="fg fg-full"><label class="lbl">💳 Payment Link (UPI / Razorpay / Custom)</label><input class="inp" id="c-pl" placeholder="https://razorpay.com/… or upi://pay?pa=..."></div>
+            <div class="fg fg-full"><label class="lbl">Description</label><textarea class="ta" id="c-ds" placeholder="Brief business description…"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logo Upload -->
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">🖼️ Business Logo</span></div>
+        <div class="card-bd">
+          <div class="form-grid">
+            <div class="fg">
+              <label class="lbl">📤 Upload Image File</label>
+              <div class="img-upload-wrap" id="logo-upload-wrap"
+                ondragover="this.classList.add('drag');event.preventDefault()"
+                ondragleave="this.classList.remove('drag')"
+                ondrop="handleLogoDrop(event)">
+                <input type="file" class="img-upload-input" id="logo-file-input"
+                  accept="image/*" capture="environment"
+                  onchange="handleLogoFile(this.files[0])">
+                <img id="logo-preview-img" class="img-preview" style="display:none" alt="Preview">
+                <span class="img-upload-ico" id="logo-ico">📷</span>
+                <div class="img-upload-txt">Tap to upload or take photo</div>
+                <div class="img-upload-sub">JPG, PNG, WebP • Max 5MB</div>
+                <div class="upload-progress" id="logo-progress">
+                  <div class="upload-progress-bar" id="logo-progress-bar"></div>
+                </div>
+              </div>
+            </div>
+            <div class="fg" style="align-self:flex-start">
+              <label class="lbl">🔗 Or Paste Image URL</label>
+              <input class="inp" id="c-lo" placeholder="https://…/logo.png" oninput="previewLogoUrl(this.value)">
+              <small style="color:var(--txt2);font-size:11px;margin-top:5px;display:block">
+                Direct image URL (Drive, Imgur, etc.)
+              </small>
+              <!-- FIX: Image troubleshooting note -->
+              <small style="color:var(--org1);font-size:11px;margin-top:4px;display:block">
+                ⚠️ For Google Drive: use lh3.googleusercontent.com/d/FILE_ID format
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Social Links -->
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-tt">🌐 Social Media Links</span>
+          <button class="btn btn-ghost btn-sm" onclick="addSlRow()">➕ Add</button>
+        </div>
+        <div class="card-bd">
+          <div id="sl-builder"></div>
+          <p style="font-size:11px;color:var(--txt2);margin-top:8px">Icon URL खाली छोड़ें — emoji auto-use होगा</p>
+        </div>
+      </div>
+
+      <!-- Review Templates -->
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-tt">📝 Review Templates</span>
+          <button class="btn btn-ghost btn-sm" onclick="addRvRow()">➕ Add</button>
+        </div>
+        <div class="card-bd">
+          <div id="rv-builder"></div>
+          <p style="font-size:11px;color:var(--txt2);margin-top:8px">4-5 star rating पर customers को ये दिखेंगे</p>
+        </div>
+      </div>
+
+      <!-- ── ADS FOR THIS CLIENT ── -->
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-tt">📢 Client Advertisements</span>
+          <button class="btn btn-ghost btn-sm" onclick="addAdRow()">➕ Add Ad</button>
+        </div>
+        <div class="card-bd">
+          <div id="ad-builder"></div>
+          <p style="font-size:11px;color:var(--txt2);margin-top:8px">Images/videos as ads shown in customer profile carousel</p>
+        </div>
+      </div>
+
+      <button class="btn btn-ok btn-full" id="save-btn" onclick="saveClient()"
+        style="font-size:15px;height:54px;border-radius:var(--r2)">💾 Save Client</button>
+    </div>
+
+    <!-- ═══ REVIEWS ═══════════════════════════════════════════════ -->
+    <div class="panel" id="panel-reviews">
+      <div class="topbar"><div class="tb-title">⭐ Review Templates</div></div>
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">Client Select करें</span></div>
+        <div class="card-bd">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="fg" style="flex:1;min-width:180px">
+              <label class="lbl">Client</label>
+              <select class="sel" id="rv-sel" onchange="loadRvs()">
+                <option value="">— Client चुनें —</option>
+              </select>
+            </div>
+            <button class="btn btn-warn btn-sm" onclick="resetUsed()">🔄 Reset Used</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-tt">Review List</span>
+          <button class="btn btn-pri btn-sm" onclick="openAddRv()">➕ Add Review</button>
+        </div>
+        <div class="card-bd" id="rv-list-wrap">
+          <div class="empty"><div class="empty-ic">👆</div><div class="empty-tx">ऊपर client select करें</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ANALYTICS ════════════════════════════════════════════ -->
+    <div class="panel" id="panel-analytics">
+      <div class="topbar">
+        <div class="tb-title">📈 Analytics</div>
+        <button class="btn btn-ghost btn-sm" onclick="loadAnalytics()">🔄 Refresh</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-ico">👁️</div><div class="stat-n" id="a-vi">–</div><div class="stat-l">Visits</div></div>
+        <div class="stat"><div class="stat-ico">⭐</div><div class="stat-n" id="a-rv">–</div><div class="stat-l">Review Redirects</div></div>
+        <div class="stat"><div class="stat-ico">🌐</div><div class="stat-n" id="a-so">–</div><div class="stat-l">Social Clicks</div></div>
+        <div class="stat"><div class="stat-ico">📋</div><div class="stat-n" id="a-cp">–</div><div class="stat-l">Copies</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">Client Performance</span></div>
+        <div class="card-bd" style="padding:0">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Client</th><th>Visits</th><th>Reviews</th><th>Social</th><th>Copies</th><th>Total</th></tr></thead>
+              <tbody id="an-tbody"><tr><td colspan="6" style="text-align:center;padding:28px;color:var(--txt2)">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ BANNERS ═══════════════════════════════════════════════ -->
+    <div class="panel" id="panel-banners">
+      <div class="topbar">
+        <div class="tb-title">🔥 Offer Banners</div>
+        <button class="btn btn-pri btn-sm" onclick="openAddBanner()">➕ Add Banner</button>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">📱 Banner Preview</span></div>
+        <div class="card-bd">
+          <div id="banner-preview-box" style="border-radius:var(--r2);overflow:hidden;font-size:13px;font-weight:600;padding:12px 16px;background:linear-gradient(135deg,#ff6a00,#ff9f00);color:#fff;text-align:center">
+            🔥 Add a banner to see preview here!
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">All Banners</span></div>
+        <div class="card-bd" id="banner-list-wrap">
+          <div class="empty"><div class="empty-ic">🔥</div><div class="empty-tx">No banners yet. Add one above!</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ADS PANEL (NEW) ═══════════════════════════════════════ -->
+    <div class="panel" id="panel-ads">
+      <div class="topbar">
+        <div class="tb-title">📢 Advertisements</div>
+        <button class="btn btn-pri btn-sm" onclick="openAddAdModal()">➕ Add Ad</button>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">ℹ️ How It Works</span></div>
+        <div class="card-bd" style="font-size:13px;color:var(--txt2);line-height:1.8">
+          Ads are shown as a carousel on the customer profile page.<br>
+          Each ad can have an image/video, title, and a redirect action (link, call, or WhatsApp).<br>
+          Leave <strong>Client</strong> blank to show the ad on ALL client profiles.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-tt">All Ads</span>
+          <div style="display:flex;gap:8px">
+            <select class="sel" id="ad-filter-client" onchange="loadAds()" style="font-size:12px;padding:6px 10px;height:32px">
+              <option value="">All Clients</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="loadAds()">🔄</button>
+          </div>
+        </div>
+        <div class="card-bd" id="ads-list-wrap">
+          <div class="empty"><div class="empty-ic">📢</div><div class="empty-tx">No ads yet. Add one above!</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SETTINGS ══════════════════════════════════════════════ -->
+    <div class="panel" id="panel-settings">
+      <div class="topbar"><div class="tb-title">⚙️ Settings</div></div>
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">🎨 Branding</span></div>
+        <div class="card-bd">
+          <div class="form-grid">
+            <div class="fg"><label class="lbl">Company Name</label><input class="inp" id="s-cn" placeholder="Wanza Marketing"></div>
+            <div class="fg"><label class="lbl">Tagline</label><input class="inp" id="s-tg" placeholder="Grow Your Business…"></div>
+            <div class="fg"><label class="lbl">Phone</label><input class="inp" id="s-ph" placeholder="+91…"></div>
+            <div class="fg"><label class="lbl">Email</label><input class="inp" id="s-em" type="email" placeholder="hello@company.com"></div>
+            <div class="fg fg-full"><label class="lbl">Share Message</label><textarea class="ta" id="s-sm" placeholder="⭐ Great experience!…"></textarea></div>
+          </div>
+          <div style="margin-top:16px">
+            <label class="lbl" style="display:block;margin-bottom:8px">🖼️ Company Logo</label>
+            <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+              <div class="img-upload-wrap" id="comp-logo-wrap" style="width:140px;min-width:140px"
+                ondragover="this.classList.add('drag');event.preventDefault()"
+                ondragleave="this.classList.remove('drag')"
+                ondrop="handleCompLogoDrop(event)">
+                <input type="file" class="img-upload-input" id="comp-logo-input" accept="image/*"
+                  onchange="handleCompLogoFile(this.files[0])">
+                <img id="comp-logo-preview" class="img-preview" style="display:none" alt="">
+                <span class="img-upload-ico" id="comp-ico" style="font-size:1.5rem">🏢</span>
+                <div class="img-upload-txt" style="font-size:11px">Upload Logo</div>
+              </div>
+              <div class="fg" style="flex:1;min-width:150px">
+                <label class="lbl">Or paste URL</label>
+                <input class="inp" id="s-lo" placeholder="https://…/logo.png" oninput="previewCompLogoUrl(this.value)">
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-ok" onclick="saveSettings()" style="margin-top:18px">💾 Save Branding</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">🔗 API Configuration</span></div>
+        <div class="card-bd">
+          <div class="fg" style="margin-bottom:15px">
+            <label class="lbl">Apps Script Web App URL</label>
+            <input class="inp" id="cfg-gas" type="url" placeholder="https://script.google.com/macros/s/…/exec" style="font-family:monospace;font-size:12px">
+            <small style="color:var(--txt2);font-size:11px;margin-top:5px;display:block">
+              ⚠️ Deploy → "Who has access = <strong style="color:var(--org1)">Anyone</strong>" (not "Anyone with Google account")
+            </small>
+          </div>
+          <div class="fg" style="margin-bottom:15px">
+            <label class="lbl">Client Page Base URL</label>
+            <input class="inp" id="cfg-cl" placeholder="https://your-site.pages.dev" style="font-family:monospace;font-size:12px">
+          </div>
+          <button class="btn btn-pri" onclick="saveConfig()">💾 Save &amp; Reconnect</button>
+          <button class="btn btn-ghost" onclick="testConn()" style="margin-left:8px">🔌 Test</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DIAGNOSTICS ═══════════════════════════════════════════ -->
+    <div class="panel" id="panel-diag">
+      <div class="topbar"><div class="tb-title">🔧 Connection Diagnostics</div></div>
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">Step-by-Step Diagnosis</span></div>
+        <div class="card-bd">
+          <p style="color:var(--txt2);font-size:13px;margin-bottom:16px;line-height:1.6">
+            "Failed to fetch" error? नीचे steps follow करें:
+          </p>
+          <div id="diag-log" style="background:#fff8f0;border:1.5px solid var(--bdr2);border-radius:var(--r1);
+            padding:14px;font-family:monospace;font-size:12px;min-height:120px;color:var(--txt2);
+            line-height:1.8;max-height:300px;overflow-y:auto">
+            Ready. Click "Run Diagnostics" to start…
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <button class="btn btn-pri" onclick="runDiag()">▶ Run Diagnostics</button>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('diag-log').textContent='Cleared.'">🗑 Clear</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">📋 Common Fixes</span></div>
+        <div class="card-bd" style="font-size:13px;line-height:1.8;color:var(--txt2)">
+          <p style="margin-bottom:10px"><strong style="color:var(--txt)">Error: "Failed to fetch"</strong></p>
+          <ol style="margin-left:18px;margin-bottom:16px">
+            <li>script.google.com → Deploy → <strong style="color:var(--org1)">New deployment</strong></li>
+            <li>"Who has access" → <strong style="color:var(--grn)">Anyone</strong></li>
+            <li>New <code>/exec</code> URL → Settings में paste करें</li>
+          </ol>
+          <p style="margin-bottom:10px"><strong style="color:var(--txt)">Image Not Showing on Profile</strong></p>
+          <ol style="margin-left:18px;margin-bottom:16px">
+            <li>Upload via admin panel (file upload) — Drive URL auto-generates</li>
+            <li>If using URL: must be a public direct image link</li>
+            <li>Google Drive: File → Share → Anyone with link → Copy file ID → use <code>lh3.googleusercontent.com/d/FILE_ID</code></li>
+          </ol>
+          <p style="margin-bottom:10px"><strong style="color:var(--txt)">Data Not Showing (Address, Type)</strong></p>
+          <ol style="margin-left:18px;margin-bottom:16px">
+            <li>Run <code>initializeSheets()</code> in Apps Script (adds payment_link column)</li>
+            <li>Make sure code.gs is the latest v7 version</li>
+            <li>Re-save the client after update</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div><!-- #app -->
+
+<!-- ══ MODALS ══════════════════════════════════════════════════ -->
+<!-- QR Modal -->
+<div class="modal-ov" id="m-qr">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-tt" id="m-qr-title">📱 QR Code</span><button class="modal-x" onclick="closeModal('m-qr')">✕</button></div>
+    <div class="modal-bd">
+      <div class="qr-box">
+        <p style="font-size:12px;color:var(--txt2);margin-bottom:4px">Scan to open client profile</p>
+        <div id="qr-render"></div>
+        <div class="url-box" id="qr-url-box"></div>
+        <div style="display:flex;gap:8px;margin-top:14px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-pri btn-sm" onclick="copyQrUrl()">📋 Copy URL</button>
+          <button class="btn btn-ghost btn-sm" onclick="dlQr()">⬇️ Download QR</button>
+          <!-- FIX: Share button with Web Share API -->
+          <button class="btn btn-share btn-sm" onclick="shareQrUrl()">📤 Share</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal-ov" id="m-rv">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-tt">➕ Review Template Add करें</span><button class="modal-x" onclick="closeModal('m-rv')">✕</button></div>
+    <div class="modal-bd">
+      <div class="fg"><label class="lbl">Review Text</label>
+        <textarea class="ta" id="new-rv-txt" rows="5" placeholder="Authentic 5-star review template…"></textarea>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('m-rv')">Cancel</button>
+      <button class="btn btn-pri btn-sm" onclick="submitRv()">💾 Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Banner Modal -->
+<div class="modal-ov" id="m-banner">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-tt" id="m-banner-title">🔥 Add Banner</span><button class="modal-x" onclick="closeModal('m-banner')">✕</button></div>
+    <div class="modal-bd">
+      <input type="hidden" id="edit-banner-id">
+      <div class="fg" style="margin-bottom:14px">
+        <label class="lbl">Title / Tag</label>
+        <input class="inp" id="bn-title" placeholder="🎉 Offer, 🔥 New, etc.">
+      </div>
+      <div class="fg" style="margin-bottom:14px">
+        <label class="lbl">Banner Message *</label>
+        <textarea class="ta" id="bn-msg" rows="3" placeholder="🎉 Special offer! Get 20% off this week only. Visit us now!"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div class="fg">
+          <label class="lbl">Background Color</label>
+          <input class="inp" id="bn-bg" type="color" value="#ff6a00" style="height:44px;padding:4px">
+        </div>
+        <div class="fg">
+          <label class="lbl">Text Color</label>
+          <input class="inp" id="bn-tc" type="color" value="#ffffff" style="height:44px;padding:4px">
+        </div>
+      </div>
+      <div class="fg" style="margin-bottom:14px">
+        <label class="lbl">Status</label>
+        <select class="sel" id="bn-en">
+          <option value="TRUE">✅ Enabled (visible to customers)</option>
+          <option value="FALSE">⛔ Disabled (hidden)</option>
+        </select>
+      </div>
+      <div id="bn-preview" style="border-radius:var(--r2);padding:12px 16px;font-size:13px;font-weight:600;margin-top:8px">
+        🔥 Preview will appear here
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('m-banner')">Cancel</button>
+      <button class="btn btn-pri btn-sm" onclick="submitBanner()">💾 Save Banner</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ad Modal (NEW) -->
+<div class="modal-ov" id="m-ad">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-hd"><span class="modal-tt" id="m-ad-title">📢 Add Advertisement</span><button class="modal-x" onclick="closeModal('m-ad')">✕</button></div>
+    <div class="modal-bd">
+      <input type="hidden" id="edit-ad-id">
+      <div class="form-grid">
+        <div class="fg">
+          <label class="lbl">Title</label>
+          <input class="inp" id="ad-title" placeholder="Summer Sale!">
+        </div>
+        <div class="fg">
+          <label class="lbl">Client (optional — blank = all)</label>
+          <select class="sel" id="ad-client">
+            <option value="">All Clients (Global)</option>
+          </select>
+        </div>
+        <div class="fg fg-full">
+          <label class="lbl">📤 Upload Ad Image/Video</label>
+          <div class="img-upload-wrap" id="ad-upload-wrap"
+            ondragover="this.classList.add('drag');event.preventDefault()"
+            ondragleave="this.classList.remove('drag')"
+            ondrop="handleAdDrop(event)">
+            <input type="file" class="img-upload-input" id="ad-file-input"
+              accept="image/*,video/*"
+              onchange="handleAdFile(this.files[0])">
+            <img id="ad-preview-img" class="img-preview" style="display:none" alt="Preview">
+            <span class="img-upload-ico" id="ad-ico">🖼️</span>
+            <div class="img-upload-txt">Tap to upload image or video</div>
+            <div class="img-upload-sub">JPG, PNG, MP4, WebM • Max 10MB</div>
+            <div class="upload-progress" id="ad-progress">
+              <div class="upload-progress-bar" id="ad-progress-bar"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fg fg-full">
+          <label class="lbl">🔗 Or Paste Media URL</label>
+          <input class="inp" id="ad-media-url" placeholder="https://…/ad.jpg" oninput="previewAdUrl(this.value)">
+        </div>
+        <div class="fg">
+          <label class="lbl">Media Type</label>
+          <select class="sel" id="ad-media-type">
+            <option value="image">🖼️ Image</option>
+            <option value="video">🎬 Video</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="lbl">Sort Order</label>
+          <input class="inp" id="ad-sort" type="number" placeholder="1" value="99">
+        </div>
+        <div class="fg fg-full">
+          <label class="lbl">Redirect URL / Phone / WhatsApp Number</label>
+          <input class="inp" id="ad-redirect" placeholder="https://… or +919876543210">
+        </div>
+        <div class="fg">
+          <label class="lbl">Action Type</label>
+          <select class="sel" id="ad-action">
+            <option value="link">🔗 Open Link</option>
+            <option value="call">📞 Call Number</option>
+            <option value="whatsapp">💬 WhatsApp</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="lbl">Status</label>
+          <select class="sel" id="ad-enabled">
+            <option value="TRUE">✅ Enabled</option>
+            <option value="FALSE">⛔ Disabled</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('m-ad')">Cancel</button>
+      <button class="btn btn-pri btn-sm" onclick="submitAd()">💾 Save Ad</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-ov" id="m-conf">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-hd"><span class="modal-tt">⚠️ Confirm Action</span><button class="modal-x" onclick="closeModal('m-conf')">✕</button></div>
+    <div class="modal-bd"><p id="conf-msg" style="color:var(--txt2);font-size:13px;line-height:1.6"></p></div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('m-conf')">Cancel</button>
+      <button class="btn btn-del btn-sm" id="conf-yes">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  WANZA ADMIN v7 — Full JavaScript
+//  ✅ Image upload to Google Drive
+//  ✅ Ads management (CRUD + toggle)
+//  ✅ Payment link per client
+//  ✅ Share button (Web Share API + fallback)
+//  ✅ All data fields mapped correctly
+//  ✅ Banner management
+//  ✅ CORS-safe API
+// ════════════════════════════════════════════════════════════════
+
+// ── CONFIG ────────────────────────────────────────────────────
+var GAS_URL = (function(){
+  try { return localStorage.getItem('wanza_gas_url') || ''; } catch(e){ return ''; }
+})() || 'https://script.google.com/macros/s/AKfycbwm9ef2q-ztEuewaft6khLrYnZoS-UzzYj2CgnNvVzIXI94hv9dD7mQGwfXSJC99H75/exec';
+
+var CLIENT_URL = (function(){
+  try { return localStorage.getItem('wanza_client_url') || ''; } catch(e){ return ''; }
+})() || location.origin;
+
+var ALL_CL = [], EDIT_ID = '', _qrUrl = '';
+
+// ── UTILS ─────────────────────────────────────────────────────
+function esc(s){ if(s===null||s===undefined) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── LOADING ───────────────────────────────────────────────────
+function showLoad(msg){ var el=document.getElementById('gload'); if(el){ el.querySelector('.gl-txt').textContent=msg||'Please wait…'; el.classList.add('show'); } }
+function hideLoad(){ var el=document.getElementById('gload'); if(el) el.classList.remove('show'); }
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg, type, dur){
+  type=type||'info'; dur=dur||3800;
+  var c=document.getElementById('tc');
+  var d=document.createElement('div');
+  var icons={ok:'✅',err:'❌',info:'ℹ️',warn:'⚠️'};
+  d.className='t-item '+type;
+  d.innerHTML='<span>'+icons[type]+'</span><span style="flex:1">'+esc(msg)+'</span>';
+  c.appendChild(d);
+  requestAnimationFrame(function(){ d.classList.add('show'); });
+  setTimeout(function(){ d.classList.remove('show'); setTimeout(function(){ d.remove(); },400); }, dur);
+}
+
+// ── MODALS ────────────────────────────────────────────────────
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function confirmDlg(msg, cb){
+  document.getElementById('conf-msg').textContent=msg;
+  document.getElementById('conf-yes').onclick=function(){ closeModal('m-conf'); cb(); };
+  openModal('m-conf');
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────────
+function toggleSb(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sb-ov').classList.toggle('show'); }
+function closeSb(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sb-ov').classList.remove('show'); }
+
+// ── PANEL NAV ─────────────────────────────────────────────────
+function nav(id){
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('on'); });
+  var p=document.getElementById('panel-'+id), b=document.getElementById('nb-'+id);
+  if(p) p.classList.add('on');
+  if(b) b.classList.add('on');
+  if(id==='dash')     loadDash();
+  if(id==='clients')  loadClients();
+  if(id==='analytics')loadAnalytics();
+  if(id==='reviews')  fillRvSel();
+  if(id==='banners')  loadBanners();
+  if(id==='ads')      { loadAds(); fillAdClientSel(); }
+  if(id==='settings') loadSettings();
+  if(id==='add' && !EDIT_ID) resetForm();
+  closeSb();
+}
+
+// ── CORE API ──────────────────────────────────────────────────
+function apiGet(action, params, retries){
+  retries=retries===undefined?2:retries;
+  if(!GAS_URL) return Promise.reject(new Error('GAS URL not configured. Settings में URL save करें'));
+  var url=GAS_URL+'?action='+encodeURIComponent(action);
+  if(params) Object.keys(params).forEach(function(k){
+    if(params[k]!==undefined&&params[k]!==null) url+='&'+encodeURIComponent(k)+'='+encodeURIComponent(params[k]);
+  });
+  return fetch(url,{method:'GET'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status+' '+r.statusText); return r.text(); })
+    .then(function(text){
+      var d; try{ d=JSON.parse(text); }catch(e){ throw new Error('Invalid JSON: '+text.substr(0,80)); }
+      if(d&&d.success===false) throw new Error(d.error||'API error');
+      return d.data!==undefined?d.data:d;
+    })
+    .catch(function(e){
+      if(retries>0) return new Promise(function(r){ setTimeout(r,1500); }).then(function(){ return apiGet(action,params,retries-1); });
+      throw e;
+    });
+}
+
+function apiPost(action, body, retries){
+  retries=retries===undefined?1:retries;
+  if(!GAS_URL) return Promise.reject(new Error('GAS URL not configured'));
+  var payload=Object.assign({action:action},body||{});
+  return fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload),redirect:'follow'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status+' '+r.statusText); return r.text(); })
+    .then(function(text){
+      var d; try{ d=JSON.parse(text); }catch(e){ throw new Error('Invalid JSON'); }
+      if(d&&d.success===false) throw new Error(d.error||'API error');
+      return d.data!==undefined?d.data:d;
+    })
+    .catch(function(e){
+      if(retries>0) return new Promise(function(r){ setTimeout(r,1800); }).then(function(){ return apiPost(action,body,retries-1); });
+      throw e;
+    });
+}
+
+function api(action, data){
+  var GET=['ping','getClient','getAllClients','getSocialLinks','getSettings','getRandomReview','getReviews','getDashboard','initSheets','getBanners','getAllBanners','getAds','getAllAds','getClientFull'];
+  return GET.indexOf(action)>=0?apiGet(action,data||{}):apiPost(action,data||{});
+}
+
+// ── IMAGE UPLOAD TO GOOGLE DRIVE ─────────────────────────────
+function uploadFileToDrive(file, progressEl, barEl, previewEl, icoEl){
+  return new Promise(function(resolve, reject){
+    if(!file) return reject(new Error('No file selected'));
+    if(file.size>10*1024*1024){ toast('File too large! Max 10MB.','err'); return reject(new Error('Too large')); }
+    var isImage=file.type.startsWith('image/'), isVideo=file.type.startsWith('video/');
+    if(!isImage&&!isVideo){ toast('Please select an image or video file.','err'); return reject(new Error('Not media')); }
+
+    // Show local preview for images
+    if(isImage){
+      var reader=new FileReader();
+      reader.onload=function(ev){
+        if(previewEl){ previewEl.src=ev.target.result; previewEl.style.display='block'; }
+        if(icoEl) icoEl.style.display='none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    var b64reader=new FileReader();
+    if(progressEl) progressEl.style.display='block';
+    b64reader.onloadstart=function(){ if(barEl) barEl.style.width='10%'; };
+    b64reader.onprogress=function(ev){ if(barEl&&ev.lengthComputable) barEl.style.width=Math.round(ev.loaded/ev.total*60)+'%'; };
+    b64reader.onload=function(ev){
+      if(barEl) barEl.style.width='70%';
+      var base64=ev.target.result.split(',')[1];
+      var fileName='wanza_'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+
+      apiPost('uploadImage',{fileName:fileName,fileData:base64,mimeType:file.type})
+        .then(function(d){
+          if(barEl) barEl.style.width='100%';
+          setTimeout(function(){ if(progressEl) progressEl.style.display='none'; if(barEl) barEl.style.width='0'; },600);
+          toast('Image uploaded! ✅','ok');
+          resolve(d.url);
+        })
+        .catch(function(e){
+          if(progressEl) progressEl.style.display='none';
+          toast('Upload failed: '+e.message,'err');
+          reject(e);
+        });
+    };
+    b64reader.readAsDataURL(file);
+  });
+}
+
+// ── LOGO UPLOAD (CLIENT FORM) ─────────────────────────────────
+var _logoUploadUrl='';
+function handleLogoFile(file){
+  if(!file) return;
+  uploadFileToDrive(file,document.getElementById('logo-progress'),document.getElementById('logo-progress-bar'),document.getElementById('logo-preview-img'),document.getElementById('logo-ico'))
+    .then(function(url){ _logoUploadUrl=url; document.getElementById('c-lo').value=url; }).catch(function(){});
+}
+function handleLogoDrop(e){
+  e.preventDefault(); document.getElementById('logo-upload-wrap').classList.remove('drag');
+  var file=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];
+  if(file) handleLogoFile(file);
+}
+function previewLogoUrl(url){
+  var img=document.getElementById('logo-preview-img'), ico=document.getElementById('logo-ico');
+  if(url&&url.startsWith('http')){ img.src=url; img.style.display='block'; ico.style.display='none'; }
+  else{ img.style.display='none'; ico.style.display='block'; }
+}
+
+// ── COMPANY LOGO UPLOAD (SETTINGS) ───────────────────────────
+var _compLogoUrl='';
+function handleCompLogoFile(file){
+  if(!file) return;
+  uploadFileToDrive(file,null,null,document.getElementById('comp-logo-preview'),document.getElementById('comp-ico'))
+    .then(function(url){ _compLogoUrl=url; document.getElementById('s-lo').value=url; }).catch(function(){});
+}
+function handleCompLogoDrop(e){
+  e.preventDefault(); document.getElementById('comp-logo-wrap').classList.remove('drag');
+  var file=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];
+  if(file) handleCompLogoFile(file);
+}
+function previewCompLogoUrl(url){
+  var img=document.getElementById('comp-logo-preview'), ico=document.getElementById('comp-ico');
+  if(url&&url.startsWith('http')){ img.src=url; img.style.display='block'; ico.style.display='none'; }
+  else{ img.style.display='none'; ico.style.display='block'; }
+}
+
+// ── AD MEDIA UPLOAD ───────────────────────────────────────────
+var _adUploadUrl='';
+function handleAdFile(file){
+  if(!file) return;
+  // auto-set media type
+  if(file.type.startsWith('video/')) document.getElementById('ad-media-type').value='video';
+  else document.getElementById('ad-media-type').value='image';
+
+  uploadFileToDrive(file,document.getElementById('ad-progress'),document.getElementById('ad-progress-bar'),document.getElementById('ad-preview-img'),document.getElementById('ad-ico'))
+    .then(function(url){ _adUploadUrl=url; document.getElementById('ad-media-url').value=url; }).catch(function(){});
+}
+function handleAdDrop(e){
+  e.preventDefault(); document.getElementById('ad-upload-wrap').classList.remove('drag');
+  var file=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];
+  if(file) handleAdFile(file);
+}
+function previewAdUrl(url){
+  var img=document.getElementById('ad-preview-img'), ico=document.getElementById('ad-ico');
+  if(url&&url.startsWith('http')){ img.src=url; img.style.display='block'; ico.style.display='none'; }
+  else{ img.style.display='none'; ico.style.display='block'; }
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────
+function doLogin(){
+  var user=(document.getElementById('l-user').value||'').trim();
+  var pass=(document.getElementById('l-pass').value||'').trim();
+  var errEl=document.getElementById('login-err'), btn=document.getElementById('l-btn');
+  if(!user||!pass){ errEl.textContent='Username and password required.'; errEl.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='⏳ Signing in…';
+  errEl.style.display='none';
+  apiPost('adminLogin',{username:user,password:pass})
+    .then(function(d){
+      if(d&&d.authenticated){
+        document.getElementById('login-screen').style.display='none';
+        document.getElementById('app').style.display='block';
+        loadDash(); testConn();
+        document.getElementById('dash-date').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+      } else { throw new Error('Unexpected response'); }
+    })
+    .catch(function(e){
+      btn.disabled=false; btn.textContent='🔐 Sign In';
+      var msg=e.message||'Login failed';
+      if(msg.indexOf('fetch')>-1||msg.indexOf('Failed')>-1){
+        document.getElementById('diag-banner').classList.add('show');
+        errEl.textContent='Connection failed. Check the GAS URL below and try again.';
+      } else { errEl.textContent=msg; document.getElementById('diag-banner').classList.remove('show'); }
+      errEl.style.display='block';
+    });
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
+
+function saveGasUrl(){
+  var gas=(document.getElementById('l-gas').value||'').trim();
+  if(gas){ localStorage.setItem('wanza_gas_url',gas); GAS_URL=gas; }
+  toast('URL saved! Testing…','ok'); setTimeout(testConn,300);
+}
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  toast('Logged out.','info');
+}
+
+// ── CONNECTION TEST ───────────────────────────────────────────
+function testConn(){
+  var pill=document.getElementById('conn-pill');
+  if(pill){ pill.className='conn-pill cp-wait'; pill.textContent='⏳ Checking…'; }
+  apiGet('ping')
+    .then(function(){ if(pill){ pill.className='conn-pill cp-ok'; pill.textContent='✅ Connected'; } })
+    .catch(function(){ if(pill){ pill.className='conn-pill cp-err'; pill.textContent='❌ Disconnected'; } });
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+function loadDash(){
+  ['s-cl','s-vi','s-rv','s-so','s-cp'].forEach(function(id){
+    var e=document.getElementById(id); if(e) e.innerHTML='<span class="spin"></span>';
+  });
+  api('getDashboard')
+    .then(function(d){
+      var t=d.totals||{};
+      animNum(document.getElementById('s-cl'),t.clients);
+      animNum(document.getElementById('s-vi'),t.visits);
+      animNum(document.getElementById('s-rv'),t.reviews);
+      animNum(document.getElementById('s-so'),t.social);
+      animNum(document.getElementById('s-cp'),t.copies);
+      var en=d.enriched||[];
+      var topCl=document.getElementById('top-cl');
+      if(!en.length){ topCl.innerHTML='<div class="empty"><div class="empty-ic">📊</div><div class="empty-tx">No data yet</div></div>'; }
+      else{
+        var maxV=Math.max.apply(null,en.map(function(c){ return Number(c.total_visits)||0; }))||1;
+        topCl.innerHTML=en.slice(0,5).map(function(c){
+          var v=Number(c.total_visits)||0;
+          return '<div class="pbar-wrap"><div style="min-width:110px;font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(c.client_name)+'</div>'
+            +'<div class="pbar"><div class="pbar-fill" style="width:'+Math.round(v/maxV*100)+'%"></div></div>'
+            +'<div style="min-width:40px;text-align:right;font-size:12px;font-weight:700;color:var(--org1)">'+v+'</div></div>';
+        }).join('');
+      }
+      var sc=d.socialClicks||{};
+      var topSo=document.getElementById('top-so');
+      var scEntries=Object.entries(sc).sort(function(a,b){ return b[1]-a[1]; }).slice(0,5);
+      if(!scEntries.length){ topSo.innerHTML='<div class="empty"><div class="empty-ic">📱</div><div class="empty-tx">No social clicks yet</div></div>'; }
+      else{
+        var maxS=Math.max.apply(null,scEntries.map(function(e){ return e[1]; }))||1;
+        topSo.innerHTML=scEntries.map(function(e){
+          return '<div class="pbar-wrap"><div style="min-width:90px;font-size:12px;font-weight:600">'+esc(e[0])+'</div>'
+            +'<div class="pbar"><div class="pbar-fill" style="width:'+Math.round(e[1]/maxS*100)+'%"></div></div>'
+            +'<div style="min-width:30px;text-align:right;font-size:12px;font-weight:700;color:var(--org1)">'+e[1]+'</div></div>';
+        }).join('');
+      }
+    })
+    .catch(function(e){ toast('Dashboard failed: '+e.message,'err'); });
+}
+
+function animNum(el,n){
+  if(!el) return; n=Number(n)||0;
+  var dur=800,steps=40,step=0;
+  var interval=setInterval(function(){
+    step++; el.textContent=Math.round(n*step/steps);
+    if(step>=steps){ el.textContent=n; clearInterval(interval); }
+  },dur/steps);
+}
+
+// ── CLIENTS ───────────────────────────────────────────────────
+function loadClients(){
+  var tbody=document.getElementById('cl-tbody');
+  tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--txt2)"><span class="spin"></span> Loading…</td></tr>';
+  api('getAllClients')
+    .then(function(d){
+      ALL_CL=Array.isArray(d)?d:[];
+      if(!ALL_CL.length){
+        tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--txt2)"><div class="empty-ic">🏢</div><br>No clients yet. Click "Add Client"!</td></tr>';
+        return;
+      }
+      tbody.innerHTML=ALL_CL.map(function(c){
+        var av=c.logo_url
+          ?'<img class="cl-av" src="'+esc(c.logo_url)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+          :'<div style="width:36px;height:36px;border-radius:var(--r1);background:linear-gradient(135deg,var(--org1),var(--org2));display:flex;align-items:center;justify-content:center;font-size:1rem">🏢</div>';
+        return '<tr>'
+          +'<td>'+av+'</td>'
+          +'<td style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(c.name)+'</td>'
+          +'<td><span class="badge b-org">'+esc(c.business_type||'—')+'</span></td>'
+          +'<td style="font-size:12px;color:var(--txt2)">'+esc(c.phone||c.email||'—')+'</td>'
+          +'<td><div style="display:flex;gap:4px;flex-wrap:wrap">'
+          +'<button class="btn btn-ghost btn-sm" onclick="openQr(\''+esc(c.client_id)+'\',\''+esc(c.name)+'\')">📱 QR</button>'
+          +'<button class="btn btn-share btn-sm" onclick="shareClientUrl(\''+esc(c.client_id)+'\',\''+esc(c.name)+'\')">📤</button>'
+          +'</div></td>'
+          +'<td><div style="display:flex;gap:5px;flex-wrap:wrap">'
+          +'<button class="btn btn-warn btn-sm" onclick="editClient(\''+esc(c.client_id)+'\')">✏️</button>'
+          +'<button class="btn btn-del btn-sm" onclick="delClient(\''+esc(c.client_id)+'\',\''+esc(c.name)+'\')">🗑️</button>'
+          +'</div></td></tr>';
+      }).join('');
+    })
+    .catch(function(e){ tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--red)">❌ Load failed: '+esc(e.message)+'</td></tr>'; });
+}
+
+// ── QR CODE ───────────────────────────────────────────────────
+function openQr(clientId, name){
+  var url=CLIENT_URL+'/index.html?client_id='+encodeURIComponent(clientId);
+  _qrUrl=url;
+  document.getElementById('m-qr-title').textContent='📱 '+name;
+  document.getElementById('qr-url-box').textContent=url;
+  var qrDiv=document.getElementById('qr-render');
+  qrDiv.innerHTML='';
+  try{ new QRCode(qrDiv,{text:url,width:200,height:200,colorDark:'#ff6a00',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M}); }
+  catch(e){ qrDiv.innerHTML='<p style="color:var(--red)">QR library not loaded.</p>'; }
+  openModal('m-qr');
+}
+function copyQrUrl(){ navigator.clipboard&&navigator.clipboard.writeText(_qrUrl).then(function(){ toast('URL copied!','ok'); }); }
+function dlQr(){
+  var canvas=document.querySelector('#qr-render canvas');
+  if(!canvas){ toast('QR not ready.','err'); return; }
+  var a=document.createElement('a'); a.href=canvas.toDataURL('image/png'); a.download='wanza-qr.png'; a.click();
+}
+
+// ── FIX: Share button using Web Share API + fallback ─────────
+function shareQrUrl(){ doShare(_qrUrl, document.getElementById('m-qr-title').textContent.replace('📱 ','')); }
+
+function shareClientUrl(clientId, name){
+  var url=CLIENT_URL+'/index.html?client_id='+encodeURIComponent(clientId);
+  doShare(url, name);
+}
+
+function doShare(url, name){
+  var text='Check out '+name+' profile 👇\n'+url;
+  if(navigator.share){
+    navigator.share({title:name, text:text, url:url})
+      .then(function(){ toast('Shared!','ok'); })
+      .catch(function(e){ if(e.name!=='AbortError') copyFallback(url); });
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(function(){ toast('Link copied to clipboard! 📋','ok',3000); }).catch(function(){ openWhatsAppShare(text); });
+  } else { openWhatsAppShare(text); }
+}
+
+function openWhatsAppShare(text){
+  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
+  toast('WhatsApp opened!','ok');
+}
+function copyFallback(url){
+  try{
+    var ta=document.createElement('textarea'); ta.value=url;
+    ta.style.cssText='position:fixed;top:-9999px;left:-9999px;opacity:0;';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('URL copied!','ok');
+  } catch(e){ toast('Copy failed. Please copy manually.','err'); }
+}
+
+// ── CLIENT FORM ───────────────────────────────────────────────
+var _slCount=0, _rvCount=0, _adCount_form=0;
+
+function resetForm(){
+  EDIT_ID=''; _logoUploadUrl='';
+  document.getElementById('edit-id').value='';
+  document.getElementById('form-title').textContent='➕ Add Client';
+  document.getElementById('save-btn').textContent='💾 Save Client';
+  ['c-nm','c-ty','c-ph','c-wa','c-em','c-lo','c-ad','c-gl','c-ds','c-pl'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('sl-builder').innerHTML='';
+  document.getElementById('rv-builder').innerHTML='';
+  document.getElementById('ad-builder').innerHTML='';
+  var img=document.getElementById('logo-preview-img'); if(img) img.style.display='none';
+  var ico=document.getElementById('logo-ico'); if(ico) ico.style.display='block';
+  _slCount=0; _rvCount=0; _adCount_form=0;
+  addSlRow(); addRvRow();
+}
+
+function addSlRow(){
+  var i=_slCount++;
+  var d=document.createElement('div');
+  d.className='sl-row'; d.id='sl-'+i;
+  d.innerHTML='<div class="fg"><label class="lbl">Platform Name</label><input class="inp" id="sl-nm-'+i+'" placeholder="Instagram, YouTube…"></div>'
+    +'<div class="fg"><label class="lbl">Profile URL</label><input class="inp" id="sl-ur-'+i+'" type="url" placeholder="https://…"></div>'
+    +'<div class="fg"><label class="lbl">Icon URL (optional)</label><input class="inp" id="sl-ic-'+i+'" placeholder="https://…/icon.png"></div>'
+    +'<div class="fg"><label class="lbl">Followers</label><input class="inp" id="sl-fc-'+i+'" type="number" placeholder="10000"></div>'
+    +'<button class="sl-del" onclick="document.getElementById(\'sl-'+i+'\').remove()">✕</button>';
+  document.getElementById('sl-builder').appendChild(d);
+}
+
+function addRvRow(){
+  var i=_rvCount++;
+  var d=document.createElement('div');
+  d.style.cssText='display:flex;gap:8px;margin-bottom:10px;align-items:flex-start'; d.id='rv-'+i;
+  d.innerHTML='<textarea class="ta" id="rv-tx-'+i+'" rows="2" style="flex:1" placeholder="Write an authentic 5-star review template…"></textarea>'
+    +'<button class="sl-del" style="flex-shrink:0;margin-top:2px" onclick="document.getElementById(\'rv-'+i+'\').remove()">✕</button>';
+  document.getElementById('rv-builder').appendChild(d);
+}
+
+// ── AD ROW IN CLIENT FORM ─────────────────────────────────────
+function addAdRow(data){
+  var i=_adCount_form++;
+  var d=document.createElement('div');
+  d.className='ad-row'; d.id='adr-'+i;
+  d.innerHTML='<div class="ad-row-grid">'
+    +'<div class="fg"><label class="lbl">Ad Title</label><input class="inp" id="adr-tt-'+i+'" value="'+(data&&data.title?esc(data.title):'')+'"></div>'
+    +'<div class="fg"><label class="lbl">Media URL</label>'
+    +'<input class="inp" id="adr-mu-'+i+'" value="'+(data&&data.media_url?esc(data.media_url):'')+'"><small style="color:var(--txt3);font-size:11px">Paste URL or upload below</small></div>'
+    +'<div class="fg"><label class="lbl">Action URL/Phone</label><input class="inp" id="adr-ru-'+i+'" value="'+(data&&data.redirect_url?esc(data.redirect_url):'')+'"></div>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr 40px;gap:8px;margin-top:8px;align-items:end">'
+    +'<div class="fg"><label class="lbl">Type</label><select class="sel" id="adr-mt-'+i+'"><option value="image">Image</option><option value="video">Video</option></select></div>'
+    +'<div class="fg"><label class="lbl">Action</label><select class="sel" id="adr-at-'+i+'"><option value="link">Link</option><option value="call">Call</option><option value="whatsapp">WhatsApp</option></select></div>'
+    +'<div class="fg"><label class="lbl">Sort #</label><input class="inp" id="adr-so-'+i+'" type="number" value="'+(data&&data.sort_order?data.sort_order:'99')+'"></div>'
+    +'<button class="sl-del" onclick="document.getElementById(\'adr-'+i+'\').remove()">✕</button>'
+    +'</div>';
+  document.getElementById('ad-builder').appendChild(d);
+  // Set values if editing
+  if(data){
+    var mt=document.getElementById('adr-mt-'+i); if(mt&&data.media_type) mt.value=data.media_type;
+    var at=document.getElementById('adr-at-'+i); if(at&&data.action_type) at.value=data.action_type;
+  }
+}
+
+function gatherSls(){
+  var rows=document.querySelectorAll('#sl-builder .sl-row');
+  return Array.from(rows).map(function(r){
+    var id=r.id.replace('sl-','');
+    return {
+      platform_name:    (document.getElementById('sl-nm-'+id).value||'').trim(),
+      profile_url:      (document.getElementById('sl-ur-'+id).value||'').trim(),
+      platform_icon_url:(document.getElementById('sl-ic-'+id).value||'').trim(),
+      followers_count:  parseInt(document.getElementById('sl-fc-'+id).value)||0
+    };
+  }).filter(function(r){ return r.platform_name; });
+}
+
+function gatherRvs(){
+  var rows=document.querySelectorAll('#rv-builder [id^="rv-"]');
+  return Array.from(rows).map(function(r){
+    var id=r.id.replace('rv-','');
+    var ta=document.getElementById('rv-tx-'+id);
+    return ta?(ta.value||'').trim():'';
+  }).filter(Boolean);
+}
+
+function gatherAds(){
+  var rows=document.querySelectorAll('#ad-builder [id^="adr-"]');
+  return Array.from(rows).map(function(r){
+    var i=r.id.replace('adr-','');
+    var mu=(document.getElementById('adr-mu-'+i).value||'').trim();
+    if(!mu) return null;
+    return {
+      title:       (document.getElementById('adr-tt-'+i).value||'').trim(),
+      media_url:   mu,
+      media_type:  document.getElementById('adr-mt-'+i).value||'image',
+      redirect_url:(document.getElementById('adr-ru-'+i).value||'').trim(),
+      action_type: document.getElementById('adr-at-'+i).value||'link',
+      sort_order:  parseInt(document.getElementById('adr-so-'+i).value)||99,
+      enabled:     true
+    };
+  }).filter(Boolean);
+}
+
+function saveClient(){
+  var name=(document.getElementById('c-nm').value||'').trim();
+  if(!name){ toast('Business Name required!','err'); return; }
+  var logoUrl=_logoUploadUrl||(document.getElementById('c-lo').value||'').trim();
+  showLoad(EDIT_ID?'Updating client…':'Saving client…');
+
+  var payload={
+    client:{
+      name:               name,
+      business_type:      (document.getElementById('c-ty').value||'').trim(),
+      phone:              (document.getElementById('c-ph').value||'').trim(),
+      whatsapp_number:    (document.getElementById('c-wa').value||'').trim(),
+      email:              (document.getElementById('c-em').value||'').trim(),
+      logo_url:           logoUrl,
+      address:            (document.getElementById('c-ad').value||'').trim(),
+      google_review_link: (document.getElementById('c-gl').value||'').trim(),
+      payment_link:       (document.getElementById('c-pl').value||'').trim(),
+      description:        (document.getElementById('c-ds').value||'').trim()
+    },
+    socialLinks:gatherSls(),
+    reviews:    gatherRvs(),
+    ads:        gatherAds()
+  };
+
+  var action=EDIT_ID
+    ?apiPost('updateClient',{client_id:EDIT_ID,payload:payload})
+    :apiPost('saveClient',  {payload:payload});
+
+  action
+    .then(function(){
+      hideLoad(); toast(EDIT_ID?'Client updated! 🎉':'Client saved! 🎉','ok');
+      EDIT_ID=''; _logoUploadUrl=''; nav('clients');
+    })
+    .catch(function(e){ hideLoad(); toast('Save failed: '+e.message,'err'); });
+}
+
+function editClient(clientId){
+  showLoad('Loading client…');
+  Promise.all([
+    api('getClient',      {client_id:clientId}),
+    api('getSocialLinks', {client_id:clientId}),
+    api('getReviews',     {client_id:clientId}),
+    api('getAllAds',      {client_id:clientId})
+  ]).then(function(r){
+    hideLoad();
+    var c=r[0], sls=r[1], rvs=r[2], ads=r[3];
+    EDIT_ID=clientId; _logoUploadUrl='';
+    document.getElementById('edit-id').value=clientId;
+    document.getElementById('form-title').textContent='✏️ Edit: '+esc(c.name);
+    document.getElementById('save-btn').textContent='💾 Update Client';
+
+    // FIX: Map all fields correctly including new fields
+    var fieldMap={
+      'c-nm':'name','c-ty':'business_type','c-ph':'phone','c-wa':'whatsapp_number',
+      'c-em':'email','c-lo':'logo_url','c-ad':'address','c-gl':'google_review_link',
+      'c-pl':'payment_link','c-ds':'description'
+    };
+    Object.entries(fieldMap).forEach(function(pair){
+      var el=document.getElementById(pair[0]); if(el) el.value=c[pair[1]]||'';
+    });
+
+    // Logo preview
+    if(c.logo_url){
+      var img=document.getElementById('logo-preview-img'), ico=document.getElementById('logo-ico');
+      img.src=c.logo_url; img.style.display='block'; ico.style.display='none';
+    }
+
+    // Social links
+    var slB=document.getElementById('sl-builder'); slB.innerHTML=''; _slCount=0;
+    (Array.isArray(sls)?sls:[]).forEach(function(s){
+      addSlRow(); var i=_slCount-1;
+      document.getElementById('sl-nm-'+i).value=s.platform_name||'';
+      document.getElementById('sl-ur-'+i).value=s.profile_url||'';
+      document.getElementById('sl-ic-'+i).value=s.platform_icon_url||'';
+      document.getElementById('sl-fc-'+i).value=s.followers_count||'';
+    });
+    if(!sls||!sls.length) addSlRow();
+
+    // Reviews
+    var rvB=document.getElementById('rv-builder'); rvB.innerHTML=''; _rvCount=0;
+    (Array.isArray(rvs)?rvs:[]).forEach(function(rv){
+      addRvRow(); var i=_rvCount-1;
+      var ta=document.getElementById('rv-tx-'+i); if(ta) ta.value=rv.review_text||'';
+    });
+    if(!rvs||!rvs.length) addRvRow();
+
+    // Ads
+    var adB=document.getElementById('ad-builder'); adB.innerHTML=''; _adCount_form=0;
+    (Array.isArray(ads)?ads:[]).forEach(function(ad){ addAdRow(ad); });
+
+    nav('add');
+  }).catch(function(e){ hideLoad(); toast('Load failed: '+e.message,'err'); });
+}
+
+function delClient(clientId, name){
+  confirmDlg('Delete "'+name+'" and all their data? This cannot be undone.', function(){
+    showLoad('Deleting…');
+    apiPost('deleteClient',{client_id:clientId})
+      .then(function(){ hideLoad(); toast('"'+name+'" deleted.','ok'); loadClients(); })
+      .catch(function(e){ hideLoad(); toast('Delete failed: '+e.message,'err'); });
+  });
+}
+
+// ── REVIEWS ───────────────────────────────────────────────────
+function fillRvSel(){
+  var sel=document.getElementById('rv-sel'), cur=sel.value;
+  sel.innerHTML='<option value="">— Client चुनें —</option>';
+  var fill=function(clients){
+    clients.forEach(function(c){
+      var o=document.createElement('option'); o.value=c.client_id; o.textContent=c.name;
+      if(c.client_id===cur) o.selected=true;
+      sel.appendChild(o);
+    });
+    if(cur) loadRvs();
+  };
+  if(ALL_CL.length) fill(ALL_CL);
+  else api('getAllClients').then(function(d){ ALL_CL=Array.isArray(d)?d:[]; fill(ALL_CL); }).catch(function(){});
+}
+
+function loadRvs(){
+  var cid=document.getElementById('rv-sel').value, el=document.getElementById('rv-list-wrap');
+  if(!cid){ el.innerHTML='<div class="empty"><div class="empty-ic">👆</div><div class="empty-tx">Client select करें</div></div>'; return; }
+  el.innerHTML='<div class="empty"><span class="spin"></span></div>';
+  api('getReviews',{client_id:cid})
+    .then(function(d){ renderRvs(Array.isArray(d)?d:[]); })
+    .catch(function(e){ el.innerHTML='<div class="empty"><div class="empty-ic">❌</div><div class="empty-tx">'+esc(e.message)+'</div></div>'; });
+}
+
+function renderRvs(rvs){
+  var el=document.getElementById('rv-list-wrap');
+  if(!rvs.length){ el.innerHTML='<div class="empty"><div class="empty-ic">📝</div><div class="empty-tx">No reviews yet.</div></div>'; return; }
+  el.innerHTML=rvs.map(function(r){
+    var used=(r.used===true||String(r.used).toUpperCase()==='TRUE');
+    return '<div class="rv-item"><div class="rv-text">'+esc(r.review_text)
+      +'<div style="margin-top:8px"><span class="badge '+(used?'b-org':'b-grn')+'">'+(used?'Used':'Available')+'</span></div></div>'
+      +'<button class="btn btn-del btn-sm" onclick="delRv(\''+esc(r.review_id)+'\')">🗑️</button></div>';
+  }).join('');
+}
+
+function openAddRv(){
+  if(!document.getElementById('rv-sel').value){ toast('पहले client select करें!','err'); return; }
+  document.getElementById('new-rv-txt').value=''; openModal('m-rv');
+}
+
+function submitRv(){
+  var cid=(document.getElementById('rv-sel').value||'').trim();
+  var text=(document.getElementById('new-rv-txt').value||'').trim();
+  if(!cid){ toast('Client select करें!','err'); return; }
+  if(!text){ toast('Review text required!','err'); return; }
+  apiPost('addReview',{client_id:cid,review_text:text})
+    .then(function(){ toast('Review added!','ok'); closeModal('m-rv'); loadRvs(); })
+    .catch(function(e){ toast('Failed: '+e.message,'err'); });
+}
+
+function delRv(id){
+  confirmDlg('Delete this review template?', function(){
+    apiPost('deleteReview',{review_id:id})
+      .then(function(){ toast('Deleted.','ok'); loadRvs(); })
+      .catch(function(e){ toast('Failed: '+e.message,'err'); });
+  });
+}
+
+function resetUsed(){
+  var cid=document.getElementById('rv-sel').value;
+  if(!cid){ toast('Client select करें!','err'); return; }
+  confirmDlg('All "Used" flags reset करें?', function(){
+    apiPost('resetReviews',{client_id:cid})
+      .then(function(){ toast('Reviews reset!','ok'); loadRvs(); })
+      .catch(function(e){ toast('Failed: '+e.message,'err'); });
+  });
+}
+
+// ── ANALYTICS ─────────────────────────────────────────────────
+function loadAnalytics(){
+  ['a-vi','a-rv','a-so','a-cp'].forEach(function(id){
+    var e=document.getElementById(id); if(e) e.innerHTML='<span class="spin"></span>';
+  });
+  api('getDashboard')
+    .then(function(d){
+      var t=d.totals||{};
+      animNum(document.getElementById('a-vi'),t.visits);
+      animNum(document.getElementById('a-rv'),t.reviews);
+      animNum(document.getElementById('a-so'),t.social);
+      animNum(document.getElementById('a-cp'),t.copies);
+      var en=d.enriched||[], tb=document.getElementById('an-tbody');
+      if(!en.length){ tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--txt2)">No data yet.</td></tr>'; return; }
+      tb.innerHTML=en.map(function(c){
+        var tot=(Number(c.total_visits)||0)+(Number(c.total_reviews_redirected)||0)+(Number(c.total_social_clicks)||0);
+        return '<tr><td style="font-weight:600">'+esc(c.client_name)+'</td><td>'+(c.total_visits||0)+'</td><td>'+(c.total_reviews_redirected||0)+'</td><td>'+(c.total_social_clicks||0)+'</td><td>'+(c.total_copy_clicks||0)+'</td><td><span class="badge b-org">'+tot+'</span></td></tr>';
+      }).join('');
+    })
+    .catch(function(e){ toast('Analytics failed: '+e.message,'err'); });
+}
+
+// ── BANNERS ───────────────────────────────────────────────────
+function loadBanners(){
+  var el=document.getElementById('banner-list-wrap');
+  el.innerHTML='<div class="empty"><span class="spin"></span></div>';
+  api('getAllBanners')
+    .then(function(d){ renderBanners(Array.isArray(d)?d:[]); })
+    .catch(function(e){ el.innerHTML='<div class="empty"><div class="empty-ic">❌</div><div class="empty-tx">'+esc(e.message)+'</div></div>'; });
+}
+
+function renderBanners(banners){
+  var el=document.getElementById('banner-list-wrap');
+  var active=banners.filter(function(b){ return String(b.enabled).toUpperCase()==='TRUE'; });
+  var pBox=document.getElementById('banner-preview-box');
+  if(active.length){
+    pBox.style.background='linear-gradient(135deg,'+esc(active[0].bg_color||'#ff6a00')+','+esc(active[0].bg_color||'#ff9f00')+')';
+    pBox.style.color=active[0].text_color||'#fff';
+    pBox.textContent=active[0].message;
+  } else {
+    pBox.style.background='linear-gradient(135deg,#ff6a00,#ff9f00)';
+    pBox.style.color='#fff';
+    pBox.textContent='🔥 No active banners.';
+  }
+  if(!banners.length){ el.innerHTML='<div class="empty"><div class="empty-ic">🔥</div><div class="empty-tx">No banners yet.</div></div>'; return; }
+  el.innerHTML=banners.map(function(b){
+    var on=String(b.enabled).toUpperCase()==='TRUE';
+    return '<div class="banner-item" id="bni-'+esc(b.banner_id)+'">'
+      +'<div class="banner-color-dot" style="background:'+esc(b.bg_color||'#ff6a00')+'"></div>'
+      +'<div class="banner-preview"><strong>'+esc(b.title||'Offer')+'</strong><span>'+esc(b.message)+'</span></div>'
+      +'<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
+      +'<label class="toggle-switch"><input type="checkbox" '+(on?'checked':'')
+        +' onchange="toggleBanner(\''+esc(b.banner_id)+'\',this.checked)"><span class="toggle-slider"></span></label>'
+      +'<span class="badge '+(on?'b-grn':'b-red')+'">'+(on?'Live':'Off')+'</span>'
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">'
+      +'<button class="btn btn-warn btn-sm" onclick="editBanner('+JSON.stringify(b).replace(/"/g,'&quot;')+')">✏️</button>'
+      +'<button class="btn btn-del btn-sm" onclick="delBanner(\''+esc(b.banner_id)+'\')">🗑️</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+function openAddBanner(){
+  document.getElementById('edit-banner-id').value='';
+  document.getElementById('m-banner-title').textContent='🔥 Add Banner';
+  document.getElementById('bn-title').value='';
+  document.getElementById('bn-msg').value='';
+  document.getElementById('bn-bg').value='#ff6a00';
+  document.getElementById('bn-tc').value='#ffffff';
+  document.getElementById('bn-en').value='TRUE';
+  updateBannerPreview(); openModal('m-banner');
+}
+
+function editBanner(b){
+  document.getElementById('edit-banner-id').value=b.banner_id;
+  document.getElementById('m-banner-title').textContent='✏️ Edit Banner';
+  document.getElementById('bn-title').value=b.title||'';
+  document.getElementById('bn-msg').value=b.message||'';
+  document.getElementById('bn-bg').value=b.bg_color||'#ff6a00';
+  document.getElementById('bn-tc').value=b.text_color||'#ffffff';
+  document.getElementById('bn-en').value=String(b.enabled).toUpperCase()==='TRUE'?'TRUE':'FALSE';
+  updateBannerPreview(); openModal('m-banner');
+}
+
+['bn-msg','bn-bg','bn-tc','bn-title'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el) el.addEventListener('input',updateBannerPreview);
+});
+
+function updateBannerPreview(){
+  var msg=document.getElementById('bn-msg').value||'Your offer message here';
+  var bg=document.getElementById('bn-bg').value||'#ff6a00';
+  var tc=document.getElementById('bn-tc').value||'#ffffff';
+  var pv=document.getElementById('bn-preview');
+  if(pv){ pv.style.background='linear-gradient(135deg,'+bg+','+bg+'dd)'; pv.style.color=tc; pv.textContent=msg; }
+}
+
+function submitBanner(){
+  var msg=(document.getElementById('bn-msg').value||'').trim();
+  if(!msg){ toast('Banner message required!','err'); return; }
+  var bid=document.getElementById('edit-banner-id').value;
+  var banner={
+    title:      (document.getElementById('bn-title').value||'Offer').trim(),
+    message:    msg,
+    bg_color:   document.getElementById('bn-bg').value,
+    text_color: document.getElementById('bn-tc').value,
+    enabled:    document.getElementById('bn-en').value==='TRUE'
+  };
+  showLoad('Saving banner…');
+  var pr=bid?apiPost('updateBanner',{banner_id:bid,banner:banner}):apiPost('saveBanner',{banner:banner});
+  pr.then(function(){ hideLoad(); toast(bid?'Banner updated!':'Banner added!','ok'); closeModal('m-banner'); loadBanners(); })
+    .catch(function(e){ hideLoad(); toast('Failed: '+e.message,'err'); });
+}
+
+function toggleBanner(bannerId, enabled){
+  apiPost('toggleBanner',{banner_id:bannerId,enabled:enabled})
+    .then(function(){ toast(enabled?'Banner enabled! 🔥':'Banner disabled.','ok'); loadBanners(); })
+    .catch(function(e){ toast('Toggle failed: '+e.message,'err'); loadBanners(); });
+}
+
+function delBanner(bannerId){
+  confirmDlg('Delete this banner permanently?', function(){
+    apiPost('deleteBanner',{banner_id:bannerId})
+      .then(function(){ toast('Banner deleted.','ok'); loadBanners(); })
+      .catch(function(e){ toast('Failed: '+e.message,'err'); });
+  });
+}
+
+// ── ADS MANAGEMENT (NEW) ─────────────────────────────────────
+function fillAdClientSel(){
+  var selects=[document.getElementById('ad-client'),document.getElementById('ad-filter-client')];
+  var fill=function(clients){
+    selects.forEach(function(sel){
+      if(!sel) return;
+      var cur=sel.value;
+      // Keep first option
+      while(sel.options.length>1) sel.remove(1);
+      clients.forEach(function(c){
+        var o=document.createElement('option'); o.value=c.client_id; o.textContent=c.name;
+        if(c.client_id===cur) o.selected=true;
+        sel.appendChild(o);
+      });
+    });
+  };
+  if(ALL_CL.length) fill(ALL_CL);
+  else api('getAllClients').then(function(d){ ALL_CL=Array.isArray(d)?d:[]; fill(ALL_CL); }).catch(function(){});
+}
+
+function loadAds(){
+  var el=document.getElementById('ads-list-wrap');
+  if(!el) return;
+  el.innerHTML='<div class="empty"><span class="spin"></span></div>';
+  var cid=(document.getElementById('ad-filter-client')||{}).value||'';
+  api('getAllAds',cid?{client_id:cid}:{})
+    .then(function(d){ renderAdsList(Array.isArray(d)?d:[]); })
+    .catch(function(e){ el.innerHTML='<div class="empty"><div class="empty-ic">❌</div><div class="empty-tx">'+esc(e.message)+'</div></div>'; });
+}
+
+function renderAdsList(ads){
+  var el=document.getElementById('ads-list-wrap');
+  if(!ads.length){ el.innerHTML='<div class="empty"><div class="empty-ic">📢</div><div class="empty-tx">No ads yet.</div></div>'; return; }
+  el.innerHTML=ads.map(function(a){
+    var on=String(a.enabled).toUpperCase()==='TRUE';
+    var thumb=a.media_url
+      ?'<img src="'+esc(a.media_url)+'" style="width:60px;height:60px;object-fit:cover;border-radius:var(--r1);border:1.5px solid var(--bdr2);flex-shrink:0" loading="lazy" onerror="this.style.display=\'none\'">'
+      :'<div style="width:60px;height:60px;background:var(--bdr);border-radius:var(--r1);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">🖼️</div>';
+    return '<div class="banner-item">'
+      +thumb
+      +'<div class="banner-preview"><strong>'+esc(a.title||'Untitled Ad')+'</strong>'
+      +'<span>'+esc(a.action_type||'link')+' → '+esc((a.redirect_url||'').substr(0,40))+'</span></div>'
+      +'<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
+      +'<label class="toggle-switch"><input type="checkbox" '+(on?'checked':'')
+        +' onchange="toggleAd(\''+esc(a.ad_id)+'\',this.checked)"><span class="toggle-slider"></span></label>'
+      +'<span class="badge '+(on?'b-grn':'b-red')+'">'+(on?'Live':'Off')+'</span>'
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">'
+      +'<button class="btn btn-warn btn-sm" onclick="editAdModal('+JSON.stringify(a).replace(/"/g,'&quot;')+')">✏️</button>'
+      +'<button class="btn btn-del btn-sm" onclick="delAd(\''+esc(a.ad_id)+'\')">🗑️</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+function openAddAdModal(){
+  _adUploadUrl='';
+  document.getElementById('edit-ad-id').value='';
+  document.getElementById('m-ad-title').textContent='📢 Add Advertisement';
+  document.getElementById('ad-title').value='';
+  document.getElementById('ad-media-url').value='';
+  document.getElementById('ad-redirect').value='';
+  document.getElementById('ad-action').value='link';
+  document.getElementById('ad-media-type').value='image';
+  document.getElementById('ad-enabled').value='TRUE';
+  document.getElementById('ad-sort').value='99';
+  document.getElementById('ad-client').value='';
+  var img=document.getElementById('ad-preview-img'); if(img) img.style.display='none';
+  var ico=document.getElementById('ad-ico'); if(ico) ico.style.display='block';
+  fillAdClientSel();
+  openModal('m-ad');
+}
+
+function editAdModal(a){
+  _adUploadUrl='';
+  document.getElementById('edit-ad-id').value=a.ad_id;
+  document.getElementById('m-ad-title').textContent='✏️ Edit Advertisement';
+  document.getElementById('ad-title').value=a.title||'';
+  document.getElementById('ad-media-url').value=a.media_url||'';
+  document.getElementById('ad-redirect').value=a.redirect_url||'';
+  document.getElementById('ad-action').value=a.action_type||'link';
+  document.getElementById('ad-media-type').value=a.media_type||'image';
+  document.getElementById('ad-enabled').value=String(a.enabled).toUpperCase()==='TRUE'?'TRUE':'FALSE';
+  document.getElementById('ad-sort').value=a.sort_order||99;
+  fillAdClientSel();
+  setTimeout(function(){ document.getElementById('ad-client').value=a.client_id||''; },200);
+  if(a.media_url) previewAdUrl(a.media_url);
+  openModal('m-ad');
+}
+
+function submitAd(){
+  var mediaUrl=_adUploadUrl||(document.getElementById('ad-media-url').value||'').trim();
+  if(!mediaUrl){ toast('Media URL or upload required!','err'); return; }
+  var adId=document.getElementById('edit-ad-id').value;
+  var ad={
+    client_id:   document.getElementById('ad-client').value||'',
+    title:       (document.getElementById('ad-title').value||'').trim(),
+    media_url:   mediaUrl,
+    media_type:  document.getElementById('ad-media-type').value||'image',
+    redirect_url:(document.getElementById('ad-redirect').value||'').trim(),
+    action_type: document.getElementById('ad-action').value||'link',
+    enabled:     document.getElementById('ad-enabled').value==='TRUE',
+    sort_order:  parseInt(document.getElementById('ad-sort').value)||99
+  };
+  showLoad('Saving ad…');
+  var pr=adId?apiPost('updateAd',{ad_id:adId,ad:ad}):apiPost('saveAd',{ad:ad});
+  pr.then(function(){ hideLoad(); toast(adId?'Ad updated!':'Ad added!','ok'); closeModal('m-ad'); _adUploadUrl=''; loadAds(); })
+    .catch(function(e){ hideLoad(); toast('Failed: '+e.message,'err'); });
+}
+
+function toggleAd(adId, enabled){
+  apiPost('toggleAd',{ad_id:adId,enabled:enabled})
+    .then(function(){ toast(enabled?'Ad enabled!':'Ad disabled.','ok'); loadAds(); })
+    .catch(function(e){ toast('Toggle failed: '+e.message,'err'); loadAds(); });
+}
+
+function delAd(adId){
+  confirmDlg('Delete this advertisement permanently?', function(){
+    apiPost('deleteAd',{ad_id:adId})
+      .then(function(){ toast('Ad deleted.','ok'); loadAds(); })
+      .catch(function(e){ toast('Failed: '+e.message,'err'); });
+  });
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────
+function loadSettings(){
+  document.getElementById('cfg-gas').value=GAS_URL||'';
+  document.getElementById('cfg-cl').value=CLIENT_URL||'';
+  api('getSettings')
+    .then(function(d){
+      document.getElementById('s-cn').value=d.company_name||'';
+      document.getElementById('s-lo').value=d.logo_url||'';
+      document.getElementById('s-tg').value=d.tagline||'';
+      document.getElementById('s-ph').value=d.phone||'';
+      document.getElementById('s-em').value=d.email||'';
+      document.getElementById('s-sm').value=d.share_message||'';
+      if(d.logo_url) previewCompLogoUrl(d.logo_url);
+    })
+    .catch(function(e){ toast('Settings load failed: '+e.message,'err'); });
+}
+
+function saveSettings(){
+  showLoad('Saving settings…');
+  var logoUrl=_compLogoUrl||(document.getElementById('s-lo').value||'').trim();
+  apiPost('saveSettings',{settings:{
+    company_name: (document.getElementById('s-cn').value||'').trim(),
+    logo_url:     logoUrl,
+    tagline:      (document.getElementById('s-tg').value||'').trim(),
+    phone:        (document.getElementById('s-ph').value||'').trim(),
+    email:        (document.getElementById('s-em').value||'').trim(),
+    share_message:(document.getElementById('s-sm').value||'').trim()
+  }})
+  .then(function(){ hideLoad(); toast('Settings saved! 🎉','ok'); _compLogoUrl=''; })
+  .catch(function(e){ hideLoad(); toast('Save failed: '+e.message,'err'); });
+}
+
+function saveConfig(){
+  var gas=(document.getElementById('cfg-gas').value||'').trim();
+  var cl=(document.getElementById('cfg-cl').value||'').trim();
+  if(gas){ localStorage.setItem('wanza_gas_url',gas); GAS_URL=gas; }
+  if(cl){ localStorage.setItem('wanza_client_url',cl); CLIENT_URL=cl; }
+  toast('Config saved! Testing…','ok'); setTimeout(testConn,500);
+}
+
+// ── DIAGNOSTICS ───────────────────────────────────────────────
+function runDiag(){
+  var log=document.getElementById('diag-log');
+  log.textContent='';
+  function append(msg){ log.textContent+=msg+'\n'; log.scrollTop=log.scrollHeight; }
+  append('[1] GAS_URL: '+GAS_URL);
+  append('[2] CLIENT_URL: '+CLIENT_URL);
+  append('[3] Testing ping…');
+  apiGet('ping',{},0)
+    .then(function(d){
+      append('[4] ✅ Ping OK: '+JSON.stringify(d));
+      append('[5] Testing getAllClients…');
+      return api('getAllClients');
+    })
+    .then(function(d){
+      append('[6] ✅ Clients: '+(Array.isArray(d)?d.length:0));
+      append('[7] Testing getAllBanners…');
+      return api('getAllBanners');
+    })
+    .then(function(d){ append('[8] ✅ Banners: '+(Array.isArray(d)?d.length:0)); append('✅ All checks passed!'); })
+    .catch(function(e){ append('❌ Error: '+e.message); append('→ See "Common Fixes" below'); });
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',function(){
+  try{ document.getElementById('l-gas').value=localStorage.getItem('wanza_gas_url')||''; }catch(e){}
+  resetForm();
+});
+</script>
+</body>
+</html>
