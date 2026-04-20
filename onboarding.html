@@ -1491,12 +1491,13 @@ function renderPlans() {
         + '</div>'
         + '<div style="height:22px"></div>';
     } else {
-      // PAID plan — psychological pricing
+      // PAID plan
       priceBlock = '<div class="plan-price-row" style="align-items:flex-end;gap:4px">'
         + '<span class="plan-currency">₹</span>'
         + '<span class="plan-amount">1</span>'
         + '</div>'
         + '<div class="plan-monthly-txt">Then ₹' + p.monthly + '/month</div>';
+    }  // ← THIS CLOSING BRACE WAS MISSING
 
     return '<div class="plan-card ' + p.css + (isSelected ? ' selected' : '') + '" onclick="selectPlan(\'' + p.id + '\')" id="plan-' + p.id + '">'
       + (p.popular ? '<div class="plan-popular">🔥 Most Popular</div>' : '')
@@ -1795,25 +1796,51 @@ function goToAdmin() {
 // ──────────────────────────────────────────────────────────────
 //  INIT
 // ──────────────────────────────────────────────────────────────
-function init() {
+// ── FORCE HIDE: Loader always disappears within 1s no matter what ──
+setTimeout(function() {
   var ls = document.getElementById('ls');
   var pg = document.getElementById('pg');
-  if (ls) { ls.classList.add('out'); setTimeout(function(){ ls.style.display = 'none'; }, 500); }
+  if (ls) { ls.classList.add('out'); ls.style.display = 'none'; }
   if (pg) pg.style.display = 'block';
+}, 1000);
 
-  var sess = loadSession();
-  if (sess && sess.clientId) {
-    STATE.clientId    = sess.clientId;
-    STATE.profileName = sess.profileName || '';
-    // ✅ FIX: Restore paymentStatus from session — don't auto-skip to Step 3
-    STATE.paymentStatus = sess.paymentStatus || '';
-    if (!sess.plan || sess.plan === 'free') {
-      goToStep(2);
+function init() {
+  console.log('Wanza: init() started');
+  try {
+    var ls = document.getElementById('ls');
+    var pg = document.getElementById('pg');
+    if (ls) { ls.classList.add('out'); setTimeout(function(){ ls.style.display = 'none'; }, 500); }
+    if (pg) pg.style.display = 'block';
+
+    var sess = loadSession();
+    console.log('Wanza: session =', sess);
+
+    if (sess && sess.clientId) {
+      STATE.clientId      = sess.clientId;
+      STATE.profileName   = sess.profileName   || '';
+      STATE.paymentStatus = sess.paymentStatus || '';
+      console.log('Wanza: returning user, plan =', sess.plan, '| paymentStatus =', STATE.paymentStatus);
+      if (!sess.plan || sess.plan === 'free') {
+        goToStep(2);
+      }
+    } else {
+      console.log('Wanza: new user, showing Step 1');
+      goToStep(1);   // ← always explicitly land on Step 1
     }
+
+  } catch(e) {
+    console.error('Wanza: init() error —', e);
+    // Fallback: force UI visible so user is never stuck
+    var ls = document.getElementById('ls');
+    var pg = document.getElementById('pg');
+    if (ls) { ls.classList.add('out'); ls.style.display = 'none'; }
+    if (pg) pg.style.display = 'block';
+    goToStep(1);
   }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('Wanza: DOMContentLoaded fired');
   setTimeout(init, 500);
 });
 
