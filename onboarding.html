@@ -1648,7 +1648,7 @@ function checkPaymentReturn() {
   STATE.paymentStatus = 'paid';
   goToStep(3);
   return true;
-
+}
 // ── VERIFY BANNER — jab auto-confirm na ho ─────────────────────
 function showPaymentVerifyBanner(clientId, planId, rzpPaymentId) {
   var sadEl = document.getElementById('sad-banner');
