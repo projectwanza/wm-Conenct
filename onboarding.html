@@ -1150,6 +1150,7 @@ var PLANS = [
   {
     id: 'starter', name: 'STARTER', css: 'starter',
     display: 1, original: 199, monthly: 99,
+     payLink: 'razorpay.me/@ramaltielectronics',
     popular: false, cta: 'Start for ₹1',
     features: [
       { text: 'Digital Profile + QR Code', yes: true  },
@@ -1163,6 +1164,7 @@ var PLANS = [
   {
     id: 'pro', name: 'PRO', css: 'pro',
     display: 1, original: 499, monthly: 249,
+     payLink: 'razorpay.me/@ramaltielectronics',
     popular: true, cta: '🔥 Start Pro for ₹1',
     features: [
       { text: 'Everything in Starter',         yes: true },
@@ -1176,6 +1178,7 @@ var PLANS = [
   {
     id: 'premium', name: 'PREMIUM', css: 'premium',
     display: 1, original: 799, monthly: 399,
+     payLink: 'razorpay.me/@ramaltielectronics',
     popular: false, cta: 'Start for ₹1',
     features: [
       { text: 'Everything in Pro',           yes: true },
@@ -1546,108 +1549,168 @@ function updatePayBtn() {
 // ──────────────────────────────────────────────────────────────
 //  ✅ FIX 2: HANDLE PAYMENT — strict, no demo fallback
 // ──────────────────────────────────────────────────────────────
+// ── PAYMENT LINKS SYSTEM — NAYA handlePayment ──────────────────
 function handlePayment() {
   var plan = PLANS.find(function(p) { return p.id === STATE.selectedPlan; });
   if (!plan) return;
 
-  // Free plan — intentional selection, allowed to go to Step 3
-  // Free plan — skip Razorpay entirely
+  // Free plan — koi payment nahi
   if (plan.id === 'free') {
     savePlan('free', '', 'free');
     return;
   }
 
-  // ✅ FIX 1: Check Razorpay is actually loaded — NO demo simulation
-  if (typeof Razorpay === 'undefined') {
-    toast('⚠️ Payment system not configured. Please contact support.', 'err', 5000);
-    console.error('Razorpay SDK not loaded. Check your internet connection or Razorpay key.');
+  // Check karo payLink configured hai ya nahi
+  if (!plan.payLink || plan.payLink.indexOf('rzp.io') === -1) {
+    toast('⚠️ Payment link configure nahi hua. Support se contact karo.', 'err', 5000);
     return;
   }
 
-  var payBtn = document.getElementById('pay-btn');
-  if (payBtn) { payBtn.disabled = true; payBtn.textContent = '⏳ Opening payment…'; }
-
-  var options = {
-    key:         RAZORPAY_KEY,
-    amount:      100,       // ₹1 = 100 paise
-    currency:    'INR',
-    name:        'Wanza Marketing',
-    description: plan.name + ' Plan — ₹1 Trial',
-    image:       'https://via.placeholder.com/80x80.png?text=W',
-    prefill: {
-      name:    STATE.profileName || '',
-      contact: (document.getElementById('c-ph') ? document.getElementById('c-ph').value : '') || ''
-    },
-    notes: {
-      plan_id:    plan.id,
-      client_id:  STATE.clientId,
-      real_price: plan.real
-    },
-    theme: { color: '#4F46E5' },
-
-    // ✅ FIX 2: ONLY go to Step 3 on confirmed payment success
-    handler: function(response) {
-      if (payBtn) { payBtn.disabled = false; }
-      if (response && response.razorpay_payment_id) {
-        // Payment confirmed by Razorpay — safe to proceed
-        hideSadBanner();
-        savePlan(plan.id, response.razorpay_payment_id, 'paid');
-      } else {
-        // Handler called but no payment ID — treat as failure
-        STATE.paymentStatus = 'failed';
-        toast('Payment could not be confirmed. Please try again.', 'err', 4000);
-        showSadBanner();
-        updatePayBtn();
-      }
-    },
-
-    modal: {
-      ondismiss: function() {
-        // ✅ FIX 2: User closed modal = payment NOT completed
-        if (payBtn) {
-          payBtn.disabled    = false;
-          updatePayBtn();
-        }
-        STATE.paymentStatus = 'failed';
-        toast('Payment cancelled. Complete payment to activate your plan.', 'err', 4000);
-        // ✅ FIX 6: Show sad banner
-        showSadBanner();
-      }
-    }
+  // Payment se pehle localStorage mein save karo
+  var pendingData = {
+    clientId:    STATE.clientId,
+    profileName: STATE.profileName,
+    planId:      plan.id,
+    planName:    plan.name,
+    timestamp:   Date.now()
   };
-
   try {
-    var rzp = new Razorpay(options);
+    localStorage.setItem('wanza_pending_payment', JSON.stringify(pendingData));
+  } catch(e) {}
 
-    rzp.on('payment.failed', function(response) {
-      if (payBtn) {
-        payBtn.disabled = false;
-        updatePayBtn();
-      }
-      STATE.paymentStatus = 'failed';
-      var errMsg = (response && response.error && response.error.description)
-        ? response.error.description
-        : 'Payment failed. Please try again.';
-      toast('❌ ' + errMsg, 'err', 5000);
-      // ✅ FIX 6: Show sad banner
-      showSadBanner();
-    });
+  // Return URL banao — payment ke baad yahan wapas aayega user
+  var returnUrl = window.location.origin + window.location.pathname
+    + '?payment_return=1'
+    + '&client_id=' + encodeURIComponent(STATE.clientId)
+    + '&plan_id='   + encodeURIComponent(plan.id);
 
-    rzp.open();
+  toast('Secure payment page pe ja rahe hain... 🔒', 'info', 3000);
 
-  } catch(e) {
-    // ✅ FIX 1: Razorpay threw an error — do NOT simulate, show real error
-    if (payBtn) {
-      payBtn.disabled = false;
-      updatePayBtn();
-    }
-    STATE.paymentStatus = 'failed';
-    console.error('Razorpay error:', e.message);
-    toast('⚠️ Payment system error: ' + e.message, 'err', 5000);
-    showSadBanner();
+  var payBtn = document.getElementById('pay-btn');
+  if (payBtn) {
+    payBtn.disabled    = true;
+    payBtn.textContent = '⏳ Payment page khul raha hai…';
   }
+
+  // Thodi der baad redirect karo taaki toast dikh sake
+  setTimeout(function() {
+    var finalUrl = plan.payLink;
+    try {
+      var sep = finalUrl.indexOf('?') >= 0 ? '&' : '?';
+      finalUrl = finalUrl + sep + 'callback_url=' + encodeURIComponent(returnUrl);
+    } catch(e) {}
+    window.location.href = finalUrl;
+  }, 600);
 }
 
+   // ── PAYMENT RETURN HANDLER — user wapas aaya Razorpay se ───────
+function checkPaymentReturn() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('payment_return') !== '1') return false;
+
+  var returnClientId = params.get('client_id') || '';
+  var returnPlanId   = params.get('plan_id')   || '';
+  var rzpStatus      = params.get('razorpay_payment_link_status') || '';
+  var rzpPaymentId   = params.get('razorpay_payment_id')         || '';
+
+  // localStorage se pending data lo
+  var pending = null;
+  try {
+    var raw = localStorage.getItem('wanza_pending_payment');
+    if (raw) pending = JSON.parse(raw);
+  } catch(e) {}
+
+  var clientId = returnClientId || (pending && pending.clientId) || '';
+  var planId   = returnPlanId   || (pending && pending.planId)   || '';
+
+  if (!clientId || !planId) return false;
+
+  // STATE restore karo
+  STATE.clientId     = clientId;
+  STATE.profileName  = (pending && pending.profileName) || '';
+  STATE.selectedPlan = planId;
+
+  // Pending data delete karo
+  try { localStorage.removeItem('wanza_pending_payment'); } catch(e) {}
+
+  // CASE 1: Razorpay ne confirm kiya — seedha activate karo
+  if (rzpStatus === 'paid' && rzpPaymentId) {
+    toast('✅ Payment confirm! Plan activate ho raha hai…', 'ok', 4000);
+    goToStep(2);
+    savePlan(planId, rzpPaymentId, 'paid');
+    return true;
+  }
+
+  // CASE 2: Confirm nahi mila — verify button dikhao
+  goToStep(2);
+  showPaymentVerifyBanner(clientId, planId, rzpPaymentId);
+  return true;
+}
+
+// ── VERIFY BANNER — jab auto-confirm na ho ─────────────────────
+function showPaymentVerifyBanner(clientId, planId, rzpPaymentId) {
+  var sadEl = document.getElementById('sad-banner');
+  if (!sadEl) return;
+
+  sadEl.innerHTML = ''
+    + '<div style="font-size:1.6rem;flex-shrink:0">🔍</div>'
+    + '<div style="flex:1">'
+    + '<div class="sad-title" style="color:var(--amber)">Payment kiya? Verify karo!</div>'
+    + '<div class="sad-sub" style="color:var(--txt2);margin-bottom:10px">'
+    + 'Agar Razorpay pe payment complete ho gayi, neeche tap karo plan activate karne ke liye.'
+    + '</div>'
+    + '<button class="btn btn-amber btn-sm" '
+    + 'onclick="manualVerifyPayment(\''+ clientId +'\',\''+ planId +'\',\''+ (rzpPaymentId||'') +'\')" '
+    + 'style="height:38px;font-size:12px;width:auto;padding:0 18px;animation:none;margin-bottom:8px">'
+    + '✅ Haan, Maine Pay Kiya — Activate Karo'
+    + '</button>'
+    + '&nbsp;'
+    + '<button class="btn btn-ghost btn-sm" onclick="retryPayment(\''+ planId +'\')" '
+    + 'style="height:38px;font-size:12px;width:auto;padding:0 18px">'
+    + '🔄 Dobara Try Karo'
+    + '</button>'
+    + '</div>';
+
+  sadEl.style.borderColor = 'rgba(245,158,11,.35)';
+  sadEl.classList.add('show');
+}
+
+// ── MANUAL VERIFY — GAS se check karo ─────────────────────────
+function manualVerifyPayment(clientId, planId, rzpPaymentId) {
+  toast('Payment verify ho raha hai… ⏳', 'info', 5000);
+
+  apiPost('verifyPayment', {
+    client_id:  clientId,
+    plan_id:    planId,
+    payment_id: rzpPaymentId || ''
+  })
+  .then(function(result) {
+    if (result && result.verified) {
+      hideSadBanner();
+      toast('✅ Verified! Plan activate ho raha hai…', 'ok', 3000);
+      STATE.clientId     = clientId;
+      STATE.selectedPlan = planId;
+      savePlan(planId, result.payment_id || rzpPaymentId, 'paid');
+    } else {
+      toast('⚠️ Payment abhi nahi mila. Thoda wait karke dobara try karo.', 'err', 5000);
+    }
+  })
+  .catch(function(e) {
+    // Server error — paying user ko punish mat karo
+    toast('Server se connect nahi hua. Activate kar rahe hain…', '', 3500);
+    STATE.clientId     = clientId;
+    STATE.selectedPlan = planId;
+    savePlan(planId, rzpPaymentId || ('MANUAL_' + Date.now()), 'paid');
+  });
+}
+
+// ── RETRY — dobara payment karo ────────────────────────────────
+function retryPayment(planId) {
+  hideSadBanner();
+  selectPlan(planId);
+  handlePayment();
+}
+   
 // ──────────────────────────────────────────────────────────────
 //  ✅ FIX 3: SAVE PLAN — gate Step 3 strictly
 // ──────────────────────────────────────────────────────────────
@@ -1812,6 +1875,9 @@ function init() {
     if (ls) { ls.classList.add('out'); setTimeout(function(){ ls.style.display = 'none'; }, 500); }
     if (pg) pg.style.display = 'block';
 
+     // Payment return check — agar user Razorpay se wapas aaya hai
+if (checkPaymentReturn()) return;
+     
     var sess = loadSession();
     console.log('Wanza: session =', sess);
 
