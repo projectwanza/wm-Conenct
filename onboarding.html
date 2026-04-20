@@ -11,7 +11,7 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════
-   WANZA ONBOARDING — Single File v2.0
+   WANZA ONBOARDING — Single File v2.1
    Dark-premium SaaS aesthetic with electric accents
    Brand: Deep Navy #0A0F2C | Blue #2563EB | Amber #F59E0B
    ═══════════════════════════════════════════════════════ */
@@ -410,17 +410,44 @@ body::after{
 }
 .btn-ghost:hover{border-color:rgba(255,255,255,.2);color:var(--txt);background:var(--glass)}
 
+/* ── PRO BUTTON — ENHANCED GLOW (psychology) ── */
 .btn-pro{
   width:100%;height:56px;font-size:15px;
   background:var(--g-pro); color:#fff;
-  box-shadow:var(--sh-pro);
-  animation:proPulse 2.5s ease infinite;
+  box-shadow:
+    0 0 0 2px rgba(139,92,246,.5),
+    0 12px 60px rgba(79,70,229,.35),
+    0 0 80px rgba(139,92,246,.20),
+    inset 0 1px 0 rgba(255,255,255,.15);
+  animation:proPulse 2s ease infinite;
 }
 @keyframes proPulse{
-  0%,100%{box-shadow:var(--sh-pro)}
-  50%{box-shadow:0 0 0 2px rgba(139,92,246,.6),0 16px 60px rgba(79,70,229,.55)}
+  0%,100%{
+    box-shadow:
+      0 0 0 2px rgba(139,92,246,.5),
+      0 12px 60px rgba(79,70,229,.35),
+      0 0 80px rgba(139,92,246,.15),
+      inset 0 1px 0 rgba(255,255,255,.15);
+    transform:translateY(0) scale(1);
+  }
+  50%{
+    box-shadow:
+      0 0 0 4px rgba(139,92,246,.65),
+      0 20px 80px rgba(79,70,229,.55),
+      0 0 120px rgba(139,92,246,.30),
+      inset 0 1px 0 rgba(255,255,255,.15);
+    transform:translateY(-2px) scale(1.008);
+  }
 }
-.btn-pro:hover{transform:translateY(-3px);box-shadow:0 0 0 2px rgba(139,92,246,.7),0 16px 60px rgba(79,70,229,.60)}
+.btn-pro:hover{
+  transform:translateY(-4px) scale(1.01)!important;
+  box-shadow:
+    0 0 0 3px rgba(139,92,246,.75),
+    0 24px 90px rgba(79,70,229,.65),
+    0 0 140px rgba(139,92,246,.35),
+    inset 0 1px 0 rgba(255,255,255,.2)!important;
+  animation:none;
+}
 
 .btn-sm{padding:9px 20px;height:auto;width:auto}
 .btn-free{
@@ -617,6 +644,33 @@ body::after{
   display:flex;flex-direction:column;gap:10px;
 }
 
+/* ── PAYMENT FAILED BANNER — ✅ NEW ── */
+.payment-sad-banner{
+  display:none;
+  margin:0 var(--pad) 4px;
+  background:linear-gradient(135deg,rgba(239,68,68,.10),rgba(245,158,11,.08));
+  border:1px solid rgba(239,68,68,.30);
+  border-radius:var(--r2);
+  padding:14px 18px;
+  animation:slideUp .4s cubic-bezier(.22,1,.36,1);
+}
+.payment-sad-banner.show{display:flex;align-items:flex-start;gap:12px}
+.sad-ico{font-size:1.6rem;flex-shrink:0;animation:sadBounce 1.2s ease infinite alternate}
+@keyframes sadBounce{0%{transform:translateY(0) rotate(-5deg)}100%{transform:translateY(-4px) rotate(5deg)}}
+.sad-texts{}
+.sad-title{
+  font-size:14px;font-weight:800;color:var(--red);margin-bottom:4px;letter-spacing:-.1px;
+}
+.sad-sub{
+  font-size:12px;color:rgba(239,68,68,.75);line-height:1.55;
+}
+.sad-highlight{
+  display:inline-block;margin-top:6px;
+  background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);
+  border-radius:var(--pill);padding:3px 12px;
+  font-size:11px;font-weight:800;color:var(--amber);letter-spacing:.3px;
+}
+
 /* ── PROFILE PREVIEW CHIP ── */
 .profile-chip{
   display:flex;align-items:center;gap:10px;
@@ -784,7 +838,6 @@ body::after{
           <textarea class="ta" id="c-ds" rows="3" placeholder="Tell customers what makes your business special…"></textarea>
         </div>
 
-        <!-- ✅ NEW: Password Fields -->
         <div class="form-row">
           <div class="fg">
             <label class="lbl">Password <span class="req">*</span></label>
@@ -801,7 +854,6 @@ body::after{
             </div>
           </div>
         </div>
-        <!-- END Password Fields -->
 
       </div><!-- form-grid -->
 
@@ -867,7 +919,6 @@ body::after{
       <div class="success-title">Profile Created!</div>
       <div class="success-sub">Your business profile is live. Now choose a plan to unlock the full power of Wanza.</div>
 
-      <!-- ✅ NEW: Profile URL box replacing old ID display -->
       <div style="text-align:left;margin-bottom:10px">
         <div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">
           🔗 Your Profile Link
@@ -880,7 +931,6 @@ body::after{
           👁️ Preview My Profile →
         </a>
       </div>
-      <!-- END Profile URL box -->
     </div>
 
     <div class="profile-chip" id="profile-chip">
@@ -927,6 +977,19 @@ body::after{
           <tr><td class="f">Custom Branding</td><td class="cr">✗</td><td class="cr">✗</td><td class="cr">✗</td><td class="ck">✓</td></tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- ✅ NEW: Sad payment failed banner — shown only after failed/cancelled payment -->
+    <div class="payment-sad-banner" id="sad-banner">
+      <div class="sad-ico">😞</div>
+      <div class="sad-texts">
+        <div class="sad-title">Oohoo… payment not completed 😔</div>
+        <div class="sad-sub">
+          You were <strong>so close</strong> to unlocking all the amazing features for your business.<br>
+          Your competitors are already using Pro to get more Google reviews &amp; grow faster.
+        </div>
+        <div class="sad-highlight">👉 Just ₹1 — less than a chai! Start your plan now.</div>
+      </div>
     </div>
 
     <div class="pay-strip" id="pay-strip">
@@ -987,7 +1050,6 @@ body::after{
           </div>
         </div>
 
-        <!-- ✅ NEW: Profile Link row in Step 3 -->
         <div style="display:flex;align-items:flex-start;gap:12px">
           <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">🔗</div>
           <div style="flex:1;min-width:0">
@@ -998,7 +1060,6 @@ body::after{
             </div>
           </div>
         </div>
-        <!-- END Profile Link row -->
 
       </div>
     </div>
@@ -1021,27 +1082,23 @@ body::after{
 
 <script>
 // ════════════════════════════════════════════════════════════════
-//  WANZA ONBOARDING v2.0
-//  ✅ Dynamic profile URL (auto-detects domain)
-//  ✅ Password + Confirm Password with show/hide
-//  ✅ Profile URL shown instead of raw ID
-//  ✅ Copy link button on Step 2 + Step 3
-//  ✅ Razorpay payment (₹1 trial) — unchanged
-//  ✅ Session via localStorage — improved
-//  ✅ All steps connected
+//  WANZA ONBOARDING v2.1
+//  ✅ FIX 1: NO demo-mode auto-success — payment system must be real
+//  ✅ FIX 2: handlePayment() only calls savePlan() on confirmed success
+//  ✅ FIX 3: savePlan() gates Step 3 — only 'paid' or 'free' allowed
+//  ✅ FIX 4: STATE.paymentStatus tracks payment result
+//  ✅ FIX 5: goToStep(3) double-checks payment gate before rendering
+//  ✅ FIX 6: Sad banner shown on failed/cancelled payment (psychology)
+//  ✅ FIX 7: Pro button enhanced glow (psychology)
 // ════════════════════════════════════════════════════════════════
 
 // ──────────────────────────────────────────────────────────────
 //  ⚙️ CONFIG
 // ──────────────────────────────────────────────────────────────
 
-// 🔧 Your Apps Script Web App URL
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbxWSvabD3CmvdGEEUskXX_PwoOCI2zkE_CXRD1eLM3M6CSZ6qsB5qI3QOPFhiqPftJ-/exec';
-
-// 🔧 Your Razorpay Key
+var GAS_URL      = 'https://script.google.com/macros/s/AKfycbxWSvabD3CmvdGEEUskXX_PwoOCI2zkE_CXRD1eLM3M6CSZ6qsB5qI3QOPFhiqPftJ-/exec';
 var RAZORPAY_KEY = 'rzp_test_REPLACE_WITH_YOUR_KEY';
 
-// ✅ FIXED: Auto-detect domain — no hardcoded URLs needed
 var PROFILE_URL = window.location.origin;
 var ADMIN_URL   = window.location.origin + '/admin';
 
@@ -1108,14 +1165,15 @@ var PLANS = [
 ];
 
 // ──────────────────────────────────────────────────────────────
-//  STATE
+//  ✅ STATE — paymentStatus added
 // ──────────────────────────────────────────────────────────────
 var STATE = {
-  currentStep:  1,
-  clientId:     '',
-  selectedPlan: 'pro',
-  logoUrl:      '',
-  profileName:  ''
+  currentStep:   1,
+  clientId:      '',
+  selectedPlan:  'pro',
+  logoUrl:       '',
+  profileName:   '',
+  paymentStatus: ''   // ✅ FIX 4: '' | 'paid' | 'free' | 'failed'
 };
 
 // ──────────────────────────────────────────────────────────────
@@ -1144,8 +1202,18 @@ function setProgress(pct) {
   document.getElementById('prog').style.width = pct + '%';
 }
 
+// ── Show / hide sad payment banner ──
+function showSadBanner() {
+  var el = document.getElementById('sad-banner');
+  if (el) el.classList.add('show');
+}
+function hideSadBanner() {
+  var el = document.getElementById('sad-banner');
+  if (el) el.classList.remove('show');
+}
+
 // ──────────────────────────────────────────────────────────────
-//  ✅ NEW: Toggle password visibility
+//  Toggle password visibility
 // ──────────────────────────────────────────────────────────────
 function togglePw(inputId, btnId) {
   var inp = document.getElementById(inputId);
@@ -1161,14 +1229,14 @@ function togglePw(inputId, btnId) {
 }
 
 // ──────────────────────────────────────────────────────────────
-//  ✅ NEW: Build profile URL from clientId
+//  Build profile URL
 // ──────────────────────────────────────────────────────────────
 function buildProfileUrl(clientId) {
   return window.location.origin + '/?client_id=' + encodeURIComponent(clientId);
 }
 
 // ──────────────────────────────────────────────────────────────
-//  ✅ NEW: Copy helpers
+//  Copy helpers
 // ──────────────────────────────────────────────────────────────
 function _doCopy(text, btnEl, successText) {
   successText = successText || '✅';
@@ -1202,7 +1270,6 @@ function _fbCopy(text, cb) {
   }
 }
 
-// Copy button on Step 2 URL box
 function copyProfileUrl() {
   var txt = document.getElementById('profile-url-txt');
   var btn = document.getElementById('copy-url-btn');
@@ -1210,7 +1277,6 @@ function copyProfileUrl() {
   _doCopy(txt.textContent, btn, '✅');
 }
 
-// Copy button on Step 3 done card
 function copyDoneUrl() {
   var el  = document.getElementById('done-id');
   var btn = document.getElementById('done-copy-btn');
@@ -1236,10 +1302,8 @@ function loadSession() {
 //  API HELPERS
 // ──────────────────────────────────────────────────────────────
 function apiPost(action, body) {
-  if (!GAS_URL || GAS_URL.indexOf('YOUR_SCRIPT') > -1) {
-    console.warn('⚠️ GAS_URL not configured — running in demo mode');
-    return Promise.resolve({ success: true, client_id: genId(), demo: true });
-  }
+  // ✅ FIX 1: NO demo mode — if GAS_URL not configured, we still try real API
+  // If you want to test locally, configure the GAS_URL properly
   var payload = Object.assign({ action: action }, body || {});
   return fetch(GAS_URL, {
     method: 'POST',
@@ -1307,7 +1371,7 @@ function previewLogoUrl(url) {
 }
 
 // ──────────────────────────────────────────────────────────────
-//  ✅ UPDATED: STEP 1 → SUBMIT PROFILE (with password)
+//  STEP 1 → SUBMIT PROFILE
 // ──────────────────────────────────────────────────────────────
 function submitProfile() {
   var name = (document.getElementById('c-nm').value || '').trim();
@@ -1315,7 +1379,6 @@ function submitProfile() {
   var pw   = (document.getElementById('c-pw').value  || '').trim();
   var pw2  = (document.getElementById('c-pw2').value || '').trim();
 
-  // ── Validation ──
   if (!name)  { toast('Business name is required!', 'err'); document.getElementById('c-nm').focus(); return; }
   if (!phone) { toast('Phone number is required!',  'err'); document.getElementById('c-ph').focus(); return; }
   if (!pw)    { toast('Password is required!',      'err'); document.getElementById('c-pw').focus(); return; }
@@ -1335,7 +1398,7 @@ function submitProfile() {
     payment_link:       (document.getElementById('c-pl').value  || '').trim(),
     description:        (document.getElementById('c-ds').value  || '').trim(),
     logo_url:           logoUrl,
-    password:           pw   // stored in Google Sheets
+    password:           pw
   };
 
   var submitBtn = document.querySelector('#step-1 .btn-primary');
@@ -1355,7 +1418,6 @@ function submitProfile() {
     STATE.clientId    = clientId;
     STATE.profileName = name;
 
-    // ✅ UPDATED: Store profileUrl in session
     saveSession({
       clientId:    clientId,
       profileName: name,
@@ -1426,6 +1488,8 @@ function selectPlan(planId) {
     if (!card) return;
     card.classList.toggle('selected', p.id === planId);
   });
+  // ✅ Hide sad banner when user selects a new plan (fresh attempt)
+  hideSadBanner();
   updatePayBtn();
 }
 
@@ -1446,17 +1510,31 @@ function updatePayBtn() {
 }
 
 // ──────────────────────────────────────────────────────────────
-//  STEP 2 → HANDLE PAYMENT (Razorpay — unchanged)
+//  ✅ FIX 2: HANDLE PAYMENT — strict, no demo fallback
 // ──────────────────────────────────────────────────────────────
 function handlePayment() {
   var plan = PLANS.find(function(p) { return p.id === STATE.selectedPlan; });
   if (!plan) return;
 
-  if (plan.real === 0) { savePlan('free', '', 'free'); return; }
+  // Free plan — intentional selection, allowed to go to Step 3
+  if (plan.real === 0) {
+    savePlan('free', '', 'free');
+    return;
+  }
+
+  // ✅ FIX 1: Check Razorpay is actually loaded — NO demo simulation
+  if (typeof Razorpay === 'undefined') {
+    toast('⚠️ Payment system not configured. Please contact support.', 'err', 5000);
+    console.error('Razorpay SDK not loaded. Check your internet connection or Razorpay key.');
+    return;
+  }
+
+  var payBtn = document.getElementById('pay-btn');
+  if (payBtn) { payBtn.disabled = true; payBtn.textContent = '⏳ Opening payment…'; }
 
   var options = {
     key:         RAZORPAY_KEY,
-    amount:      100,
+    amount:      100,       // ₹1 = 100 paise
     currency:    'INR',
     name:        'Wanza Marketing',
     description: plan.name + ' Plan — ₹1 Trial',
@@ -1471,32 +1549,83 @@ function handlePayment() {
       real_price: plan.real
     },
     theme: { color: '#4F46E5' },
+
+    // ✅ FIX 2: ONLY go to Step 3 on confirmed payment success
     handler: function(response) {
-      savePlan(plan.id, response.razorpay_payment_id, 'paid');
+      if (payBtn) { payBtn.disabled = false; }
+      if (response && response.razorpay_payment_id) {
+        // Payment confirmed by Razorpay — safe to proceed
+        hideSadBanner();
+        savePlan(plan.id, response.razorpay_payment_id, 'paid');
+      } else {
+        // Handler called but no payment ID — treat as failure
+        STATE.paymentStatus = 'failed';
+        toast('Payment could not be confirmed. Please try again.', 'err', 4000);
+        showSadBanner();
+        updatePayBtn();
+      }
     },
+
     modal: {
       ondismiss: function() {
-        toast('Payment cancelled. Select a plan to continue.', '');
+        // ✅ FIX 2: User closed modal = payment NOT completed
+        if (payBtn) {
+          payBtn.disabled    = false;
+          updatePayBtn();
+        }
+        STATE.paymentStatus = 'failed';
+        toast('Payment cancelled. Complete payment to activate your plan.', 'err', 4000);
+        // ✅ FIX 6: Show sad banner
+        showSadBanner();
       }
     }
   };
 
   try {
     var rzp = new Razorpay(options);
-    rzp.on('payment.failed', function() {
-      toast('Payment failed. Please try again.', 'err');
+
+    rzp.on('payment.failed', function(response) {
+      if (payBtn) {
+        payBtn.disabled = false;
+        updatePayBtn();
+      }
+      STATE.paymentStatus = 'failed';
+      var errMsg = (response && response.error && response.error.description)
+        ? response.error.description
+        : 'Payment failed. Please try again.';
+      toast('❌ ' + errMsg, 'err', 5000);
+      // ✅ FIX 6: Show sad banner
+      showSadBanner();
     });
+
     rzp.open();
+
   } catch(e) {
-    console.warn('Razorpay not available — simulating payment:', e.message);
-    savePlan(plan.id, 'PAY_DEMO_' + Date.now(), 'paid');
+    // ✅ FIX 1: Razorpay threw an error — do NOT simulate, show real error
+    if (payBtn) {
+      payBtn.disabled = false;
+      updatePayBtn();
+    }
+    STATE.paymentStatus = 'failed';
+    console.error('Razorpay error:', e.message);
+    toast('⚠️ Payment system error: ' + e.message, 'err', 5000);
+    showSadBanner();
   }
 }
 
 // ──────────────────────────────────────────────────────────────
-//  SAVE PLAN TO BACKEND
+//  ✅ FIX 3: SAVE PLAN — gate Step 3 strictly
 // ──────────────────────────────────────────────────────────────
 function savePlan(planId, paymentId, paymentStatus) {
+
+  // ✅ FIX 3 + FIX 5: Gate check — only 'paid' or 'free' allowed to reach Step 3
+  if (paymentStatus !== 'paid' && paymentStatus !== 'free') {
+    STATE.paymentStatus = 'failed';
+    toast('Please complete payment to activate your plan.', 'err', 4000);
+    showSadBanner();
+    return;
+  }
+
   setProgress(66);
 
   var payBtn = document.getElementById('pay-btn');
@@ -1509,7 +1638,7 @@ function savePlan(planId, paymentId, paymentStatus) {
     client_id:      STATE.clientId,
     plan:           planId,
     payment_id:     paymentId   || '',
-    payment_status: paymentStatus || 'free',
+    payment_status: paymentStatus,
     plan_date:      new Date().toISOString(),
     plan_expiry:    expiry.toISOString()
   })
@@ -1519,27 +1648,61 @@ function savePlan(planId, paymentId, paymentStatus) {
     sess.paymentId     = paymentId;
     sess.paymentStatus = paymentStatus;
     saveSession(sess);
-    STATE.selectedPlan = planId;
+    STATE.selectedPlan  = planId;
+    STATE.paymentStatus = paymentStatus;   // ✅ FIX 4
     goToStep(3);
   })
   .catch(function(e) {
     console.error('Plan update failed:', e);
-    var sess = loadSession() || {};
-    sess.plan = planId;
-    saveSession(sess);
-    STATE.selectedPlan = planId;
-    goToStep(3);
+    // Even if API fails, if payment was successful we still proceed
+    // (payment already taken — don't punish the customer)
+    if (paymentStatus === 'paid' || paymentStatus === 'free') {
+      var sess = loadSession() || {};
+      sess.plan          = planId;
+      sess.paymentStatus = paymentStatus;
+      saveSession(sess);
+      STATE.selectedPlan  = planId;
+      STATE.paymentStatus = paymentStatus;   // ✅ FIX 4
+      goToStep(3);
+    } else {
+      if (payBtn) { payBtn.disabled = false; updatePayBtn(); }
+      toast('Activation failed. Please try again.', 'err', 4000);
+      showSadBanner();
+    }
   });
 }
 
 function skipToFree() {
+  // Intentional free selection — allowed
+  hideSadBanner();
   savePlan('free', '', 'free');
 }
 
 // ──────────────────────────────────────────────────────────────
-//  ✅ UPDATED: STEP NAVIGATION
+//  ✅ FIX 5: STEP NAVIGATION — payment gate before Step 3
 // ──────────────────────────────────────────────────────────────
 function goToStep(n) {
+
+  // ✅ FIX 5: Hard gate — Step 3 is ONLY accessible with valid payment
+  if (n === 3) {
+    var isPaymentOk = (STATE.paymentStatus === 'paid' || STATE.paymentStatus === 'free');
+    if (!isPaymentOk) {
+      console.warn('Blocked: Attempted to go to Step 3 without valid payment. paymentStatus =', STATE.paymentStatus);
+      toast('⚠️ Please complete payment to continue.', 'err', 4000);
+      showSadBanner();
+      // Force back to Step 2 if someone tries to bypass
+      n = 2;
+      if (STATE.currentStep !== 2) {
+        document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
+        var t2 = document.getElementById('step-2');
+        if (t2) t2.classList.add('active');
+        STATE.currentStep = 2;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+  }
+
   document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
   var target = document.getElementById('step-' + n);
   if (target) target.classList.add('active');
@@ -1550,9 +1713,7 @@ function goToStep(n) {
   if (n === 2) {
     setProgress(50);
 
-    // ✅ Build and show profile URL
     var profileUrl = buildProfileUrl(STATE.clientId);
-
     var urlTxt  = document.getElementById('profile-url-txt');
     var openBtn = document.getElementById('open-profile-btn');
     if (urlTxt)  urlTxt.textContent = profileUrl;
@@ -1565,15 +1726,16 @@ function goToStep(n) {
 
   if (n === 3) {
     setProgress(100);
-    var plan       = PLANS.find(function(p) { return p.id === STATE.selectedPlan; });
+    var plan        = PLANS.find(function(p) { return p.id === STATE.selectedPlan; });
     var profileUrl3 = buildProfileUrl(STATE.clientId);
 
     document.getElementById('done-biz').textContent  = STATE.profileName || '—';
     document.getElementById('done-plan').textContent = plan
-      ? (plan.name + (plan.real > 0 ? ' — ₹1 today, ₹' + Math.round(plan.real/100) + '/month after' : ' — Free forever'))
+      ? (plan.name + (plan.real > 0
+          ? ' — ₹1 today, ₹' + Math.round(plan.real/100) + '/month after'
+          : ' — Free forever'))
       : '—';
 
-    // ✅ Set clickable profile link
     var doneId = document.getElementById('done-id');
     if (doneId) {
       doneId.textContent = profileUrl3;
@@ -1583,7 +1745,7 @@ function goToStep(n) {
 }
 
 // ──────────────────────────────────────────────────────────────
-//  ✅ UPDATED: NAVIGATION BUTTONS
+//  NAVIGATION BUTTONS
 // ──────────────────────────────────────────────────────────────
 function goToProfile() {
   var url = STATE.clientId
@@ -1609,6 +1771,8 @@ function init() {
   if (sess && sess.clientId) {
     STATE.clientId    = sess.clientId;
     STATE.profileName = sess.profileName || '';
+    // ✅ FIX: Restore paymentStatus from session — don't auto-skip to Step 3
+    STATE.paymentStatus = sess.paymentStatus || '';
     if (!sess.plan || sess.plan === 'free') {
       goToStep(2);
     }
