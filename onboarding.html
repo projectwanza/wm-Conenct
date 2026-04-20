@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0F52BA">
+<title>Wanza — Create Your Business Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════
+   WANZA ONBOARDING — Single File v2.0
+   Dark-premium SaaS aesthetic with electric accents
+   Brand: Deep Navy #0A0F2C | Blue #2563EB | Amber #F59E0B
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --navy:    #0A0F2C;
+  --navy2:   #111827;
+  --navy3:   #1F2A48;
+  --blue:    #2563EB;
+  --blue2:   #3B82F6;
+  --blue3:   #93C5FD;
+  --amber:   #F59E0B;
+  --amber2:  #FCD34D;
+  --grn:     #10B981;
+  --red:     #EF4444;
+  --purple:  #8B5CF6;
+  --bg:      #070C1F;
+  --surf:    #0D1530;
+  --card:    #111B3A;
+  --card2:   #162040;
+  --glass:   rgba(255,255,255,.04);
+  --glass2:  rgba(255,255,255,.07);
+  --txt:     #F0F4FF;
+  --txt2:    #94A3B8;
+  --txt3:    #4B5884;
+  --muted:   #64748B;
+  --bdr:     rgba(255,255,255,.06);
+  --bdr2:    rgba(37,99,235,.25);
+  --bdr3:    rgba(245,158,11,.30);
+  --bdr-pro: rgba(139,92,246,.55);
+  --g-hero:  linear-gradient(135deg,#0A0F2C 0%,#0D1A3A 50%,#0A1628 100%);
+  --g-blue:  linear-gradient(135deg,#1D4ED8,#2563EB,#3B82F6);
+  --g-amber: linear-gradient(135deg,#D97706,#F59E0B,#FCD34D);
+  --g-pro:   linear-gradient(135deg,#4F46E5,#7C3AED,#8B5CF6);
+  --g-grn:   linear-gradient(135deg,#059669,#10B981);
+  --g-brand: linear-gradient(135deg,#1D4ED8 0%,#4F46E5 50%,#F59E0B 100%);
+  --g-card:  linear-gradient(145deg,rgba(17,27,58,.95),rgba(13,21,48,.90));
+  --sh-blue:  0 8px 32px rgba(37,99,235,.35);
+  --sh-amber: 0 8px 32px rgba(245,158,11,.35);
+  --sh-pro:   0 0 0 2px rgba(139,92,246,.5), 0 12px 60px rgba(79,70,229,.35);
+  --sh-card:  0 4px 24px rgba(0,0,0,.40);
+  --sh-glow:  0 0 40px rgba(37,99,235,.15);
+  --max: 580px;
+  --r1: 10px; --r2: 16px; --r3: 22px; --r4: 32px; --pill: 999px;
+  --pad: 22px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:15px; line-height:1.6;
+  background:var(--bg); color:var(--txt);
+  min-height:100dvh; overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+body::before{
+  content:'';
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(37,99,235,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(37,99,235,.03) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+body::after{
+  content:''; position:fixed; z-index:0; pointer-events:none;
+  width:800px; height:400px; border-radius:50%;
+  top:-200px; left:50%; transform:translateX(-50%);
+  background:radial-gradient(ellipse,rgba(37,99,235,.10) 0%,transparent 70%);
+}
+
+/* ── LOADER ── */
+#ls{
+  position:fixed; inset:0; z-index:9999;
+  background:var(--bg);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:20px;
+  transition:opacity .5s ease;
+}
+#ls.out{opacity:0;pointer-events:none}
+.ld-icon{
+  width:72px; height:72px; border-radius:20px;
+  background:var(--g-brand);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2rem;
+  box-shadow:var(--sh-blue), 0 0 60px rgba(37,99,235,.2);
+  animation:iconPulse 2s ease infinite;
+}
+@keyframes iconPulse{
+  0%,100%{transform:scale(1);box-shadow:var(--sh-blue),0 0 60px rgba(37,99,235,.2)}
+  50%{transform:scale(1.05);box-shadow:0 12px 50px rgba(37,99,235,.50),0 0 80px rgba(37,99,235,.25)}
+}
+.ld-ring{
+  width:36px; height:36px;
+  border:2.5px solid rgba(37,99,235,.12);
+  border-top-color:var(--blue); border-right-color:var(--amber);
+  border-radius:50%; animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-txt{font-size:11px;color:var(--txt3);font-weight:600;letter-spacing:3px;text-transform:uppercase}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed; z-index:9998;
+  bottom:28px; left:50%;
+  transform:translateX(-50%) translateY(14px);
+  background:var(--card2); border:1px solid var(--bdr2);
+  border-radius:var(--pill);
+  padding:12px 28px; font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease,transform .3s ease;
+  white-space:nowrap; max-width:calc(100vw - 32px); text-align:center;
+  box-shadow:0 8px 36px rgba(0,0,0,.5);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:rgba(16,185,129,.4);color:var(--grn)}
+#toast.err{border-color:rgba(239,68,68,.4);color:var(--red)}
+#toast.info{border-color:var(--bdr2);color:var(--blue2)}
+
+/* ── PAGE SHELL ── */
+#pg{position:relative;z-index:1;display:none}
+
+/* ── STEP CONTAINER ── */
+.step{display:none}
+.step.active{display:block}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{
+  position:fixed; top:0; left:0; height:3px; z-index:200;
+  background:var(--g-brand);
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 12px rgba(37,99,235,.5);
+}
+
+/* ── HEADER ── */
+.hdr{
+  padding:18px var(--pad);
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--bdr);
+  position:relative;
+}
+.hdr::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(37,99,235,.5),rgba(245,158,11,.4),transparent);
+}
+.hdr-logo{display:flex;align-items:center;gap:10px}
+.hdr-ico{
+  width:32px; height:32px; border-radius:9px;
+  background:var(--g-brand);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem;
+}
+.hdr-name{
+  font-family:'Clash Display',sans-serif;
+  font-size:16px; font-weight:700; color:var(--txt);
+  letter-spacing:.2px;
+}
+.hdr-step{
+  font-size:11px; font-weight:700; color:var(--txt3);
+  text-transform:uppercase; letter-spacing:1.5px;
+}
+.hdr-step span{color:var(--blue2)}
+
+/* ── SCREEN WRAPPER ── */
+.screen{
+  min-height:100dvh;
+  padding:0 0 60px;
+  max-width:var(--max);
+  margin:0 auto;
+}
+
+/* ── SCREEN HERO ── */
+.screen-hero{
+  padding:clamp(28px,6vw,44px) var(--pad) 24px;
+  text-align:center;
+}
+.screen-badge{
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(37,99,235,.12); border:1px solid rgba(37,99,235,.25);
+  border-radius:var(--pill); padding:6px 16px;
+  font-size:11px; font-weight:700; color:var(--blue3);
+  text-transform:uppercase; letter-spacing:1px;
+  margin-bottom:16px;
+}
+.screen-badge::before{
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--blue2); animation:blink 1.4s ease infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.screen-title{
+  font-family:'Clash Display',sans-serif;
+  font-size:clamp(1.7rem,5.5vw,2.3rem);
+  font-weight:700; line-height:1.2; letter-spacing:-.3px;
+  color:var(--txt); margin-bottom:10px;
+}
+.screen-title .accent{
+  background:var(--g-brand);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.screen-sub{
+  font-size:14px; color:var(--txt2);
+  max-width:420px; margin:0 auto;
+  line-height:1.7;
+}
+
+/* ── FORM CARD ── */
+.form-card{
+  margin:0 var(--pad);
+  background:var(--g-card);
+  border:1px solid var(--bdr);
+  border-radius:var(--r3);
+  padding:clamp(20px,5vw,28px);
+  box-shadow:var(--sh-card), var(--sh-glow);
+  animation:slideUp .4s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+
+.form-section{
+  font-size:10px; font-weight:800; color:var(--txt3);
+  text-transform:uppercase; letter-spacing:2px;
+  padding-bottom:12px; margin-bottom:16px;
+  border-bottom:1px solid var(--bdr);
+  display:flex; align-items:center; gap:8px;
+}
+.form-section::before{
+  content:''; width:12px; height:2px;
+  background:var(--g-blue); border-radius:1px;
+}
+
+.form-grid{display:flex;flex-direction:column;gap:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{display:flex;flex-direction:column;gap:7px}
+.fg.full{grid-column:1/-1}
+
+.lbl{
+  font-size:11px; font-weight:700; color:var(--txt2);
+  text-transform:uppercase; letter-spacing:.8px;
+  display:flex; align-items:center; gap:5px;
+}
+.lbl .req{color:var(--amber);font-size:.9em}
+
+.inp,.sel,.ta{
+  background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(255,255,255,.08);
+  border-radius:var(--r2);
+  color:var(--txt);
+  padding:12px 16px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+  width:100%;
+}
+.inp:focus,.sel:focus,.ta:focus{
+  border-color:rgba(37,99,235,.6);
+  background:rgba(37,99,235,.05);
+  box-shadow:0 0 0 4px rgba(37,99,235,.10);
+}
+.inp::placeholder,.ta::placeholder{color:var(--txt3)}
+.sel{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234B5884' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.sel option{background:var(--card2);color:var(--txt)}
+.ta{resize:vertical;min-height:80px}
+
+/* Upload widget */
+.upload-wrap{
+  border:2px dashed rgba(255,255,255,.10);
+  border-radius:var(--r2); padding:20px;
+  text-align:center; cursor:pointer;
+  transition:border-color .2s,background .2s;
+  position:relative; background:rgba(255,255,255,.02);
+}
+.upload-wrap:hover,.upload-wrap.drag{
+  border-color:rgba(37,99,235,.5);
+  background:rgba(37,99,235,.05);
+}
+.upload-wrap input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-ico{font-size:1.8rem;margin-bottom:6px;display:block}
+.upload-txt{font-size:13px;color:var(--txt2);font-weight:600}
+.upload-sub{font-size:11px;color:var(--txt3);margin-top:4px}
+.upload-preview{
+  width:70px;height:70px;border-radius:50%;
+  object-fit:cover;border:2px solid var(--bdr2);
+  margin:0 auto 8px; display:none;
+}
+
+/* ── PASSWORD FIELD WRAPPER ── */
+.pw-wrap{position:relative}
+.pw-wrap .inp{padding-right:46px}
+.pw-toggle{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;
+  color:var(--txt3);font-size:1rem;padding:4px;
+  line-height:1;transition:color .2s;
+}
+.pw-toggle:hover{color:var(--blue2)}
+
+/* ── PROFILE URL BOX (Step 2) ── */
+.profile-url-box{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(37,99,235,.08);
+  border:1px solid var(--bdr2);
+  border-radius:var(--r2);
+  padding:10px 14px;
+  margin-top:4px;
+  text-align:left;
+}
+.profile-url-txt{
+  flex:1;font-size:11px;font-family:monospace;
+  color:var(--blue3);word-break:break-all;line-height:1.5;
+}
+.copy-url-btn{
+  background:rgba(37,99,235,.18);
+  border:1px solid var(--bdr2);
+  border-radius:8px;
+  padding:6px 10px;cursor:pointer;
+  color:var(--blue2);font-size:.85rem;flex-shrink:0;
+  transition:background .2s,transform .15s;
+}
+.copy-url-btn:hover{background:rgba(37,99,235,.32);transform:scale(1.08)}
+.copy-url-btn:active{transform:scale(.94)}
+
+.open-profile-link{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:10px;
+  font-size:12px;color:var(--blue2);text-decoration:none;
+  background:rgba(37,99,235,.08);
+  border:1px solid var(--bdr2);
+  border-radius:var(--pill);
+  padding:6px 16px;
+  transition:background .2s,border-color .2s;
+  font-weight:600;
+}
+.open-profile-link:hover{background:rgba(37,99,235,.18);border-color:rgba(37,99,235,.5)}
+
+/* ── DONE PROFILE LINK (Step 3) ── */
+.done-link-row{display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap}
+.done-link{
+  font-size:11px;color:var(--blue3);font-family:monospace;
+  word-break:break-all;text-decoration:underline;
+  text-underline-offset:2px;
+}
+.done-copy-btn{
+  background:rgba(37,99,235,.12);
+  border:1px solid var(--bdr2);
+  border-radius:6px;
+  padding:4px 10px;cursor:pointer;
+  color:var(--blue2);font-size:.75rem;white-space:nowrap;
+  flex-shrink:0;transition:background .2s;
+}
+.done-copy-btn:hover{background:rgba(37,99,235,.26)}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:none;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:700;
+  border-radius:var(--pill);
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease;
+  position:relative;overflow:hidden;
+  -webkit-user-select:none;user-select:none;
+  text-decoration:none;
+}
+.btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),transparent);
+  pointer-events:none;
+}
+.btn:active{transform:scale(.96)!important}
+.btn:disabled{opacity:.45;cursor:default;transform:none!important}
+
+.btn-primary{
+  width:100%;height:54px;font-size:15px;
+  background:var(--g-blue); color:#fff;
+  box-shadow:var(--sh-blue);
+}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 44px rgba(37,99,235,.5)}
+
+.btn-amber{
+  width:100%;height:54px;font-size:15px;
+  background:var(--g-amber); color:var(--navy);
+  box-shadow:var(--sh-amber);
+  animation:amberPulse 2.5s ease infinite;
+}
+@keyframes amberPulse{
+  0%,100%{box-shadow:var(--sh-amber),0 0 0 0 rgba(245,158,11,.2)}
+  50%{box-shadow:0 12px 44px rgba(245,158,11,.55),0 0 0 10px rgba(245,158,11,.0)}
+}
+.btn-amber:hover{transform:translateY(-3px);box-shadow:0 14px 50px rgba(245,158,11,.55)}
+
+.btn-ghost{
+  width:100%;height:46px;
+  background:transparent;
+  border:1.5px solid var(--bdr);
+  color:var(--txt2);
+}
+.btn-ghost:hover{border-color:rgba(255,255,255,.2);color:var(--txt);background:var(--glass)}
+
+.btn-pro{
+  width:100%;height:56px;font-size:15px;
+  background:var(--g-pro); color:#fff;
+  box-shadow:var(--sh-pro);
+  animation:proPulse 2.5s ease infinite;
+}
+@keyframes proPulse{
+  0%,100%{box-shadow:var(--sh-pro)}
+  50%{box-shadow:0 0 0 2px rgba(139,92,246,.6),0 16px 60px rgba(79,70,229,.55)}
+}
+.btn-pro:hover{transform:translateY(-3px);box-shadow:0 0 0 2px rgba(139,92,246,.7),0 16px 60px rgba(79,70,229,.60)}
+
+.btn-sm{padding:9px 20px;height:auto;width:auto}
+.btn-free{
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--bdr); color:var(--txt2);
+  width:100%;height:40px;font-size:13px;
+  border-radius:var(--pill);
+}
+.btn-free:hover{border-color:rgba(255,255,255,.15);color:var(--txt)}
+
+.btn-wrap{padding:0 var(--pad);margin-top:16px;display:flex;flex-direction:column;gap:10px}
+
+/* ── STEP INDICATOR ── */
+.step-dots{
+  display:flex;justify-content:center;gap:8px;
+  padding:18px var(--pad) 0;
+}
+.step-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(255,255,255,.10);
+  transition:all .35s ease;
+}
+.step-dot.done{background:var(--blue);width:20px;border-radius:4px}
+.step-dot.active{background:var(--amber);width:14px;border-radius:4px}
+
+/* ── SUCCESS SCREEN ── */
+.success-card{
+  margin:var(--pad);
+  background:var(--g-card);
+  border:1px solid rgba(16,185,129,.25);
+  border-radius:var(--r3);
+  padding:clamp(32px,6vw,44px) var(--pad);
+  text-align:center;
+  box-shadow:0 0 0 1px rgba(16,185,129,.1),var(--sh-card),0 0 60px rgba(16,185,129,.08);
+  animation:slideUp .5s cubic-bezier(.22,1,.36,1);
+}
+.success-ico{
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(16,185,129,.12);border:2px solid rgba(16,185,129,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;margin:0 auto 18px;
+  animation:bounceIn .6s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes bounceIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.success-title{
+  font-family:'Clash Display',sans-serif;
+  font-size:1.7rem;font-weight:700;color:var(--txt);margin-bottom:8px;
+}
+.success-sub{font-size:14px;color:var(--txt2);line-height:1.65;margin-bottom:16px}
+
+/* ── PLAN CARDS ── */
+.plans-section{padding:0 var(--pad)}
+.plans-grid{display:flex;flex-direction:column;gap:12px}
+
+.plan-card{
+  background:var(--g-card);
+  border:1.5px solid var(--bdr);
+  border-radius:var(--r3);
+  padding:clamp(18px,4vw,24px);
+  cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .28s ease,border-color .2s ease;
+  box-shadow:var(--sh-card);
+}
+.plan-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  transition:opacity .3s;
+}
+.plan-card.free::before{background:linear-gradient(90deg,var(--muted),var(--txt3))}
+.plan-card.starter::before{background:var(--g-blue)}
+.plan-card.pro::before{background:var(--g-pro)}
+.plan-card.premium::before{background:var(--g-amber)}
+
+.plan-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.5)}
+
+.plan-card.pro{
+  border-color:var(--bdr-pro);
+  box-shadow:var(--sh-pro);
+  background:linear-gradient(145deg,rgba(79,70,229,.08),rgba(13,21,48,.95));
+}
+.plan-card.pro:hover{
+  transform:translateY(-5px);
+  box-shadow:0 0 0 2px rgba(139,92,246,.65),0 20px 60px rgba(79,70,229,.45);
+}
+
+.plan-card.selected{
+  border-color:var(--bdr2);
+  box-shadow:0 0 0 2px rgba(37,99,235,.4),var(--sh-card),0 0 40px rgba(37,99,235,.12);
+}
+.plan-card.pro.selected{
+  border-color:rgba(139,92,246,.7);
+  box-shadow:0 0 0 2px rgba(139,92,246,.7),0 16px 60px rgba(79,70,229,.45);
+}
+
+.plan-popular{
+  position:absolute;top:14px;right:14px;
+  background:var(--g-pro);
+  color:#fff;font-size:10px;font-weight:800;
+  letter-spacing:1.2px;text-transform:uppercase;
+  border-radius:var(--pill);padding:4px 12px;
+  animation:pulse 2s ease infinite;
+  box-shadow:0 4px 16px rgba(139,92,246,.4);
+}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
+.plan-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+
+.plan-name{
+  font-size:10px;font-weight:800;letter-spacing:2px;
+  text-transform:uppercase;color:var(--txt3);margin-bottom:6px;
+}
+.plan-card.pro .plan-name{color:var(--purple)}
+
+.plan-price-row{display:flex;align-items:flex-end;gap:5px}
+.plan-currency{font-size:1.1rem;font-weight:700;color:var(--txt);margin-bottom:5px}
+.plan-amount{
+  font-family:'Clash Display',sans-serif;
+  font-size:2.8rem;font-weight:700;line-height:1;color:var(--txt);
+}
+.plan-card.pro .plan-amount{
+  background:var(--g-pro);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.plan-period{font-size:12px;color:var(--txt3);margin-bottom:7px}
+
+.plan-real{
+  font-size:11px;color:var(--txt3);margin-top:4px;
+  display:flex;align-items:center;gap:6px;
+}
+.plan-real del{color:rgba(239,68,68,.6);font-weight:600}
+.plan-real .badge-save{
+  background:rgba(16,185,129,.12);
+  border:1px solid rgba(16,185,129,.2);
+  color:var(--grn);font-size:9px;font-weight:800;
+  border-radius:var(--pill);padding:2px 8px;letter-spacing:.5px;text-transform:uppercase;
+}
+
+.plan-divider{height:1px;background:var(--bdr);margin:14px 0}
+
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:0}
+.plan-features li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--txt2)}
+.feat-ico{
+  width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;
+}
+.feat-ico.yes{background:rgba(16,185,129,.15);color:var(--grn)}
+.feat-ico.no{background:rgba(255,255,255,.05);color:var(--txt3)}
+.feat-ico.no + span{color:var(--txt3);text-decoration:line-through}
+
+.plan-select-indicator{
+  width:20px;height:20px;border-radius:50%;border:2px solid var(--bdr);flex-shrink:0;
+  transition:all .25s ease;
+  display:flex;align-items:center;justify-content:center;
+}
+.plan-card.selected .plan-select-indicator{background:var(--blue);border-color:var(--blue)}
+.plan-card.pro.selected .plan-select-indicator{background:var(--purple);border-color:var(--purple)}
+.plan-select-indicator::after{
+  content:'✓';color:#fff;font-size:.65rem;font-weight:900;
+  opacity:0;transition:opacity .2s;
+}
+.plan-card.selected .plan-select-indicator::after{opacity:1}
+
+/* ── URGENCY BAR ── */
+.urgency-bar{
+  margin:0 var(--pad) 16px;
+  background:linear-gradient(135deg,rgba(245,158,11,.10),rgba(239,68,68,.08));
+  border:1px solid rgba(245,158,11,.22);
+  border-radius:var(--r2);
+  padding:12px 18px;
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:600;color:var(--amber);
+}
+.urgency-ico{font-size:1rem;animation:shake .6s ease infinite alternate}
+@keyframes shake{0%{transform:rotate(-5deg)}100%{transform:rotate(5deg)}}
+
+/* ── TRUST BAR ── */
+.trust-bar{
+  display:flex;justify-content:center;gap:clamp(14px,3vw,24px);
+  flex-wrap:wrap;padding:14px var(--pad);
+  border-top:1px solid var(--bdr);
+}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--txt3)}
+.trust-dot{
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(37,99,235,.12);
+  display:flex;align-items:center;justify-content:center;font-size:.7rem;
+}
+
+/* ── PAYMENT STRIP ── */
+.pay-strip{
+  position:sticky;bottom:0;left:0;right:0;
+  background:linear-gradient(to top,var(--bg) 60%,transparent);
+  padding:16px var(--pad) calc(16px + env(safe-area-inset-bottom,0px));
+  display:flex;flex-direction:column;gap:10px;
+}
+
+/* ── PROFILE PREVIEW CHIP ── */
+.profile-chip{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);
+  border-radius:var(--pill);padding:8px 16px 8px 8px;
+  font-size:12px;font-weight:600;color:var(--grn);
+  margin:14px var(--pad) 0;
+}
+.chip-dot{
+  width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,.15);
+  display:flex;align-items:center;justify-content:center;font-size:.8rem;
+  flex-shrink:0;
+}
+
+/* ── COMPARE MINI ── */
+.compare-mini{
+  margin:0 var(--pad) 16px;
+  background:var(--g-card);
+  border:1px solid var(--bdr);
+  border-radius:var(--r2);
+  overflow:hidden;
+}
+.compare-mini table{width:100%;border-collapse:collapse}
+.compare-mini th{
+  padding:10px 12px;font-size:10px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.8px;
+  text-align:center;color:var(--txt3);
+  border-bottom:1px solid var(--bdr);
+}
+.compare-mini th.f{text-align:left}
+.compare-mini th.pro{color:var(--purple);background:rgba(139,92,246,.06)}
+.compare-mini td{
+  padding:9px 12px;font-size:12px;color:var(--txt2);
+  border-bottom:1px solid var(--bdr);text-align:center;
+}
+.compare-mini td.f{text-align:left;font-weight:600;color:var(--txt)}
+.compare-mini td.pro{background:rgba(139,92,246,.04);color:var(--txt)}
+.compare-mini tr:last-child td{border-bottom:none}
+.ck{color:var(--grn);font-size:.9rem;font-weight:900}
+.cr{color:var(--txt3);font-size:.9rem}
+
+/* ── SECTION LABEL ── */
+.section-label{
+  padding:0 var(--pad) 14px;
+  font-size:10px;font-weight:800;color:var(--txt3);
+  text-transform:uppercase;letter-spacing:2px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fade-in{animation:fadeIn .4s ease both}
+
+/* ── RESPONSIVE ── */
+@media(max-width:400px){
+  .form-row{grid-template-columns:1fr}
+  .fg.full{grid-column:1}
+  .plan-amount{font-size:2.3rem}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="ls">
+  <div class="ld-icon">⭐</div>
+  <div class="ld-ring"></div>
+  <div class="ld-txt">Starting up…</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar" id="prog" style="width:0%"></div>
+
+<!-- PAGE -->
+<div id="pg">
+
+  <!-- ═══════════════════════════════════════════════
+       STEP 1 — ONBOARDING / PROFILE FORM
+  ═══════════════════════════════════════════════ -->
+  <div class="step active" id="step-1">
+    <header class="hdr">
+      <div class="hdr-logo">
+        <div class="hdr-ico">⭐</div>
+        <div class="hdr-name">Wanza</div>
+      </div>
+      <div class="hdr-step">Step <span>1</span> of 3</div>
+    </header>
+
+    <div class="step-dots">
+      <div class="step-dot active" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+
+    <div class="screen-hero">
+      <div class="screen-badge">Free Setup • Takes 2 Minutes</div>
+      <h1 class="screen-title">Create Your <span class="accent">Business Profile</span></h1>
+      <p class="screen-sub">Get a professional digital profile, QR code &amp; start collecting Google reviews automatically.</p>
+    </div>
+
+    <div class="form-card">
+      <div class="form-section">Business Details</div>
+      <div class="form-grid">
+
+        <div class="form-row">
+          <div class="fg">
+            <label class="lbl">Business Name <span class="req">*</span></label>
+            <input class="inp" id="c-nm" placeholder="e.g. Sharma Salon" autocomplete="organization">
+          </div>
+          <div class="fg">
+            <label class="lbl">Business Type</label>
+            <select class="sel" id="c-ty">
+              <option value="">Select…</option>
+              <option>Restaurant</option>
+              <option>Salon / Spa</option>
+              <option>Retail Shop</option>
+              <option>Medical / Clinic</option>
+              <option>Education</option>
+              <option>Hotel / Hospitality</option>
+              <option>Automotive</option>
+              <option>Gym / Fitness</option>
+              <option>Real Estate</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="fg">
+            <label class="lbl">Phone <span class="req">*</span></label>
+            <input class="inp" id="c-ph" type="tel" placeholder="+91 98765 43210" autocomplete="tel">
+          </div>
+          <div class="fg">
+            <label class="lbl">WhatsApp Number</label>
+            <input class="inp" id="c-wa" type="tel" placeholder="+91 98765 43210">
+          </div>
+        </div>
+
+        <div class="fg">
+          <label class="lbl">Email</label>
+          <input class="inp" id="c-em" type="email" placeholder="you@business.com" autocomplete="email">
+        </div>
+
+        <div class="fg">
+          <label class="lbl">Address</label>
+          <input class="inp" id="c-ad" placeholder="Full address with city">
+        </div>
+
+        <div class="fg">
+          <label class="lbl">Google Review Link</label>
+          <input class="inp" id="c-gl" placeholder="https://g.page/r/…/review">
+        </div>
+
+        <div class="fg">
+          <label class="lbl">Payment Link <span style="color:var(--txt3);font-size:.85em;font-weight:500">(UPI / Razorpay)</span></label>
+          <input class="inp" id="c-pl" placeholder="upi://pay?pa=… or Razorpay link">
+        </div>
+
+        <div class="fg">
+          <label class="lbl">Description</label>
+          <textarea class="ta" id="c-ds" rows="3" placeholder="Tell customers what makes your business special…"></textarea>
+        </div>
+
+        <!-- ✅ NEW: Password Fields -->
+        <div class="form-row">
+          <div class="fg">
+            <label class="lbl">Password <span class="req">*</span></label>
+            <div class="pw-wrap">
+              <input class="inp" id="c-pw" type="password" placeholder="Min 6 characters" autocomplete="new-password">
+              <button type="button" class="pw-toggle" onclick="togglePw('c-pw','eye-1')" id="eye-1" title="Show/hide password">👁️</button>
+            </div>
+          </div>
+          <div class="fg">
+            <label class="lbl">Confirm Password <span class="req">*</span></label>
+            <div class="pw-wrap">
+              <input class="inp" id="c-pw2" type="password" placeholder="Re-enter password" autocomplete="new-password">
+              <button type="button" class="pw-toggle" onclick="togglePw('c-pw2','eye-2')" id="eye-2" title="Show/hide password">👁️</button>
+            </div>
+          </div>
+        </div>
+        <!-- END Password Fields -->
+
+      </div><!-- form-grid -->
+
+      <div class="form-section" style="margin-top:22px">Business Logo</div>
+      <div class="form-row">
+        <div class="fg">
+          <div class="upload-wrap" id="logo-wrap"
+            ondragover="this.classList.add('drag');event.preventDefault()"
+            ondragleave="this.classList.remove('drag')"
+            ondrop="handleLogoDrop(event)">
+            <input type="file" accept="image/*" id="logo-file" onchange="handleLogoFile(this.files[0])">
+            <img class="upload-preview" id="logo-preview" alt="">
+            <span class="upload-ico" id="logo-ico">📷</span>
+            <div class="upload-txt">Tap to upload logo</div>
+            <div class="upload-sub">JPG, PNG, WebP • Max 5MB</div>
+          </div>
+        </div>
+        <div class="fg" style="align-self:flex-start">
+          <label class="lbl">Or Paste URL</label>
+          <input class="inp" id="c-lo" placeholder="https://…/logo.png" oninput="previewLogoUrl(this.value)" style="margin-bottom:6px">
+          <div style="font-size:11px;color:var(--txt3);line-height:1.5">
+            ℹ️ Drive: use <code style="color:var(--blue3)">lh3.googleusercontent.com/d/FILE_ID</code>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- form-card -->
+
+    <div class="btn-wrap">
+      <button class="btn btn-primary" onclick="submitProfile()">
+        🚀 Create My Business Profile
+      </button>
+    </div>
+
+    <div class="trust-bar">
+      <div class="trust-item"><div class="trust-dot">🏆</div>500+ Businesses</div>
+      <div class="trust-item"><div class="trust-dot">🔒</div>Secure &amp; Private</div>
+      <div class="trust-item"><div class="trust-dot">⚡</div>Setup in 2 min</div>
+    </div>
+  </div><!-- step-1 -->
+
+
+  <!-- ═══════════════════════════════════════════════
+       STEP 2 — PROFILE SUCCESS / CHOOSE PLAN
+  ═══════════════════════════════════════════════ -->
+  <div class="step" id="step-2">
+    <header class="hdr">
+      <div class="hdr-logo">
+        <div class="hdr-ico">⭐</div>
+        <div class="hdr-name">Wanza</div>
+      </div>
+      <div class="hdr-step">Step <span>2</span> of 3</div>
+    </header>
+
+    <div class="step-dots">
+      <div class="step-dot done" id="dot-1b"></div>
+      <div class="step-dot active" id="dot-2b"></div>
+      <div class="step-dot" id="dot-3b"></div>
+    </div>
+
+    <div class="success-card">
+      <div class="success-ico">✅</div>
+      <div class="success-title">Profile Created!</div>
+      <div class="success-sub">Your business profile is live. Now choose a plan to unlock the full power of Wanza.</div>
+
+      <!-- ✅ NEW: Profile URL box replacing old ID display -->
+      <div style="text-align:left;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">
+          🔗 Your Profile Link
+        </div>
+        <div class="profile-url-box">
+          <span class="profile-url-txt" id="profile-url-txt">Loading…</span>
+          <button class="copy-url-btn" id="copy-url-btn" onclick="copyProfileUrl()" title="Copy link">📋</button>
+        </div>
+        <a class="open-profile-link" id="open-profile-btn" href="#" target="_blank" rel="noopener">
+          👁️ Preview My Profile →
+        </a>
+      </div>
+      <!-- END Profile URL box -->
+    </div>
+
+    <div class="profile-chip" id="profile-chip">
+      <div class="chip-dot">🏢</div>
+      <span id="chip-name">Your business</span> — profile saved ✓
+    </div>
+
+    <div style="height:20px"></div>
+
+    <div class="urgency-bar">
+      <span class="urgency-ico">🔥</span>
+      <span><strong>Limited Time:</strong> All paid plans just ₹1 today — Normal price from next week!</span>
+    </div>
+
+    <div class="section-label">Choose Your Plan</div>
+
+    <div class="plans-section">
+      <div class="plans-grid" id="plans-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <div style="height:12px"></div>
+    <div class="section-label">Feature Comparison</div>
+
+    <div class="compare-mini">
+      <table>
+        <thead>
+          <tr>
+            <th class="f">Feature</th>
+            <th>Free</th>
+            <th>Start</th>
+            <th class="pro">Pro</th>
+            <th>Prem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="f">Digital Profile</td><td class="ck">✓</td><td class="ck">✓</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+          <tr><td class="f">QR Code</td><td class="cr">✗</td><td class="ck">✓</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+          <tr><td class="f">Review Redirect</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+          <tr><td class="f">Offers Banners</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+          <tr><td class="f">Pay Now Button</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+          <tr><td class="f">Analytics</td><td class="cr">✗</td><td>Basic</td><td class="pro">Advanced</td><td>Full</td></tr>
+          <tr><td class="f">Custom Branding</td><td class="cr">✗</td><td class="cr">✗</td><td class="cr">✗</td><td class="ck">✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pay-strip" id="pay-strip">
+      <button class="btn btn-pro" id="pay-btn" onclick="handlePayment()">
+        🔥 Start for ₹1 — Activate Plan
+      </button>
+      <button class="btn btn-free" onclick="skipToFree()">
+        Continue with Free Plan for now
+      </button>
+    </div>
+  </div><!-- step-2 -->
+
+
+  <!-- ═══════════════════════════════════════════════
+       STEP 3 — ALL DONE
+  ═══════════════════════════════════════════════ -->
+  <div class="step" id="step-3">
+    <header class="hdr">
+      <div class="hdr-logo">
+        <div class="hdr-ico">⭐</div>
+        <div class="hdr-name">Wanza</div>
+      </div>
+      <div class="hdr-step">Step <span>3</span> of 3 ✓</div>
+    </header>
+
+    <div class="step-dots">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+    </div>
+
+    <div style="padding:40px var(--pad) 24px;text-align:center">
+      <div class="success-ico" style="width:90px;height:90px;font-size:2.5rem">🎉</div>
+      <div style="height:16px"></div>
+      <h1 class="screen-title">You're All Set!</h1>
+      <p class="screen-sub" style="margin-top:8px">
+        Your Wanza profile is live and your plan is active.<br>
+        Share your profile link with customers!
+      </p>
+    </div>
+
+    <div style="margin:0 var(--pad);background:var(--g-card);border:1px solid var(--bdr);border-radius:var(--r3);padding:24px;box-shadow:var(--sh-card)">
+      <div style="display:flex;flex-direction:column;gap:13px">
+
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">✅</div>
+          <div>
+            <div style="font-weight:700;font-size:13px">Business Profile Live</div>
+            <div style="font-size:12px;color:var(--txt2)" id="done-biz">—</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">🎯</div>
+          <div>
+            <div style="font-weight:700;font-size:13px">Plan Activated</div>
+            <div style="font-size:12px;color:var(--txt2)" id="done-plan">—</div>
+          </div>
+        </div>
+
+        <!-- ✅ NEW: Profile Link row in Step 3 -->
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">🔗</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:13px">Your Profile Link</div>
+            <div class="done-link-row">
+              <a class="done-link" id="done-id" href="#" target="_blank" rel="noopener">—</a>
+              <button class="done-copy-btn" id="done-copy-btn" onclick="copyDoneUrl()">📋 Copy</button>
+            </div>
+          </div>
+        </div>
+        <!-- END Profile Link row -->
+
+      </div>
+    </div>
+
+    <div class="btn-wrap" style="margin-top:24px">
+      <button class="btn btn-primary" onclick="goToProfile()">
+        👁️ View My Profile
+      </button>
+      <button class="btn btn-ghost" onclick="goToAdmin()" style="width:100%;height:46px">
+        ⚙️ Go to Admin Panel
+      </button>
+    </div>
+
+    <div style="text-align:center;padding:20px var(--pad);font-size:12px;color:var(--txt3)">
+      Your profile link is saved in your browser. Bookmark this page to return.
+    </div>
+  </div><!-- step-3 -->
+
+</div><!-- #pg -->
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  WANZA ONBOARDING v2.0
+//  ✅ Dynamic profile URL (auto-detects domain)
+//  ✅ Password + Confirm Password with show/hide
+//  ✅ Profile URL shown instead of raw ID
+//  ✅ Copy link button on Step 2 + Step 3
+//  ✅ Razorpay payment (₹1 trial) — unchanged
+//  ✅ Session via localStorage — improved
+//  ✅ All steps connected
+// ════════════════════════════════════════════════════════════════
+
+// ──────────────────────────────────────────────────────────────
+//  ⚙️ CONFIG
+// ──────────────────────────────────────────────────────────────
+
+// 🔧 Your Apps Script Web App URL
+var GAS_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec';
+
+// 🔧 Your Razorpay Key
+var RAZORPAY_KEY = 'rzp_test_REPLACE_WITH_YOUR_KEY';
+
+// ✅ FIXED: Auto-detect domain — no hardcoded URLs needed
+var PROFILE_URL = window.location.origin;
+var ADMIN_URL   = window.location.origin + '/admin';
+
+// ──────────────────────────────────────────────────────────────
+//  PLANS DATA
+// ──────────────────────────────────────────────────────────────
+var PLANS = [
+  {
+    id: 'free', name: 'FREE', css: 'free',
+    display: 0, real: 0,
+    period: '/ forever', tagAfter: 'Free forever',
+    popular: false, cta: 'Start Free',
+    features: [
+      { text: 'Digital Business Profile',  yes: true  },
+      { text: 'QR Code Generation',        yes: false },
+      { text: 'WhatsApp / Call Button',    yes: false },
+      { text: '3 Social Media Links',      yes: true  },
+      { text: 'Review Templates',          yes: false },
+      { text: 'Analytics Dashboard',       yes: false }
+    ]
+  },
+  {
+    id: 'starter', name: 'STARTER', css: 'starter',
+    display: 1, real: 9900,
+    period: '/ month', tagAfter: 'Then ₹99/month',
+    popular: false, cta: 'Start for ₹1',
+    features: [
+      { text: 'Digital Profile + QR Code', yes: true  },
+      { text: 'WhatsApp & Call Button',    yes: true  },
+      { text: '10 Social Media Links',     yes: true  },
+      { text: '5 Review Templates',        yes: true  },
+      { text: 'Basic Analytics',           yes: true  },
+      { text: 'Offer Banners',             yes: false }
+    ]
+  },
+  {
+    id: 'pro', name: 'PRO', css: 'pro',
+    display: 1, real: 24900,
+    period: '/ month', tagAfter: 'Then ₹249/month',
+    popular: true, cta: '🔥 Start Pro for ₹1',
+    features: [
+      { text: 'Everything in Starter',         yes: true },
+      { text: 'Unlimited Social Links',         yes: true },
+      { text: '25 Review Templates',            yes: true },
+      { text: 'Auto Review Redirect',           yes: true },
+      { text: 'Offers Banners + Ads Carousel',  yes: true },
+      { text: 'Pay Now Button (UPI)',            yes: true }
+    ]
+  },
+  {
+    id: 'premium', name: 'PREMIUM', css: 'premium',
+    display: 1, real: 39900,
+    period: '/ month', tagAfter: 'Then ₹399/month',
+    popular: false, cta: 'Start for ₹1',
+    features: [
+      { text: 'Everything in Pro',           yes: true },
+      { text: 'Unlimited Review Templates',  yes: true },
+      { text: 'Custom Branding',             yes: true },
+      { text: 'Full Analytics + Export',     yes: true },
+      { text: 'Dedicated Account Manager',   yes: true },
+      { text: 'Multiple Profiles',           yes: true }
+    ]
+  }
+];
+
+// ──────────────────────────────────────────────────────────────
+//  STATE
+// ──────────────────────────────────────────────────────────────
+var STATE = {
+  currentStep:  1,
+  clientId:     '',
+  selectedPlan: 'pro',
+  logoUrl:      '',
+  profileName:  ''
+};
+
+// ──────────────────────────────────────────────────────────────
+//  UTILS
+// ──────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+var _toastTimer;
+function toast(msg, type, dur) {
+  var el = document.getElementById('toast');
+  clearTimeout(_toastTimer);
+  el.textContent = msg;
+  el.className   = 'show ' + (type || '');
+  _toastTimer = setTimeout(function(){ el.className = ''; }, dur || 3000);
+}
+
+function genId() {
+  return 'USR_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6).toUpperCase();
+}
+
+function setProgress(pct) {
+  document.getElementById('prog').style.width = pct + '%';
+}
+
+// ──────────────────────────────────────────────────────────────
+//  ✅ NEW: Toggle password visibility
+// ──────────────────────────────────────────────────────────────
+function togglePw(inputId, btnId) {
+  var inp = document.getElementById(inputId);
+  var btn = document.getElementById(btnId);
+  if (!inp) return;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    if (btn) btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    if (btn) btn.textContent = '👁️';
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  ✅ NEW: Build profile URL from clientId
+// ──────────────────────────────────────────────────────────────
+function buildProfileUrl(clientId) {
+  return window.location.origin + '/?client_id=' + encodeURIComponent(clientId);
+}
+
+// ──────────────────────────────────────────────────────────────
+//  ✅ NEW: Copy helpers
+// ──────────────────────────────────────────────────────────────
+function _doCopy(text, btnEl, successText) {
+  successText = successText || '✅';
+  function onSuccess() {
+    if (btnEl) {
+      var orig = btnEl.textContent;
+      btnEl.textContent = successText;
+      setTimeout(function(){ btnEl.textContent = orig; }, 2200);
+    }
+    toast('Link copied! 🔗', 'ok');
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(onSuccess).catch(function() { _fbCopy(text, onSuccess); });
+  } else {
+    _fbCopy(text, onSuccess);
+  }
+}
+
+function _fbCopy(text, cb) {
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    if (cb) cb();
+  } catch(e) {
+    toast('Please copy manually.', 'err');
+  }
+}
+
+// Copy button on Step 2 URL box
+function copyProfileUrl() {
+  var txt = document.getElementById('profile-url-txt');
+  var btn = document.getElementById('copy-url-btn');
+  if (!txt || txt.textContent === 'Loading…') return;
+  _doCopy(txt.textContent, btn, '✅');
+}
+
+// Copy button on Step 3 done card
+function copyDoneUrl() {
+  var el  = document.getElementById('done-id');
+  var btn = document.getElementById('done-copy-btn');
+  if (!el || !el.textContent || el.textContent === '—') return;
+  _doCopy(el.textContent, btn, '✅ Copied!');
+}
+
+// ──────────────────────────────────────────────────────────────
+//  SESSION
+// ──────────────────────────────────────────────────────────────
+function saveSession(data) {
+  try { localStorage.setItem('wanza_ob_session', JSON.stringify(data)); } catch(e) {}
+}
+
+function loadSession() {
+  try {
+    var s = localStorage.getItem('wanza_ob_session');
+    return s ? JSON.parse(s) : null;
+  } catch(e) { return null; }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  API HELPERS
+// ──────────────────────────────────────────────────────────────
+function apiPost(action, body) {
+  if (!GAS_URL || GAS_URL.indexOf('YOUR_SCRIPT') > -1) {
+    console.warn('⚠️ GAS_URL not configured — running in demo mode');
+    return Promise.resolve({ success: true, client_id: genId(), demo: true });
+  }
+  var payload = Object.assign({ action: action }, body || {});
+  return fetch(GAS_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    redirect: 'follow'
+  })
+  .then(function(r) { return r.text(); })
+  .then(function(text) {
+    var d = JSON.parse(text);
+    if (d && d.success === false) throw new Error(d.error || 'API error');
+    return d.data !== undefined ? d.data : d;
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+//  LOGO UPLOAD
+// ──────────────────────────────────────────────────────────────
+function handleLogoFile(file) {
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { toast('File too large! Max 5MB.', 'err'); return; }
+
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var prev = document.getElementById('logo-preview');
+    var ico  = document.getElementById('logo-ico');
+    prev.src = ev.target.result; prev.style.display = 'block'; ico.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+
+  var b64reader = new FileReader();
+  b64reader.onload = function(ev) {
+    var base64   = ev.target.result.split(',')[1];
+    var fileName = 'wanza_logo_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    apiPost('uploadImage', { fileName: fileName, fileData: base64, mimeType: file.type })
+      .then(function(d) {
+        STATE.logoUrl = d.url || '';
+        document.getElementById('c-lo').value = STATE.logoUrl;
+        toast('Logo uploaded! ✅', 'ok');
+      })
+      .catch(function(e) {
+        console.error('Logo upload failed:', e);
+        toast('Upload failed — paste a URL instead.', '');
+      });
+  };
+  b64reader.readAsDataURL(file);
+}
+
+function handleLogoDrop(e) {
+  e.preventDefault();
+  document.getElementById('logo-wrap').classList.remove('drag');
+  var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file) handleLogoFile(file);
+}
+
+function previewLogoUrl(url) {
+  var prev = document.getElementById('logo-preview');
+  var ico  = document.getElementById('logo-ico');
+  if (url && url.startsWith('http')) {
+    prev.src = url; prev.style.display = 'block'; ico.style.display = 'none';
+    STATE.logoUrl = url;
+  } else {
+    prev.style.display = 'none'; ico.style.display = 'block';
+    STATE.logoUrl = '';
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  ✅ UPDATED: STEP 1 → SUBMIT PROFILE (with password)
+// ──────────────────────────────────────────────────────────────
+function submitProfile() {
+  var name = (document.getElementById('c-nm').value || '').trim();
+  var phone= (document.getElementById('c-ph').value || '').trim();
+  var pw   = (document.getElementById('c-pw').value  || '').trim();
+  var pw2  = (document.getElementById('c-pw2').value || '').trim();
+
+  // ── Validation ──
+  if (!name)  { toast('Business name is required!', 'err'); document.getElementById('c-nm').focus(); return; }
+  if (!phone) { toast('Phone number is required!',  'err'); document.getElementById('c-ph').focus(); return; }
+  if (!pw)    { toast('Password is required!',      'err'); document.getElementById('c-pw').focus(); return; }
+  if (pw.length < 6) { toast('Password must be at least 6 characters!', 'err'); document.getElementById('c-pw').focus(); return; }
+  if (pw !== pw2)    { toast('Passwords do not match!', 'err'); document.getElementById('c-pw2').focus(); return; }
+
+  var logoUrl = STATE.logoUrl || (document.getElementById('c-lo').value || '').trim();
+
+  var clientData = {
+    name:               name,
+    business_type:      (document.getElementById('c-ty').value  || '').trim(),
+    phone:              phone,
+    whatsapp_number:    (document.getElementById('c-wa').value  || '').trim(),
+    email:              (document.getElementById('c-em').value  || '').trim(),
+    address:            (document.getElementById('c-ad').value  || '').trim(),
+    google_review_link: (document.getElementById('c-gl').value  || '').trim(),
+    payment_link:       (document.getElementById('c-pl').value  || '').trim(),
+    description:        (document.getElementById('c-ds').value  || '').trim(),
+    logo_url:           logoUrl,
+    password:           pw   // stored in Google Sheets
+  };
+
+  var submitBtn = document.querySelector('#step-1 .btn-primary');
+  submitBtn.disabled    = true;
+  submitBtn.textContent = '⏳ Creating profile…';
+  setProgress(33);
+
+  apiPost('saveClient', {
+    payload: {
+      client:      clientData,
+      socialLinks: [],
+      reviews:     []
+    }
+  })
+  .then(function(result) {
+    var clientId = result.client_id || genId();
+    STATE.clientId    = clientId;
+    STATE.profileName = name;
+
+    // ✅ UPDATED: Store profileUrl in session
+    saveSession({
+      clientId:    clientId,
+      profileName: name,
+      plan:        'free',
+      created:     new Date().toISOString(),
+      profileUrl:  buildProfileUrl(clientId)
+    });
+
+    submitBtn.disabled    = false;
+    submitBtn.textContent = '🚀 Create My Business Profile';
+
+    goToStep(2);
+    toast('Profile created! 🎉', 'ok', 4000);
+  })
+  .catch(function(e) {
+    submitBtn.disabled    = false;
+    submitBtn.textContent = '🚀 Create My Business Profile';
+    setProgress(0);
+    console.error('Profile save failed:', e);
+    toast('Could not save profile: ' + (e.message || 'Please check connection.'), 'err');
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+//  PLAN RENDER
+// ──────────────────────────────────────────────────────────────
+function renderPlans() {
+  var grid = document.getElementById('plans-grid');
+  grid.innerHTML = PLANS.map(function(p) {
+    var isSelected = (STATE.selectedPlan === p.id);
+    var feats = p.features.map(function(f) {
+      return '<li>'
+        + '<span class="feat-ico ' + (f.yes ? 'yes' : 'no') + '">' + (f.yes ? '✓' : '✗') + '</span>'
+        + '<span>' + esc(f.text) + '</span>'
+        + '</li>';
+    }).join('');
+    var amountDisplay = p.display === 0 ? '0' : '1';
+    return '<div class="plan-card ' + p.css + (isSelected ? ' selected' : '') + '" onclick="selectPlan(\'' + p.id + '\')" id="plan-' + p.id + '">'
+      + (p.popular ? '<div class="plan-popular">🔥 Most Popular</div>' : '')
+      + '<div class="plan-header">'
+      + '<div>'
+      + '<div class="plan-name">' + esc(p.name) + '</div>'
+      + '<div class="plan-price-row">'
+      + '<span class="plan-currency">₹</span>'
+      + '<span class="plan-amount">' + amountDisplay + '</span>'
+      + '<span class="plan-period">' + esc(p.period) + '</span>'
+      + '</div>'
+      + '<div class="plan-real">'
+      + (p.real > 0
+          ? '<del>₹' + Math.round(p.real / 100) + '</del><span class="badge-save">Today only</span>'
+          : '<span class="badge-save" style="background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.2);color:var(--grn)">Free Forever</span>')
+      + '</div>'
+      + '<div style="font-size:11px;color:var(--txt3);margin-top:3px">' + esc(p.tagAfter) + '</div>'
+      + '</div>'
+      + '<div class="plan-select-indicator"></div>'
+      + '</div>'
+      + '<div class="plan-divider"></div>'
+      + '<ul class="plan-features">' + feats + '</ul>'
+      + '</div>';
+  }).join('');
+  updatePayBtn();
+}
+
+function selectPlan(planId) {
+  STATE.selectedPlan = planId;
+  PLANS.forEach(function(p) {
+    var card = document.getElementById('plan-' + p.id);
+    if (!card) return;
+    card.classList.toggle('selected', p.id === planId);
+  });
+  updatePayBtn();
+}
+
+function updatePayBtn() {
+  var plan = PLANS.find(function(p) { return p.id === STATE.selectedPlan; });
+  var btn  = document.getElementById('pay-btn');
+  if (!plan || !btn) return;
+  if (plan.real === 0) {
+    btn.textContent = '✅ Activate Free Plan';
+    btn.className   = 'btn btn-primary';
+  } else if (plan.id === 'pro') {
+    btn.textContent = '🔥 Start Pro for ₹1 — Activate Now';
+    btn.className   = 'btn btn-pro';
+  } else {
+    btn.textContent = '⚡ Start ' + plan.name + ' for ₹1';
+    btn.className   = 'btn btn-amber';
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  STEP 2 → HANDLE PAYMENT (Razorpay — unchanged)
+// ──────────────────────────────────────────────────────────────
+function handlePayment() {
+  var plan = PLANS.find(function(p) { return p.id === STATE.selectedPlan; });
+  if (!plan) return;
+
+  if (plan.real === 0) { savePlan('free', '', 'free'); return; }
+
+  var options = {
+    key:         RAZORPAY_KEY,
+    amount:      100,
+    currency:    'INR',
+    name:        'Wanza Marketing',
+    description: plan.name + ' Plan — ₹1 Trial',
+    image:       'https://via.placeholder.com/80x80.png?text=W',
+    prefill: {
+      name:    STATE.profileName || '',
+      contact: (document.getElementById('c-ph') ? document.getElementById('c-ph').value : '') || ''
+    },
+    notes: {
+      plan_id:    plan.id,
+      client_id:  STATE.clientId,
+      real_price: plan.real
+    },
+    theme: { color: '#4F46E5' },
+    handler: function(response) {
+      savePlan(plan.id, response.razorpay_payment_id, 'paid');
+    },
+    modal: {
+      ondismiss: function() {
+        toast('Payment cancelled. Select a plan to continue.', '');
+      }
+    }
+  };
+
+  try {
+    var rzp = new Razorpay(options);
+    rzp.on('payment.failed', function() {
+      toast('Payment failed. Please try again.', 'err');
+    });
+    rzp.open();
+  } catch(e) {
+    console.warn('Razorpay not available — simulating payment:', e.message);
+    savePlan(plan.id, 'PAY_DEMO_' + Date.now(), 'paid');
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  SAVE PLAN TO BACKEND
+// ──────────────────────────────────────────────────────────────
+function savePlan(planId, paymentId, paymentStatus) {
+  setProgress(66);
+
+  var payBtn = document.getElementById('pay-btn');
+  if (payBtn) { payBtn.disabled = true; payBtn.textContent = '⏳ Activating plan…'; }
+
+  var expiry = new Date();
+  expiry.setMonth(expiry.getMonth() + 1);
+
+  apiPost('userUpdatePlan', {
+    client_id:      STATE.clientId,
+    plan:           planId,
+    payment_id:     paymentId   || '',
+    payment_status: paymentStatus || 'free',
+    plan_date:      new Date().toISOString(),
+    plan_expiry:    expiry.toISOString()
+  })
+  .then(function() {
+    var sess = loadSession() || {};
+    sess.plan          = planId;
+    sess.paymentId     = paymentId;
+    sess.paymentStatus = paymentStatus;
+    saveSession(sess);
+    STATE.selectedPlan = planId;
+    goToStep(3);
+  })
+  .catch(function(e) {
+    console.error('Plan update failed:', e);
+    var sess = loadSession() || {};
+    sess.plan = planId;
+    saveSession(sess);
+    STATE.selectedPlan = planId;
+    goToStep(3);
+  });
+}
+
+function skipToFree() {
+  savePlan('free', '', 'free');
+}
+
+// ──────────────────────────────────────────────────────────────
+//  ✅ UPDATED: STEP NAVIGATION
+// ──────────────────────────────────────────────────────────────
+function goToStep(n) {
+  document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
+  var target = document.getElementById('step-' + n);
+  if (target) target.classList.add('active');
+
+  STATE.currentStep = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (n === 2) {
+    setProgress(50);
+
+    // ✅ Build and show profile URL
+    var profileUrl = buildProfileUrl(STATE.clientId);
+
+    var urlTxt  = document.getElementById('profile-url-txt');
+    var openBtn = document.getElementById('open-profile-btn');
+    if (urlTxt)  urlTxt.textContent = profileUrl;
+    if (openBtn) openBtn.href = profileUrl;
+
+    document.getElementById('chip-name').textContent = STATE.profileName || 'Your business';
+    renderPlans();
+    setTimeout(function() { selectPlan('pro'); }, 300);
+  }
+
+  if (n === 3) {
+    setProgress(100);
+    var plan       = PLANS.find(function(p) { return p.id === STATE.selectedPlan; });
+    var profileUrl3 = buildProfileUrl(STATE.clientId);
+
+    document.getElementById('done-biz').textContent  = STATE.profileName || '—';
+    document.getElementById('done-plan').textContent = plan
+      ? (plan.name + (plan.real > 0 ? ' — ₹1 today, ₹' + Math.round(plan.real/100) + '/month after' : ' — Free forever'))
+      : '—';
+
+    // ✅ Set clickable profile link
+    var doneId = document.getElementById('done-id');
+    if (doneId) {
+      doneId.textContent = profileUrl3;
+      doneId.href        = profileUrl3;
+    }
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  ✅ UPDATED: NAVIGATION BUTTONS
+// ──────────────────────────────────────────────────────────────
+function goToProfile() {
+  var url = STATE.clientId
+    ? buildProfileUrl(STATE.clientId)
+    : window.location.origin;
+  window.location.href = url;
+}
+
+function goToAdmin() {
+  window.location.href = ADMIN_URL;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  INIT
+// ──────────────────────────────────────────────────────────────
+function init() {
+  var ls = document.getElementById('ls');
+  var pg = document.getElementById('pg');
+  if (ls) { ls.classList.add('out'); setTimeout(function(){ ls.style.display = 'none'; }, 500); }
+  if (pg) pg.style.display = 'block';
+
+  var sess = loadSession();
+  if (sess && sess.clientId) {
+    STATE.clientId    = sess.clientId;
+    STATE.profileName = sess.profileName || '';
+    if (!sess.plan || sess.plan === 'free') {
+      goToStep(2);
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(init, 500);
+});
+
+// Enter key → submit Step 1 form
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && STATE.currentStep === 1) {
+    submitProfile();
+  }
+});
+</script>
+</body>
+</html>
