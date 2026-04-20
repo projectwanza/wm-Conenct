@@ -1150,7 +1150,7 @@ var PLANS = [
   {
     id: 'starter', name: 'STARTER', css: 'starter',
     display: 1, original: 199, monthly: 99,
-     payLink: 'razorpay.me/@ramaltielectronics',
+     payLink: 'https://razorpay.me/@ramaltielectronics',',
     popular: false, cta: 'Start for ₹1',
     features: [
       { text: 'Digital Profile + QR Code', yes: true  },
@@ -1164,7 +1164,7 @@ var PLANS = [
   {
     id: 'pro', name: 'PRO', css: 'pro',
     display: 1, original: 499, monthly: 249,
-     payLink: 'razorpay.me/@ramaltielectronics',
+     payLink: 'https://razorpay.me/@ramaltielectronics',',
     popular: true, cta: '🔥 Start Pro for ₹1',
     features: [
       { text: 'Everything in Starter',         yes: true },
@@ -1178,7 +1178,7 @@ var PLANS = [
   {
     id: 'premium', name: 'PREMIUM', css: 'premium',
     display: 1, original: 799, monthly: 399,
-     payLink: 'razorpay.me/@ramaltielectronics',
+     payLink: 'https://razorpay.me/@ramaltielectronics',',
     popular: false, cta: 'Start for ₹1',
     features: [
       { text: 'Everything in Pro',           yes: true },
@@ -1561,7 +1561,7 @@ function handlePayment() {
   }
 
   // Check karo payLink configured hai ya nahi
-  if (!plan.payLink || plan.payLink.indexOf('rzp.io') === -1) {
+  if (!plan.payLink) {
     toast('⚠️ Payment link configure nahi hua. Support se contact karo.', 'err', 5000);
     return;
   }
