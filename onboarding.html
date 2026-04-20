@@ -1561,6 +1561,8 @@ function handlePayment() {
   }
 
   // Check karo payLink configured hai ya nahi
+   // ── TRACK: Button click ──
+  logPayment('click', plan.id, '', '');
   if (!plan.payLink) {
     toast('⚠️ Payment link configure nahi hua. Support se contact karo.', 'err', 5000);
     return;
@@ -1636,12 +1638,14 @@ function checkPaymentReturn() {
   if (rzpStatus === 'paid' && rzpPaymentId) {
     STATE.paymentStatus = 'paid';
     toast('✅ Payment successful! Plan activate ho raha hai…', 'ok', 4000);
+       logPayment('success', planId, rzpPaymentId, 'paid');
     goToStep(2);
     setTimeout(function() { savePlan(planId, rzpPaymentId, 'paid'); }, 500);
     return true;
   }
 
   // ❌ CASE 2: Payment nahi hua / cancel kiya
+   logPayment('failed', planId, '', 'cancelled_or_failed');
   STATE.paymentStatus = 'failed';
   goToStep(2);
   setTimeout(function() { showPaymentFailedScreen(clientId, planId); }, 500);
@@ -1931,6 +1935,29 @@ document.addEventListener('keydown', function(e) {
     submitProfile();
   }
 });
+
+// ── Payment event logger ──────────────────────────────────────
+function logPayment(eventType, planId, paymentId, status) {
+  try {
+    var device = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+    fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action:      'logPaymentEvent',
+        client_id:   STATE.clientId   || '',
+        client_name: STATE.profileName || '',
+        plan_id:     planId            || '',
+        event_type:  eventType,
+        payment_id:  paymentId         || '',
+        status:      status            || '',
+        device:      device
+      }),
+      redirect: 'follow'
+    }).catch(function(){});  // silently fail — tracking important nahi
+  } catch(e) {}
+}
+   
 </script>
 </body>
 </html>
+
