@@ -1495,14 +1495,8 @@ function renderPlans() {
       priceBlock = '<div class="plan-price-row" style="align-items:flex-end;gap:4px">'
         + '<span class="plan-currency">₹</span>'
         + '<span class="plan-amount">1</span>'
-        + '<span class="plan-offer-badge">TODAY ONLY</span>'
-        + '</div>'
-        + '<div class="plan-strike-row">'
-        + '<del class="plan-original">₹' + p.original + '</del>'
-        + '<span class="plan-save-pct">Save ' + Math.round((1 - 1/p.original)*100) + '%</span>'
         + '</div>'
         + '<div class="plan-monthly-txt">Then ₹' + p.monthly + '/month</div>';
-    }
 
     return '<div class="plan-card ' + p.css + (isSelected ? ' selected' : '') + '" onclick="selectPlan(\'' + p.id + '\')" id="plan-' + p.id + '">'
       + (p.popular ? '<div class="plan-popular">🔥 Most Popular</div>' : '')
@@ -1536,7 +1530,7 @@ function updatePayBtn() {
   var plan = PLANS.find(function(p) { return p.id === STATE.selectedPlan; });
   var btn  = document.getElementById('pay-btn');
   if (!plan || !btn) return;
-  if (plan.real === 0) {
+  if (plan.id === 'free') {
     btn.textContent = '✅ Activate Free Plan';
     btn.className   = 'btn btn-primary';
   } else if (plan.id === 'pro') {
@@ -1556,7 +1550,8 @@ function handlePayment() {
   if (!plan) return;
 
   // Free plan — intentional selection, allowed to go to Step 3
-  if (plan.real === 0) {
+  // Free plan — skip Razorpay entirely
+  if (plan.id === 'free') {
     savePlan('free', '', 'free');
     return;
   }
