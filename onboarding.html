@@ -1641,12 +1641,12 @@ function checkPaymentReturn() {
     return true;
   }
 
-  // CASE 2: Confirm nahi mila — verify button dikhao
- // CASE 2: razorpay.me se wapas aaya — direct activate karo
-  STATE.clientId     = clientId;
-  STATE.selectedPlan = planId;
-  STATE.paymentStatus = 'paid';
-  goToStep(3);
+ // CASE 2: Payment confirm nahi — Step 2 dikhao verify banner ke saath
+  STATE.paymentStatus = '';
+  goToStep(2);
+  setTimeout(function() {
+    showPaymentVerifyBanner(clientId, planId, rzpPaymentId);
+  }, 600);
   return true;
 }
 // ── VERIFY BANNER — jab auto-confirm na ho ─────────────────────
@@ -1883,15 +1883,7 @@ if (checkPaymentReturn()) return;
    // Agar pending payment tha aur user wapas aaya — activate karo
 try {
   var pend = JSON.parse(localStorage.getItem('wanza_pending_payment') || 'null');
-  if (pend && pend.clientId && pend.planId && (Date.now() - pend.timestamp) < 600000) {
-    STATE.clientId = pend.clientId;
-    STATE.profileName = pend.profileName || '';
-    STATE.selectedPlan = pend.planId;
-    STATE.paymentStatus = 'paid';
-    localStorage.removeItem('wanza_pending_payment');
-    goToStep(3);
-    return;
-  }
+ 
 } catch(e) {}
 var sess = loadSession();
     console.log('Wanza: session =', sess);
