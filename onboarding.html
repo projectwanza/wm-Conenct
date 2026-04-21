@@ -8,756 +8,490 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════
-   WANZA ONBOARDING — Single File v2.1
-   Dark-premium SaaS aesthetic with electric accents
-   Brand: Deep Navy #0A0F2C | Blue #2563EB | Amber #F59E0B 
+   WANZA ONBOARDING v2.2 — Enhanced
+   + Referral System
+   + Payment Verification Dashboard
+   + Real-time Plan Status
+   + Support Buttons
    ═══════════════════════════════════════════════════════ */
 :root {
-  --navy:    #0A0F2C;
-  --navy2:   #111827;
-  --navy3:   #1F2A48;
-  --blue:    #2563EB;
-  --blue2:   #3B82F6;
-  --blue3:   #93C5FD;
-  --amber:   #F59E0B;
-  --amber2:  #FCD34D;
-  --grn:     #10B981;
-  --red:     #EF4444;
-  --purple:  #8B5CF6;
-  --bg:      #070C1F;
-  --surf:    #0D1530;
-  --card:    #111B3A;
-  --card2:   #162040;
-  --glass:   rgba(255,255,255,.04);
-  --glass2:  rgba(255,255,255,.07);
-  --txt:     #F0F4FF;
-  --txt2:    #94A3B8;
-  --txt3:    #4B5884;
-  --muted:   #64748B;
-  --bdr:     rgba(255,255,255,.06);
-  --bdr2:    rgba(37,99,235,.25);
-  --bdr3:    rgba(245,158,11,.30);
-  --bdr-pro: rgba(139,92,246,.55);
-  --g-hero:  linear-gradient(135deg,#0A0F2C 0%,#0D1A3A 50%,#0A1628 100%);
-  --g-blue:  linear-gradient(135deg,#1D4ED8,#2563EB,#3B82F6);
-  --g-amber: linear-gradient(135deg,#D97706,#F59E0B,#FCD34D);
-  --g-pro:   linear-gradient(135deg,#4F46E5,#7C3AED,#8B5CF6);
-  --g-grn:   linear-gradient(135deg,#059669,#10B981);
-  --g-brand: linear-gradient(135deg,#1D4ED8 0%,#4F46E5 50%,#F59E0B 100%);
-  --g-card:  linear-gradient(145deg,rgba(17,27,58,.95),rgba(13,21,48,.90));
-  --sh-blue:  0 8px 32px rgba(37,99,235,.35);
-  --sh-amber: 0 8px 32px rgba(245,158,11,.35);
-  --sh-pro:   0 0 0 2px rgba(139,92,246,.5), 0 12px 60px rgba(79,70,229,.35);
-  --sh-card:  0 4px 24px rgba(0,0,0,.40);
-  --sh-glow:  0 0 40px rgba(37,99,235,.15);
-  --max: 580px;
-  --r1: 10px; --r2: 16px; --r3: 22px; --r4: 32px; --pill: 999px;
-  --pad: 22px;
+  --navy:   #0A0F2C; --navy2:#111827; --navy3:#1F2A48;
+  --blue:   #2563EB; --blue2:#3B82F6; --blue3:#93C5FD;
+  --amber:  #F59E0B; --amber2:#FCD34D;
+  --grn:    #10B981; --red:#EF4444; --purple:#8B5CF6;
+  --bg:     #070C1F; --surf:#0D1530; --card:#111B3A; --card2:#162040;
+  --glass:  rgba(255,255,255,.04); --glass2:rgba(255,255,255,.07);
+  --txt:    #F0F4FF; --txt2:#94A3B8; --txt3:#4B5884; --muted:#64748B;
+  --bdr:    rgba(255,255,255,.06); --bdr2:rgba(37,99,235,.25);
+  --bdr3:   rgba(245,158,11,.30);  --bdr-pro:rgba(139,92,246,.55);
+  --g-hero: linear-gradient(135deg,#0A0F2C,#0D1A3A,#0A1628);
+  --g-blue: linear-gradient(135deg,#1D4ED8,#2563EB,#3B82F6);
+  --g-amber:linear-gradient(135deg,#D97706,#F59E0B,#FCD34D);
+  --g-pro:  linear-gradient(135deg,#4F46E5,#7C3AED,#8B5CF6);
+  --g-grn:  linear-gradient(135deg,#059669,#10B981);
+  --g-brand:linear-gradient(135deg,#1D4ED8,#4F46E5,#F59E0B);
+  --g-card: linear-gradient(145deg,rgba(17,27,58,.95),rgba(13,21,48,.90));
+  --sh-blue: 0 8px 32px rgba(37,99,235,.35);
+  --sh-amber:0 8px 32px rgba(245,158,11,.35);
+  --sh-pro:  0 0 0 2px rgba(139,92,246,.5),0 12px 60px rgba(79,70,229,.35);
+  --sh-card: 0 4px 24px rgba(0,0,0,.40);
+  --sh-glow: 0 0 40px rgba(37,99,235,.15);
+  --max:580px; --r1:10px; --r2:16px; --r3:22px; --r4:32px; --pill:999px;
+  --pad:22px;
 }
-
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:15px; line-height:1.6;
-  background:var(--bg); color:var(--txt);
-  min-height:100dvh; overflow-x:hidden;
-  -webkit-tap-highlight-color:transparent;
-}
-body::before{
-  content:'';
-  position:fixed; inset:0; z-index:0; pointer-events:none;
-  background-image:
-    linear-gradient(rgba(37,99,235,.03) 1px,transparent 1px),
+body{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;line-height:1.6;
+  background:var(--bg);color:var(--txt);min-height:100dvh;overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(37,99,235,.03) 1px,transparent 1px),
     linear-gradient(90deg,rgba(37,99,235,.03) 1px,transparent 1px);
-  background-size:40px 40px;
-}
-body::after{
-  content:''; position:fixed; z-index:0; pointer-events:none;
-  width:800px; height:400px; border-radius:50%;
-  top:-200px; left:50%; transform:translateX(-50%);
-  background:radial-gradient(ellipse,rgba(37,99,235,.10) 0%,transparent 70%);
-}
+  background-size:40px 40px}
+body::after{content:'';position:fixed;z-index:0;pointer-events:none;
+  width:800px;height:400px;border-radius:50%;top:-200px;left:50%;transform:translateX(-50%);
+  background:radial-gradient(ellipse,rgba(37,99,235,.10),transparent 70%)}
 
-/* ── LOADER ── */
-#ls{
-  position:fixed; inset:0; z-index:9999;
-  background:var(--bg);
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:20px;
-  transition:opacity .5s ease;
-}
+/* LOADER */
+#ls{position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  transition:opacity .5s ease}
 #ls.out{opacity:0;pointer-events:none}
-.ld-icon{
-  width:72px; height:72px; border-radius:20px;
-  background:var(--g-brand);
-  display:flex; align-items:center; justify-content:center;
-  font-size:2rem;
-  box-shadow:var(--sh-blue), 0 0 60px rgba(37,99,235,.2);
-  animation:iconPulse 2s ease infinite;
-}
-@keyframes iconPulse{
-  0%,100%{transform:scale(1);box-shadow:var(--sh-blue),0 0 60px rgba(37,99,235,.2)}
-  50%{transform:scale(1.05);box-shadow:0 12px 50px rgba(37,99,235,.50),0 0 80px rgba(37,99,235,.25)}
-}
-.ld-ring{
-  width:36px; height:36px;
-  border:2.5px solid rgba(37,99,235,.12);
-  border-top-color:var(--blue); border-right-color:var(--amber);
-  border-radius:50%; animation:spin .8s linear infinite;
-}
+.ld-icon{width:72px;height:72px;border-radius:20px;background:var(--g-brand);
+  display:flex;align-items:center;justify-content:center;font-size:2rem;
+  box-shadow:var(--sh-blue),0 0 60px rgba(37,99,235,.2);animation:iconPulse 2s ease infinite}
+@keyframes iconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.ld-ring{width:36px;height:36px;border:2.5px solid rgba(37,99,235,.12);
+  border-top-color:var(--blue);border-right-color:var(--amber);
+  border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ld-txt{font-size:11px;color:var(--txt3);font-weight:600;letter-spacing:3px;text-transform:uppercase}
 
-/* ── TOAST ── */
-#toast{
-  position:fixed; z-index:9998;
-  bottom:28px; left:50%;
+/* TOAST */
+#toast{position:fixed;z-index:9998;bottom:28px;left:50%;
   transform:translateX(-50%) translateY(14px);
-  background:var(--card2); border:1px solid var(--bdr2);
-  border-radius:var(--pill);
-  padding:12px 28px; font-size:13px; font-weight:600;
-  opacity:0; pointer-events:none;
-  transition:opacity .3s ease,transform .3s ease;
-  white-space:nowrap; max-width:calc(100vw - 32px); text-align:center;
-  box-shadow:0 8px 36px rgba(0,0,0,.5);
-}
+  background:var(--card2);border:1px solid var(--bdr2);border-radius:var(--pill);
+  padding:12px 28px;font-size:13px;font-weight:600;
+  opacity:0;pointer-events:none;transition:opacity .3s ease,transform .3s ease;
+  white-space:nowrap;max-width:calc(100vw - 32px);text-align:center;
+  box-shadow:0 8px 36px rgba(0,0,0,.5)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.ok{border-color:rgba(16,185,129,.4);color:var(--grn)}
 #toast.err{border-color:rgba(239,68,68,.4);color:var(--red)}
 #toast.info{border-color:var(--bdr2);color:var(--blue2)}
+#toast.warn{border-color:rgba(245,158,11,.4);color:var(--amber)}
 
-/* ── PAGE SHELL ── */
+/* PAGE SHELL */
 #pg{position:relative;z-index:1;display:none}
+.step{display:none}.step.active{display:block}
 
-/* ── STEP CONTAINER ── */
-.step{display:none}
-.step.active{display:block}
+/* PROGRESS BAR */
+.progress-bar{position:fixed;top:0;left:0;height:3px;z-index:200;
+  background:var(--g-brand);transition:width .5s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 12px rgba(37,99,235,.5)}
 
-/* ── PROGRESS BAR ── */
-.progress-bar{
-  position:fixed; top:0; left:0; height:3px; z-index:200;
-  background:var(--g-brand);
-  transition:width .5s cubic-bezier(.4,0,.2,1);
-  box-shadow:0 0 12px rgba(37,99,235,.5);
-}
-
-/* ── HEADER ── */
-.hdr{
-  padding:18px var(--pad);
-  display:flex; align-items:center; justify-content:space-between;
-  border-bottom:1px solid var(--bdr);
-  position:relative;
-}
-.hdr::after{
-  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(37,99,235,.5),rgba(245,158,11,.4),transparent);
-}
+/* HEADER */
+.hdr{padding:18px var(--pad);display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--bdr);position:relative}
+.hdr::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(37,99,235,.5),rgba(245,158,11,.4),transparent)}
 .hdr-logo{display:flex;align-items:center;gap:10px}
-.hdr-ico{
-  width:32px; height:32px; border-radius:9px;
-  background:var(--g-brand);
-  display:flex; align-items:center; justify-content:center;
-  font-size:1rem;
-}
-.hdr-name{
-  font-family:'Clash Display',sans-serif;
-  font-size:16px; font-weight:700; color:var(--txt);
-  letter-spacing:.2px;
-}
-.hdr-step{
-  font-size:11px; font-weight:700; color:var(--txt3);
-  text-transform:uppercase; letter-spacing:1.5px;
-}
+.hdr-ico{width:32px;height:32px;border-radius:9px;background:var(--g-brand);
+  display:flex;align-items:center;justify-content:center;font-size:1rem}
+.hdr-name{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:700;color:var(--txt);letter-spacing:.2px}
+.hdr-step{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px}
 .hdr-step span{color:var(--blue2)}
 
-/* ── SCREEN WRAPPER ── */
-.screen{
-  min-height:100dvh;
-  padding:0 0 60px;
-  max-width:var(--max);
-  margin:0 auto;
-}
-
-/* ── SCREEN HERO ── */
-.screen-hero{
-  padding:clamp(28px,6vw,44px) var(--pad) 24px;
-  text-align:center;
-}
-.screen-badge{
-  display:inline-flex; align-items:center; gap:6px;
-  background:rgba(37,99,235,.12); border:1px solid rgba(37,99,235,.25);
-  border-radius:var(--pill); padding:6px 16px;
-  font-size:11px; font-weight:700; color:var(--blue3);
-  text-transform:uppercase; letter-spacing:1px;
-  margin-bottom:16px;
-}
-.screen-badge::before{
-  content:''; width:6px; height:6px; border-radius:50%;
-  background:var(--blue2); animation:blink 1.4s ease infinite;
-}
+.screen{min-height:100dvh;padding:0 0 60px;max-width:var(--max);margin:0 auto}
+.screen-hero{padding:clamp(28px,6vw,44px) var(--pad) 24px;text-align:center}
+.screen-badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.25);
+  border-radius:var(--pill);padding:6px 16px;
+  font-size:11px;font-weight:700;color:var(--blue3);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.screen-badge::before{content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--blue2);animation:blink 1.4s ease infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.screen-title{font-family:'Clash Display',sans-serif;
+  font-size:clamp(1.7rem,5.5vw,2.3rem);font-weight:700;line-height:1.2;letter-spacing:-.3px;
+  color:var(--txt);margin-bottom:10px}
+.screen-title .accent{background:var(--g-brand);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text}
+.screen-sub{font-size:14px;color:var(--txt2);max-width:420px;margin:0 auto;line-height:1.7}
 
-.screen-title{
-  font-family:'Clash Display',sans-serif;
-  font-size:clamp(1.7rem,5.5vw,2.3rem);
-  font-weight:700; line-height:1.2; letter-spacing:-.3px;
-  color:var(--txt); margin-bottom:10px;
-}
-.screen-title .accent{
-  background:var(--g-brand);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-}
-.screen-sub{
-  font-size:14px; color:var(--txt2);
-  max-width:420px; margin:0 auto;
-  line-height:1.7;
-}
-
-/* ── FORM CARD ── */
-.form-card{
-  margin:0 var(--pad);
-  background:var(--g-card);
-  border:1px solid var(--bdr);
-  border-radius:var(--r3);
-  padding:clamp(20px,5vw,28px);
-  box-shadow:var(--sh-card), var(--sh-glow);
-  animation:slideUp .4s cubic-bezier(.22,1,.36,1) both;
-}
+/* FORM CARD */
+.form-card{margin:0 var(--pad);background:var(--g-card);border:1px solid var(--bdr);
+  border-radius:var(--r3);padding:clamp(20px,5vw,28px);
+  box-shadow:var(--sh-card),var(--sh-glow);animation:slideUp .4s cubic-bezier(.22,1,.36,1) both}
 @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
-
-.form-section{
-  font-size:10px; font-weight:800; color:var(--txt3);
-  text-transform:uppercase; letter-spacing:2px;
-  padding-bottom:12px; margin-bottom:16px;
-  border-bottom:1px solid var(--bdr);
-  display:flex; align-items:center; gap:8px;
-}
-.form-section::before{
-  content:''; width:12px; height:2px;
-  background:var(--g-blue); border-radius:1px;
-}
-
+.form-section{font-size:10px;font-weight:800;color:var(--txt3);text-transform:uppercase;
+  letter-spacing:2px;padding-bottom:12px;margin-bottom:16px;
+  border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px}
+.form-section::before{content:'';width:12px;height:2px;background:var(--g-blue);border-radius:1px}
 .form-grid{display:flex;flex-direction:column;gap:14px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fg{display:flex;flex-direction:column;gap:7px}
 .fg.full{grid-column:1/-1}
-
-.lbl{
-  font-size:11px; font-weight:700; color:var(--txt2);
-  text-transform:uppercase; letter-spacing:.8px;
-  display:flex; align-items:center; gap:5px;
-}
+.lbl{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.8px;
+  display:flex;align-items:center;gap:5px}
 .lbl .req{color:var(--amber);font-size:.9em}
-
-.inp,.sel,.ta{
-  background:rgba(255,255,255,.04);
-  border:1.5px solid rgba(255,255,255,.08);
-  border-radius:var(--r2);
-  color:var(--txt);
-  padding:12px 16px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:14px;
-  outline:none;
-  transition:border-color .2s,box-shadow .2s,background .2s;
-  width:100%;
-}
-.inp:focus,.sel:focus,.ta:focus{
-  border-color:rgba(37,99,235,.6);
-  background:rgba(37,99,235,.05);
-  box-shadow:0 0 0 4px rgba(37,99,235,.10);
-}
+.inp,.sel,.ta{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);
+  border-radius:var(--r2);color:var(--txt);padding:12px 16px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;
+  transition:border-color .2s,box-shadow .2s,background .2s;width:100%}
+.inp:focus,.sel:focus,.ta:focus{border-color:rgba(37,99,235,.6);background:rgba(37,99,235,.05);
+  box-shadow:0 0 0 4px rgba(37,99,235,.10)}
 .inp::placeholder,.ta::placeholder{color:var(--txt3)}
-.sel{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234B5884' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.sel{appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234B5884' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center}
 .sel option{background:var(--card2);color:var(--txt)}
 .ta{resize:vertical;min-height:80px}
 
-/* Upload widget */
-.upload-wrap{
-  border:2px dashed rgba(255,255,255,.10);
-  border-radius:var(--r2); padding:20px;
-  text-align:center; cursor:pointer;
-  transition:border-color .2s,background .2s;
-  position:relative; background:rgba(255,255,255,.02);
-}
-.upload-wrap:hover,.upload-wrap.drag{
-  border-color:rgba(37,99,235,.5);
-  background:rgba(37,99,235,.05);
-}
+/* ── REFERRAL FIELD ─────────────────────────────────────────── */
+.ref-wrap{position:relative}
+.ref-wrap .inp{padding-right:90px}
+.ref-check-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  background:rgba(37,99,235,.18);border:1px solid var(--bdr2);
+  border-radius:var(--r1);padding:6px 12px;cursor:pointer;
+  color:var(--blue2);font-size:11px;font-weight:700;white-space:nowrap;
+  transition:background .2s}
+.ref-check-btn:hover{background:rgba(37,99,235,.32)}
+.ref-status{font-size:12px;font-weight:600;margin-top:6px;
+  padding:8px 12px;border-radius:var(--r1);display:none;line-height:1.4}
+.ref-status.valid{background:rgba(16,185,129,.10);border:1px solid rgba(16,185,129,.25);color:var(--grn)}
+.ref-status.invalid{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.20);color:var(--red)}
+
+/* UPLOAD WIDGET */
+.upload-wrap{border:2px dashed rgba(255,255,255,.10);border-radius:var(--r2);padding:20px;
+  text-align:center;cursor:pointer;transition:border-color .2s,background .2s;
+  position:relative;background:rgba(255,255,255,.02)}
+.upload-wrap:hover,.upload-wrap.drag{border-color:rgba(37,99,235,.5);background:rgba(37,99,235,.05)}
 .upload-wrap input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .upload-ico{font-size:1.8rem;margin-bottom:6px;display:block}
 .upload-txt{font-size:13px;color:var(--txt2);font-weight:600}
 .upload-sub{font-size:11px;color:var(--txt3);margin-top:4px}
-.upload-preview{
-  width:70px;height:70px;border-radius:50%;
-  object-fit:cover;border:2px solid var(--bdr2);
-  margin:0 auto 8px; display:none;
-}
+.upload-preview{width:70px;height:70px;border-radius:50%;object-fit:cover;
+  border:2px solid var(--bdr2);margin:0 auto 8px;display:none}
 
-/* ── PASSWORD FIELD WRAPPER ── */
+/* PASSWORD FIELD */
 .pw-wrap{position:relative}
 .pw-wrap .inp{padding-right:46px}
-.pw-toggle{
-  position:absolute;right:12px;top:50%;transform:translateY(-50%);
-  background:none;border:none;cursor:pointer;
-  color:var(--txt3);font-size:1rem;padding:4px;
-  line-height:1;transition:color .2s;
-}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--txt3);font-size:1rem;
+  padding:4px;line-height:1;transition:color .2s}
 .pw-toggle:hover{color:var(--blue2)}
 
-/* ── PROFILE URL BOX (Step 2) ── */
-.profile-url-box{
-  display:flex;align-items:center;gap:10px;
-  background:rgba(37,99,235,.08);
-  border:1px solid var(--bdr2);
-  border-radius:var(--r2);
-  padding:10px 14px;
-  margin-top:4px;
-  text-align:left;
-}
-.profile-url-txt{
-  flex:1;font-size:11px;font-family:monospace;
-  color:var(--blue3);word-break:break-all;line-height:1.5;
-}
-.copy-url-btn{
-  background:rgba(37,99,235,.18);
-  border:1px solid var(--bdr2);
-  border-radius:8px;
-  padding:6px 10px;cursor:pointer;
-  color:var(--blue2);font-size:.85rem;flex-shrink:0;
-  transition:background .2s,transform .15s;
-}
-.copy-url-btn:hover{background:rgba(37,99,235,.32);transform:scale(1.08)}
-.copy-url-btn:active{transform:scale(.94)}
-
-.open-profile-link{
-  display:inline-flex;align-items:center;gap:6px;
-  margin-top:10px;
-  font-size:12px;color:var(--blue2);text-decoration:none;
-  background:rgba(37,99,235,.08);
-  border:1px solid var(--bdr2);
-  border-radius:var(--pill);
-  padding:6px 16px;
-  transition:background .2s,border-color .2s;
-  font-weight:600;
-}
-.open-profile-link:hover{background:rgba(37,99,235,.18);border-color:rgba(37,99,235,.5)}
-
-/* ── DONE PROFILE LINK (Step 3) ── */
-.done-link-row{display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap}
-.done-link{
-  font-size:11px;color:var(--blue3);font-family:monospace;
-  word-break:break-all;text-decoration:underline;
-  text-underline-offset:2px;
-}
-.done-copy-btn{
-  background:rgba(37,99,235,.12);
-  border:1px solid var(--bdr2);
-  border-radius:6px;
-  padding:4px 10px;cursor:pointer;
-  color:var(--blue2);font-size:.75rem;white-space:nowrap;
-  flex-shrink:0;transition:background .2s;
-}
-.done-copy-btn:hover{background:rgba(37,99,235,.26)}
-
-/* ── BUTTONS ── */
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  border:none;cursor:pointer;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:14px;font-weight:700;
-  border-radius:var(--pill);
-  transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease;
-  position:relative;overflow:hidden;
-  -webkit-user-select:none;user-select:none;
-  text-decoration:none;
-}
-.btn::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(255,255,255,.10),transparent);
-  pointer-events:none;
-}
-.btn:active{transform:scale(.96)!important}
-.btn:disabled{opacity:.45;cursor:default;transform:none!important}
-
-.btn-primary{
-  width:100%;height:54px;font-size:15px;
-  background:var(--g-blue); color:#fff;
-  box-shadow:var(--sh-blue);
-}
-.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 44px rgba(37,99,235,.5)}
-
-.btn-amber{
-  width:100%;height:54px;font-size:15px;
-  background:var(--g-amber); color:var(--navy);
-  box-shadow:var(--sh-amber);
-  animation:amberPulse 2.5s ease infinite;
-}
-@keyframes amberPulse{
-  0%,100%{box-shadow:var(--sh-amber),0 0 0 0 rgba(245,158,11,.2)}
-  50%{box-shadow:0 12px 44px rgba(245,158,11,.55),0 0 0 10px rgba(245,158,11,.0)}
-}
-.btn-amber:hover{transform:translateY(-3px);box-shadow:0 14px 50px rgba(245,158,11,.55)}
-
-.btn-ghost{
-  width:100%;height:46px;
-  background:transparent;
-  border:1.5px solid var(--bdr);
-  color:var(--txt2);
-}
-.btn-ghost:hover{border-color:rgba(255,255,255,.2);color:var(--txt);background:var(--glass)}
-
-/* ── PRO BUTTON — ENHANCED GLOW (psychology) ── */
-.btn-pro{
-  width:100%;height:56px;font-size:15px;
-  background:var(--g-pro); color:#fff;
-  box-shadow:
-    0 0 0 2px rgba(139,92,246,.5),
-    0 12px 60px rgba(79,70,229,.35),
-    0 0 80px rgba(139,92,246,.20),
-    inset 0 1px 0 rgba(255,255,255,.15);
-  animation:proPulse 2s ease infinite;
-}
-@keyframes proPulse{
-  0%,100%{
-    box-shadow:
-      0 0 0 2px rgba(139,92,246,.5),
-      0 12px 60px rgba(79,70,229,.35),
-      0 0 80px rgba(139,92,246,.15),
-      inset 0 1px 0 rgba(255,255,255,.15);
-    transform:translateY(0) scale(1);
-  }
-  50%{
-    box-shadow:
-      0 0 0 4px rgba(139,92,246,.65),
-      0 20px 80px rgba(79,70,229,.55),
-      0 0 120px rgba(139,92,246,.30),
-      inset 0 1px 0 rgba(255,255,255,.15);
-    transform:translateY(-2px) scale(1.008);
-  }
-}
-.btn-pro:hover{
-  transform:translateY(-4px) scale(1.01)!important;
-  box-shadow:
-    0 0 0 3px rgba(139,92,246,.75),
-    0 24px 90px rgba(79,70,229,.65),
-    0 0 140px rgba(139,92,246,.35),
-    inset 0 1px 0 rgba(255,255,255,.2)!important;
-  animation:none;
-}
-
-.btn-sm{padding:9px 20px;height:auto;width:auto}
-.btn-free{
-  background:rgba(255,255,255,.05);
-  border:1px solid var(--bdr); color:var(--txt2);
-  width:100%;height:40px;font-size:13px;
-  border-radius:var(--pill);
-}
-.btn-free:hover{border-color:rgba(255,255,255,.15);color:var(--txt)}
-
-.btn-wrap{padding:0 var(--pad);margin-top:16px;display:flex;flex-direction:column;gap:10px}
-
-/* ── STEP INDICATOR ── */
-.step-dots{
-  display:flex;justify-content:center;gap:8px;
-  padding:18px var(--pad) 0;
-}
-.step-dot{
-  width:8px;height:8px;border-radius:50%;
-  background:rgba(255,255,255,.10);
-  transition:all .35s ease;
-}
+/* STEP DOTS */
+.step-dots{display:flex;justify-content:center;gap:8px;padding:18px var(--pad) 0}
+.step-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.10);transition:all .35s ease}
 .step-dot.done{background:var(--blue);width:20px;border-radius:4px}
 .step-dot.active{background:var(--amber);width:14px;border-radius:4px}
 
-/* ── SUCCESS SCREEN ── */
-.success-card{
-  margin:var(--pad);
-  background:var(--g-card);
-  border:1px solid rgba(16,185,129,.25);
-  border-radius:var(--r3);
-  padding:clamp(32px,6vw,44px) var(--pad);
-  text-align:center;
-  box-shadow:0 0 0 1px rgba(16,185,129,.1),var(--sh-card),0 0 60px rgba(16,185,129,.08);
-  animation:slideUp .5s cubic-bezier(.22,1,.36,1);
-}
-.success-ico{
-  width:72px;height:72px;border-radius:50%;
-  background:rgba(16,185,129,.12);border:2px solid rgba(16,185,129,.3);
-  display:flex;align-items:center;justify-content:center;
-  font-size:2rem;margin:0 auto 18px;
-  animation:bounceIn .6s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes bounceIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
-.success-title{
-  font-family:'Clash Display',sans-serif;
-  font-size:1.7rem;font-weight:700;color:var(--txt);margin-bottom:8px;
-}
-.success-sub{font-size:14px;color:var(--txt2);line-height:1.65;margin-bottom:16px}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;border-radius:var(--pill);
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease;
+  position:relative;overflow:hidden;-webkit-user-select:none;user-select:none;text-decoration:none}
+.btn::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),transparent);pointer-events:none}
+.btn:active{transform:scale(.96)!important}
+.btn:disabled{opacity:.45;cursor:default;transform:none!important}
+.btn-primary{width:100%;height:54px;font-size:15px;background:var(--g-blue);color:#fff;box-shadow:var(--sh-blue)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 44px rgba(37,99,235,.5)}
+.btn-amber{width:100%;height:54px;font-size:15px;background:var(--g-amber);color:var(--navy);
+  box-shadow:var(--sh-amber);animation:amberPulse 2.5s ease infinite}
+@keyframes amberPulse{0%,100%{box-shadow:var(--sh-amber),0 0 0 0 rgba(245,158,11,.2)}
+  50%{box-shadow:0 12px 44px rgba(245,158,11,.55),0 0 0 10px rgba(245,158,11,.0)}}
+.btn-amber:hover{transform:translateY(-3px);box-shadow:0 14px 50px rgba(245,158,11,.55)}
+.btn-ghost{width:100%;height:46px;background:transparent;border:1.5px solid var(--bdr);color:var(--txt2)}
+.btn-ghost:hover{border-color:rgba(255,255,255,.2);color:var(--txt);background:var(--glass)}
+.btn-pro{width:100%;height:56px;font-size:15px;background:var(--g-pro);color:#fff;
+  box-shadow:0 0 0 2px rgba(139,92,246,.5),0 12px 60px rgba(79,70,229,.35),
+    0 0 80px rgba(139,92,246,.20),inset 0 1px 0 rgba(255,255,255,.15);
+  animation:proPulse 2s ease infinite}
+@keyframes proPulse{
+  0%,100%{box-shadow:0 0 0 2px rgba(139,92,246,.5),0 12px 60px rgba(79,70,229,.35),
+    0 0 80px rgba(139,92,246,.15),inset 0 1px 0 rgba(255,255,255,.15);transform:translateY(0) scale(1)}
+  50%{box-shadow:0 0 0 4px rgba(139,92,246,.65),0 20px 80px rgba(79,70,229,.55),
+    0 0 120px rgba(139,92,246,.30),inset 0 1px 0 rgba(255,255,255,.15);transform:translateY(-2px) scale(1.008)}}
+.btn-pro:hover{transform:translateY(-4px) scale(1.01)!important;animation:none;
+  box-shadow:0 0 0 3px rgba(139,92,246,.75),0 24px 90px rgba(79,70,229,.65),
+    0 0 140px rgba(139,92,246,.35),inset 0 1px 0 rgba(255,255,255,.2)!important}
+.btn-sm{padding:9px 20px;height:auto;width:auto}
+.btn-free{background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--txt2);
+  width:100%;height:40px;font-size:13px;border-radius:var(--pill)}
+.btn-free:hover{border-color:rgba(255,255,255,.15);color:var(--txt)}
+.btn-wrap{padding:0 var(--pad);margin-top:16px;display:flex;flex-direction:column;gap:10px}
 
-/* ── PLAN CARDS ── */
+/* ── PLAN CARDS ───────────────────────────────────────────── */
 .plans-section{padding:0 var(--pad)}
 .plans-grid{display:flex;flex-direction:column;gap:12px}
-
-.plan-card{
-  background:var(--g-card);
-  border:1.5px solid var(--bdr);
-  border-radius:var(--r3);
-  padding:clamp(18px,4vw,24px);
-  cursor:pointer;
-  position:relative;overflow:hidden;
+.plan-card{background:var(--g-card);border:1.5px solid var(--bdr);border-radius:var(--r3);
+  padding:clamp(18px,4vw,24px);cursor:pointer;position:relative;overflow:hidden;
   transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .28s ease,border-color .2s ease;
-  box-shadow:var(--sh-card);
-}
-.plan-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  transition:opacity .3s;
-}
+  box-shadow:var(--sh-card)}
+.plan-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;transition:opacity .3s}
 .plan-card.free::before{background:linear-gradient(90deg,var(--muted),var(--txt3))}
 .plan-card.starter::before{background:var(--g-blue)}
 .plan-card.pro::before{background:var(--g-pro)}
 .plan-card.premium::before{background:var(--g-amber)}
-
 .plan-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.5)}
-
-.plan-card.pro{
-  border-color:var(--bdr-pro);
-  box-shadow:var(--sh-pro);
-  background:linear-gradient(145deg,rgba(79,70,229,.08),rgba(13,21,48,.95));
-}
-.plan-card.pro:hover{
-  transform:translateY(-5px);
-  box-shadow:0 0 0 2px rgba(139,92,246,.65),0 20px 60px rgba(79,70,229,.45);
-}
-
-.plan-card.selected{
-  border-color:var(--bdr2);
-  box-shadow:0 0 0 2px rgba(37,99,235,.4),var(--sh-card),0 0 40px rgba(37,99,235,.12);
-}
-.plan-card.pro.selected{
-  border-color:rgba(139,92,246,.7);
-  box-shadow:0 0 0 2px rgba(139,92,246,.7),0 16px 60px rgba(79,70,229,.45);
-}
-
-.plan-popular{
-  position:absolute;top:14px;right:14px;
-  background:var(--g-pro);
-  color:#fff;font-size:10px;font-weight:800;
-  letter-spacing:1.2px;text-transform:uppercase;
-  border-radius:var(--pill);padding:4px 12px;
-  animation:pulse 2s ease infinite;
-  box-shadow:0 4px 16px rgba(139,92,246,.4);
-}
+.plan-card.pro{border-color:var(--bdr-pro);box-shadow:var(--sh-pro);
+  background:linear-gradient(145deg,rgba(79,70,229,.08),rgba(13,21,48,.95))}
+.plan-card.selected{border-color:var(--bdr2);
+  box-shadow:0 0 0 2px rgba(37,99,235,.4),var(--sh-card),0 0 40px rgba(37,99,235,.12)}
+.plan-card.pro.selected{border-color:rgba(139,92,246,.7);
+  box-shadow:0 0 0 2px rgba(139,92,246,.7),0 16px 60px rgba(79,70,229,.45)}
+.plan-popular{position:absolute;top:14px;right:14px;background:var(--g-pro);
+  color:#fff;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+  border-radius:var(--pill);padding:4px 12px;animation:pulse 2s ease infinite;
+  box-shadow:0 4px 16px rgba(139,92,246,.4)}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
-
 .plan-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
-
-.plan-name{
-  font-size:10px;font-weight:800;letter-spacing:2px;
-  text-transform:uppercase;color:var(--txt3);margin-bottom:6px;
-}
+.plan-name{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);margin-bottom:6px}
 .plan-card.pro .plan-name{color:var(--purple)}
-
 .plan-price-row{display:flex;align-items:flex-end;gap:5px}
 .plan-currency{font-size:1.1rem;font-weight:700;color:var(--txt);margin-bottom:5px}
-.plan-amount{
-  font-family:'Clash Display',sans-serif;
-  font-size:2.8rem;font-weight:700;line-height:1;color:var(--txt);
-}
-.plan-card.pro .plan-amount{
-  background:var(--g-pro);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
+.plan-amount{font-family:'Clash Display',sans-serif;font-size:2.8rem;font-weight:700;line-height:1;color:var(--txt)}
+.plan-card.pro .plan-amount{background:var(--g-pro);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text}
 .plan-period{font-size:12px;color:var(--txt3);margin-bottom:7px}
-
-/* ── PSYCHOLOGICAL PRICING — new elements ── */
-.plan-offer-badge{
-  font-size:9px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;
-  background:linear-gradient(135deg,#D97706,#F59E0B);
-  color:var(--navy);border-radius:var(--pill);
-  padding:3px 8px;margin-bottom:8px;align-self:flex-end;flex-shrink:0;
-}
-.plan-strike-row{
-  display:flex;align-items:center;gap:7px;
-  margin-top:5px;
-}
-.plan-original{
-  font-size:13px;font-weight:700;
-  color:rgba(239,68,68,.6);
-  text-decoration:line-through;
-  text-decoration-color:rgba(239,68,68,.8);
-}
-.plan-save-pct{
-  font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.6px;
-  background:rgba(16,185,129,.14);border:1px solid rgba(16,185,129,.25);
-  color:var(--grn);border-radius:var(--pill);padding:2px 7px;
-}
-.plan-monthly-txt{
-  font-size:11px;color:var(--txt3);margin-top:5px;font-weight:500;
-  letter-spacing:.1px;
-}
+.plan-monthly-txt{font-size:11px;color:var(--txt3);margin-top:5px;font-weight:500}
 .plan-card.pro .plan-monthly-txt{color:rgba(139,92,246,.7)}
-
-.plan-real{
-  font-size:11px;color:var(--txt3);margin-top:4px;
-  display:flex;align-items:center;gap:6px;
-}
-.plan-real del{color:rgba(239,68,68,.6);font-weight:600}
-.plan-real .badge-save{
-  background:rgba(16,185,129,.12);
-  border:1px solid rgba(16,185,129,.2);
-  color:var(--grn);font-size:9px;font-weight:800;
-  border-radius:var(--pill);padding:2px 8px;letter-spacing:.5px;text-transform:uppercase;
-}
-
 .plan-divider{height:1px;background:var(--bdr);margin:14px 0}
-
 .plan-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:0}
 .plan-features li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--txt2)}
-.feat-ico{
-  width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:2px;
-  display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;
-}
+.feat-ico{width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900}
 .feat-ico.yes{background:rgba(16,185,129,.15);color:var(--grn)}
 .feat-ico.no{background:rgba(255,255,255,.05);color:var(--txt3)}
 .feat-ico.no + span{color:var(--txt3);text-decoration:line-through}
-
-.plan-select-indicator{
-  width:20px;height:20px;border-radius:50%;border:2px solid var(--bdr);flex-shrink:0;
-  transition:all .25s ease;
-  display:flex;align-items:center;justify-content:center;
-}
+.plan-select-indicator{width:20px;height:20px;border-radius:50%;border:2px solid var(--bdr);
+  flex-shrink:0;transition:all .25s ease;display:flex;align-items:center;justify-content:center}
 .plan-card.selected .plan-select-indicator{background:var(--blue);border-color:var(--blue)}
 .plan-card.pro.selected .plan-select-indicator{background:var(--purple);border-color:var(--purple)}
-.plan-select-indicator::after{
-  content:'✓';color:#fff;font-size:.65rem;font-weight:900;
-  opacity:0;transition:opacity .2s;
-}
+.plan-select-indicator::after{content:'✓';color:#fff;font-size:.65rem;font-weight:900;opacity:0;transition:opacity .2s}
 .plan-card.selected .plan-select-indicator::after{opacity:1}
 
-/* ── URGENCY BAR ── */
-.urgency-bar{
-  margin:0 var(--pad) 16px;
+/* ── PROFILE URL BOX ──────────────────────────────────────── */
+.profile-url-box{display:flex;align-items:center;gap:10px;
+  background:rgba(37,99,235,.08);border:1px solid var(--bdr2);border-radius:var(--r2);
+  padding:10px 14px;margin-top:4px;text-align:left}
+.profile-url-txt{flex:1;font-size:11px;font-family:monospace;color:var(--blue3);word-break:break-all;line-height:1.5}
+.copy-url-btn{background:rgba(37,99,235,.18);border:1px solid var(--bdr2);border-radius:8px;
+  padding:6px 10px;cursor:pointer;color:var(--blue2);font-size:.85rem;flex-shrink:0;
+  transition:background .2s,transform .15s}
+.copy-url-btn:hover{background:rgba(37,99,235,.32);transform:scale(1.08)}
+.open-profile-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+  font-size:12px;color:var(--blue2);text-decoration:none;
+  background:rgba(37,99,235,.08);border:1px solid var(--bdr2);border-radius:var(--pill);
+  padding:6px 16px;transition:background .2s,border-color .2s;font-weight:600}
+.open-profile-link:hover{background:rgba(37,99,235,.18);border-color:rgba(37,99,235,.5)}
+
+/* ── PAYMENT STATUS WIDGET (NEW) ─────────────────────────── */
+.pv-card{margin:0 var(--pad) 16px;background:var(--g-card);border:1.5px solid var(--bdr);
+  border-radius:var(--r3);overflow:hidden;box-shadow:var(--sh-card)}
+.pv-hd{padding:14px 18px;border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.02);cursor:pointer;user-select:none}
+.pv-hd-left{display:flex;align-items:center;gap:10px}
+.pv-hd-ico{width:32px;height:32px;border-radius:9px;background:rgba(37,99,235,.15);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.pv-hd-title{font-size:13px;font-weight:700;color:var(--txt)}
+.pv-hd-sub{font-size:11px;color:var(--txt3);margin-top:2px}
+.pv-toggle-ico{color:var(--txt3);font-size:.8rem;transition:transform .25s}
+.pv-toggle-ico.open{transform:rotate(180deg)}
+.pv-body{padding:18px;display:none}
+.pv-body.open{display:block}
+
+.pv-status-row{display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:var(--r2);
+  padding:14px 16px;margin-bottom:12px}
+.pv-status-left{display:flex;align-items:center;gap:10px}
+.pv-status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pv-status-dot.paid{background:var(--grn);box-shadow:0 0 8px rgba(16,185,129,.5);animation:statusPulse 1.5s ease infinite}
+.pv-status-dot.free{background:var(--blue2)}
+.pv-status-dot.pending{background:var(--amber);animation:statusPulse 1.2s ease infinite}
+.pv-status-dot.failed{background:var(--red)}
+.pv-status-dot.none{background:var(--txt3)}
+@keyframes statusPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.pv-status-label{font-size:13px;font-weight:700;color:var(--txt)}
+.pv-status-value{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  padding:3px 10px;border-radius:var(--pill)}
+.pv-sv-paid{background:rgba(16,185,129,.12);color:var(--grn);border:1px solid rgba(16,185,129,.25)}
+.pv-sv-free{background:rgba(37,99,235,.12);color:var(--blue2);border:1px solid rgba(37,99,235,.25)}
+.pv-sv-none{background:rgba(255,255,255,.06);color:var(--txt3);border:1px solid var(--bdr)}
+.pv-sv-failed{background:rgba(239,68,68,.10);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+
+.pv-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.pv-detail-item{background:rgba(255,255,255,.03);border:1px solid var(--bdr);
+  border-radius:var(--r1);padding:10px 12px}
+.pv-di-label{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:4px}
+.pv-di-value{font-size:12px;font-weight:700;color:var(--txt);font-family:monospace;word-break:break-all}
+
+.pv-refresh-btn{width:100%;height:40px;background:rgba(37,99,235,.10);
+  border:1.5px solid var(--bdr2);border-radius:var(--pill);
+  color:var(--blue2);font-size:13px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.pv-refresh-btn:hover{background:rgba(37,99,235,.20)}
+.pv-refresh-btn:disabled{opacity:.5;cursor:default}
+.pv-spin{width:14px;height:14px;border:2px solid rgba(37,99,235,.2);
+  border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;display:none}
+.pv-refresh-btn.loading .pv-spin{display:block}
+.pv-refresh-btn.loading .pv-ref-txt{display:none}
+
+.pv-last-check{font-size:11px;color:var(--txt3);text-align:center;margin-top:8px}
+
+/* ── ACTIVE PLAN BADGE (NEW) ─────────────────────────────── */
+.active-plan-card{margin:0 var(--pad) 16px;
+  background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(37,99,235,.06));
+  border:1.5px solid rgba(16,185,129,.25);border-radius:var(--r3);
+  padding:20px;box-shadow:0 0 30px rgba(16,185,129,.08)}
+.apc-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.apc-ico{width:44px;height:44px;border-radius:50%;
+  background:rgba(16,185,129,.15);border:2px solid rgba(16,185,129,.3);
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.apc-title{font-size:15px;font-weight:800;color:var(--grn)}
+.apc-sub{font-size:12px;color:rgba(16,185,129,.7);margin-top:2px}
+.apc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.apc-item{background:rgba(255,255,255,.04);border:1px solid var(--bdr);
+  border-radius:var(--r1);padding:10px 12px}
+.apc-label{font-size:9px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.apc-value{font-size:12px;font-weight:700;color:var(--txt);word-break:break-all}
+.apc-value.plan-name{font-size:14px;color:var(--grn);text-transform:uppercase;letter-spacing:.5px}
+.apc-value.pay-id{font-family:monospace;font-size:10px;color:var(--blue3)}
+
+/* ── SUPPORT BUTTONS (NEW) ───────────────────────────────── */
+.support-section{margin:0 var(--pad);margin-bottom:16px}
+.support-label{font-size:10px;font-weight:800;color:var(--txt3);text-transform:uppercase;
+  letter-spacing:2px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.support-label::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.support-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.support-btn{display:flex;align-items:center;gap:10px;padding:14px 16px;
+  border-radius:var(--r2);border:1.5px solid var(--bdr);
+  background:rgba(255,255,255,.03);cursor:pointer;text-decoration:none;
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1),border-color .2s,background .2s;
+  color:var(--txt);font-family:'Plus Jakarta Sans',sans-serif}
+.support-btn:active{transform:scale(.96)}
+.support-btn-ico{width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.support-btn-call .support-btn-ico{background:rgba(37,99,235,.15);border:1px solid rgba(37,99,235,.25)}
+.support-btn-wa   .support-btn-ico{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.25)}
+.support-btn-call:hover{border-color:rgba(37,99,235,.4);background:rgba(37,99,235,.06);transform:translateY(-2px)}
+.support-btn-wa:hover  {border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.06);transform:translateY(-2px)}
+.support-btn-text{flex:1}
+.support-btn-title{font-size:13px;font-weight:700;color:var(--txt)}
+.support-btn-sub  {font-size:11px;color:var(--txt3);margin-top:2px}
+
+/* ── URGENCY + TRUST ─────────────────────────────────────── */
+.urgency-bar{margin:0 var(--pad) 16px;
   background:linear-gradient(135deg,rgba(245,158,11,.10),rgba(239,68,68,.08));
-  border:1px solid rgba(245,158,11,.22);
-  border-radius:var(--r2);
-  padding:12px 18px;
-  display:flex;align-items:center;gap:10px;
-  font-size:13px;font-weight:600;color:var(--amber);
-}
+  border:1px solid rgba(245,158,11,.22);border-radius:var(--r2);
+  padding:12px 18px;display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:600;color:var(--amber)}
 .urgency-ico{font-size:1rem;animation:shake .6s ease infinite alternate}
 @keyframes shake{0%{transform:rotate(-5deg)}100%{transform:rotate(5deg)}}
-
-/* ── TRUST BAR ── */
-.trust-bar{
-  display:flex;justify-content:center;gap:clamp(14px,3vw,24px);
-  flex-wrap:wrap;padding:14px var(--pad);
-  border-top:1px solid var(--bdr);
-}
+.trust-bar{display:flex;justify-content:center;gap:clamp(14px,3vw,24px);flex-wrap:wrap;
+  padding:14px var(--pad);border-top:1px solid var(--bdr)}
 .trust-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--txt3)}
-.trust-dot{
-  width:22px;height:22px;border-radius:50%;
-  background:rgba(37,99,235,.12);
-  display:flex;align-items:center;justify-content:center;font-size:.7rem;
-}
+.trust-dot{width:22px;height:22px;border-radius:50%;background:rgba(37,99,235,.12);
+  display:flex;align-items:center;justify-content:center;font-size:.7rem}
 
-/* ── PAYMENT STRIP ── */
-.pay-strip{
-  position:sticky;bottom:0;left:0;right:0;
-  background:linear-gradient(to top,var(--bg) 60%,transparent);
-  padding:16px var(--pad) calc(16px + env(safe-area-inset-bottom,0px));
-  display:flex;flex-direction:column;gap:10px;
-}
+/* SUCCESS CARD */
+.success-card{margin:var(--pad);background:var(--g-card);
+  border:1px solid rgba(16,185,129,.25);border-radius:var(--r3);
+  padding:clamp(32px,6vw,44px) var(--pad);text-align:center;
+  box-shadow:0 0 0 1px rgba(16,185,129,.1),var(--sh-card),0 0 60px rgba(16,185,129,.08);
+  animation:slideUp .5s cubic-bezier(.22,1,.36,1)}
+.success-ico{width:72px;height:72px;border-radius:50%;
+  background:rgba(16,185,129,.12);border:2px solid rgba(16,185,129,.3);
+  display:flex;align-items:center;justify-content:center;font-size:2rem;
+  margin:0 auto 18px;animation:bounceIn .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bounceIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.success-title{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;
+  color:var(--txt);margin-bottom:8px}
+.success-sub{font-size:14px;color:var(--txt2);line-height:1.65;margin-bottom:16px}
 
-/* ── PAYMENT FAILED BANNER — ✅ NEW ── */
-.payment-sad-banner{
-  display:none;
-  margin:0 var(--pad) 4px;
-  background:linear-gradient(135deg,rgba(239,68,68,.10),rgba(245,158,11,.08));
-  border:1px solid rgba(239,68,68,.30);
-  border-radius:var(--r2);
-  padding:14px 18px;
-  animation:slideUp .4s cubic-bezier(.22,1,.36,1);
-}
-.payment-sad-banner.show{display:flex;align-items:flex-start;gap:12px}
-.sad-ico{font-size:1.6rem;flex-shrink:0;animation:sadBounce 1.2s ease infinite alternate}
-@keyframes sadBounce{0%{transform:translateY(0) rotate(-5deg)}100%{transform:translateY(-4px) rotate(5deg)}}
-.sad-texts{}
-.sad-title{
-  font-size:14px;font-weight:800;color:var(--red);margin-bottom:4px;letter-spacing:-.1px;
-}
-.sad-sub{
-  font-size:12px;color:rgba(239,68,68,.75);line-height:1.55;
-}
-.sad-highlight{
-  display:inline-block;margin-top:6px;
-  background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);
-  border-radius:var(--pill);padding:3px 12px;
-  font-size:11px;font-weight:800;color:var(--amber);letter-spacing:.3px;
-}
-
-/* ── PROFILE PREVIEW CHIP ── */
-.profile-chip{
-  display:flex;align-items:center;gap:10px;
+/* PROFILE CHIP */
+.profile-chip{display:flex;align-items:center;gap:10px;
   background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);
   border-radius:var(--pill);padding:8px 16px 8px 8px;
-  font-size:12px;font-weight:600;color:var(--grn);
-  margin:14px var(--pad) 0;
-}
-.chip-dot{
-  width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,.15);
-  display:flex;align-items:center;justify-content:center;font-size:.8rem;
-  flex-shrink:0;
-}
+  font-size:12px;font-weight:600;color:var(--grn);margin:14px var(--pad) 0}
+.chip-dot{width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,.15);
+  display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
 
-/* ── COMPARE MINI ── */
-.compare-mini{
-  margin:0 var(--pad) 16px;
-  background:var(--g-card);
-  border:1px solid var(--bdr);
-  border-radius:var(--r2);
-  overflow:hidden;
-}
+/* COMPARE TABLE */
+.compare-mini{margin:0 var(--pad) 16px;background:var(--g-card);
+  border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden}
 .compare-mini table{width:100%;border-collapse:collapse}
-.compare-mini th{
-  padding:10px 12px;font-size:10px;font-weight:800;
-  text-transform:uppercase;letter-spacing:.8px;
-  text-align:center;color:var(--txt3);
-  border-bottom:1px solid var(--bdr);
-}
+.compare-mini th{padding:10px 12px;font-size:10px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.8px;text-align:center;color:var(--txt3);border-bottom:1px solid var(--bdr)}
 .compare-mini th.f{text-align:left}
 .compare-mini th.pro{color:var(--purple);background:rgba(139,92,246,.06)}
-.compare-mini td{
-  padding:9px 12px;font-size:12px;color:var(--txt2);
-  border-bottom:1px solid var(--bdr);text-align:center;
-}
+.compare-mini td{padding:9px 12px;font-size:12px;color:var(--txt2);
+  border-bottom:1px solid var(--bdr);text-align:center}
 .compare-mini td.f{text-align:left;font-weight:600;color:var(--txt)}
 .compare-mini td.pro{background:rgba(139,92,246,.04);color:var(--txt)}
 .compare-mini tr:last-child td{border-bottom:none}
 .ck{color:var(--grn);font-size:.9rem;font-weight:900}
 .cr{color:var(--txt3);font-size:.9rem}
 
-/* ── SECTION LABEL ── */
-.section-label{
-  padding:0 var(--pad) 14px;
-  font-size:10px;font-weight:800;color:var(--txt3);
-  text-transform:uppercase;letter-spacing:2px;
-  display:flex;align-items:center;gap:8px;
-}
+/* SECTION LABEL */
+.section-label{padding:0 var(--pad) 14px;font-size:10px;font-weight:800;color:var(--txt3);
+  text-transform:uppercase;letter-spacing:2px;display:flex;align-items:center;gap:8px}
 .section-label::after{content:'';flex:1;height:1px;background:var(--bdr)}
 
-/* ── ANIMATIONS ── */
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.fade-in{animation:fadeIn .4s ease both}
+/* PAYMENT FAILED BANNER */
+.payment-sad-banner{display:none;margin:0 var(--pad) 4px;
+  background:linear-gradient(135deg,rgba(239,68,68,.10),rgba(245,158,11,.08));
+  border:1px solid rgba(239,68,68,.30);border-radius:var(--r2);
+  padding:14px 18px;animation:slideUp .4s cubic-bezier(.22,1,.36,1)}
+.payment-sad-banner.show{display:flex;align-items:flex-start;gap:12px}
+.sad-ico{font-size:1.6rem;flex-shrink:0;animation:sadBounce 1.2s ease infinite alternate}
+@keyframes sadBounce{0%{transform:translateY(0) rotate(-5deg)}100%{transform:translateY(-4px) rotate(5deg)}}
+.sad-title{font-size:14px;font-weight:800;color:var(--red);margin-bottom:4px;letter-spacing:-.1px}
+.sad-sub{font-size:12px;color:rgba(239,68,68,.75);line-height:1.55}
+.sad-highlight{display:inline-block;margin-top:6px;
+  background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);
+  border-radius:var(--pill);padding:3px 12px;font-size:11px;font-weight:800;
+  color:var(--amber);letter-spacing:.3px}
 
-/* ── RESPONSIVE ── */
+/* PAY STRIP */
+.pay-strip{position:sticky;bottom:0;left:0;right:0;
+  background:linear-gradient(to top,var(--bg) 60%,transparent);
+  padding:16px var(--pad) calc(16px + env(safe-area-inset-bottom,0px));
+  display:flex;flex-direction:column;gap:10px}
+
+/* DONE LINK */
+.done-link-row{display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap}
+.done-link{font-size:11px;color:var(--blue3);font-family:monospace;word-break:break-all;
+  text-decoration:underline;text-underline-offset:2px}
+.done-copy-btn{background:rgba(37,99,235,.12);border:1px solid var(--bdr2);border-radius:6px;
+  padding:4px 10px;cursor:pointer;color:var(--blue2);font-size:.75rem;white-space:nowrap;
+  flex-shrink:0;transition:background .2s}
+.done-copy-btn:hover{background:rgba(37,99,235,.26)}
+
+/* ── SHARE ROW ───────────────────────────────────────────── */
+.share-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.share-btn{display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px;border-radius:var(--r2);border:1.5px solid var(--bdr);
+  background:rgba(255,255,255,.03);cursor:pointer;font-size:12px;font-weight:700;
+  color:var(--txt2);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none}
+.share-btn-wa{border-color:rgba(16,185,129,.3);color:var(--grn)}
+.share-btn-wa:hover{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.5)}
+.share-btn-copy:hover{background:rgba(37,99,235,.08);border-color:rgba(37,99,235,.4);color:var(--blue2)}
+
 @media(max-width:400px){
-  .form-row{grid-template-columns:1fr}
-  .fg.full{grid-column:1}
+  .form-row{grid-template-columns:1fr}.fg.full{grid-column:1}
   .plan-amount{font-size:2.3rem}
+  .apc-grid{grid-template-columns:1fr}
+  .support-grid{grid-template-columns:1fr}
+  .pv-detail-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -779,420 +513,529 @@ body::after{
 <!-- PAGE -->
 <div id="pg">
 
-  <!-- ═══════════════════════════════════════════════
-       STEP 1 — ONBOARDING / PROFILE FORM
-  ═══════════════════════════════════════════════ -->
-  <div class="step active" id="step-1">
-    <header class="hdr">
-      <div class="hdr-logo">
-        <div class="hdr-ico">⭐</div>
-        <div class="hdr-name">Wanza</div>
-      </div>
-      <div class="hdr-step">Step <span>1</span> of 3</div>
-    </header>
-
-    <div class="step-dots">
-      <div class="step-dot active" id="dot-1"></div>
-      <div class="step-dot" id="dot-2"></div>
-      <div class="step-dot" id="dot-3"></div>
+<!-- ═══════════════════════════════════════════════
+     STEP 1 — BUSINESS PROFILE FORM
+     (all original fields + new referral field)
+═══════════════════════════════════════════════ -->
+<div class="step active" id="step-1">
+  <header class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-ico">⭐</div>
+      <div class="hdr-name">Wanza</div>
     </div>
+    <div class="hdr-step">Step <span>1</span> of 3</div>
+  </header>
 
-    <div class="screen-hero">
-      <div class="screen-badge">Free Setup • Takes 2 Minutes</div>
-      <h1 class="screen-title">Create Your <span class="accent">Business Profile</span></h1>
-      <p class="screen-sub">Get a professional digital profile, QR code &amp; start collecting Google reviews automatically.</p>
-    </div>
+  <div class="step-dots">
+    <div class="step-dot active" id="dot-1"></div>
+    <div class="step-dot" id="dot-2"></div>
+    <div class="step-dot" id="dot-3"></div>
+  </div>
 
-    <div class="form-card">
-      <div class="form-section">Business Details</div>
-      <div class="form-grid">
+  <div class="screen-hero">
+    <div class="screen-badge">Free Setup • Takes 2 Minutes</div>
+    <h1 class="screen-title">Create Your <span class="accent">Business Profile</span></h1>
+    <p class="screen-sub">Get a professional digital profile, QR code &amp; start collecting Google reviews automatically.</p>
+  </div>
 
-        <div class="form-row">
-          <div class="fg">
-            <label class="lbl">Business Name <span class="req">*</span></label>
-            <input class="inp" id="c-nm" placeholder="e.g. Sharma Salon" autocomplete="organization">
-          </div>
-          <div class="fg">
-            <label class="lbl">Business Type</label>
-            <select class="sel" id="c-ty">
-              <option value="">Select…</option>
-              <option>Restaurant</option>
-              <option>Salon / Spa</option>
-              <option>Retail Shop</option>
-              <option>Medical / Clinic</option>
-              <option>Education</option>
-              <option>Hotel / Hospitality</option>
-              <option>Automotive</option>
-              <option>Gym / Fitness</option>
-              <option>Real Estate</option>
-              <option>Other</option>
-            </select>
-          </div>
-        </div>
+  <div class="form-card">
+    <div class="form-section">Business Details</div>
+    <div class="form-grid">
 
-        <div class="form-row">
-          <div class="fg">
-            <label class="lbl">Phone <span class="req">*</span></label>
-            <input class="inp" id="c-ph" type="tel" placeholder="+91 98765 43210" autocomplete="tel">
-          </div>
-          <div class="fg">
-            <label class="lbl">WhatsApp Number</label>
-            <input class="inp" id="c-wa" type="tel" placeholder="+91 98765 43210">
-          </div>
-        </div>
-
-        <div class="fg">
-          <label class="lbl">Email</label>
-          <input class="inp" id="c-em" type="email" placeholder="you@business.com" autocomplete="email">
-        </div>
-
-        <div class="fg">
-          <label class="lbl">Address</label>
-          <input class="inp" id="c-ad" placeholder="Full address with city">
-        </div>
-
-        <div class="fg">
-          <label class="lbl">Google Review Link</label>
-          <input class="inp" id="c-gl" placeholder="https://g.page/r/…/review">
-        </div>
-
-        <div class="fg">
-          <label class="lbl">Payment Link <span style="color:var(--txt3);font-size:.85em;font-weight:500">(UPI / Razorpay)</span></label>
-          <input class="inp" id="c-pl" placeholder="upi://pay?pa=… or Razorpay link">
-        </div>
-
-        <div class="fg">
-          <label class="lbl">Description</label>
-          <textarea class="ta" id="c-ds" rows="3" placeholder="Tell customers what makes your business special…"></textarea>
-        </div>
-
-        <div class="form-row">
-          <div class="fg">
-            <label class="lbl">Password <span class="req">*</span></label>
-            <div class="pw-wrap">
-              <input class="inp" id="c-pw" type="password" placeholder="Min 6 characters" autocomplete="new-password">
-              <button type="button" class="pw-toggle" onclick="togglePw('c-pw','eye-1')" id="eye-1" title="Show/hide password">👁️</button>
-            </div>
-          </div>
-          <div class="fg">
-            <label class="lbl">Confirm Password <span class="req">*</span></label>
-            <div class="pw-wrap">
-              <input class="inp" id="c-pw2" type="password" placeholder="Re-enter password" autocomplete="new-password">
-              <button type="button" class="pw-toggle" onclick="togglePw('c-pw2','eye-2')" id="eye-2" title="Show/hide password">👁️</button>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- form-grid -->
-
-      <div class="form-section" style="margin-top:22px">Business Logo</div>
       <div class="form-row">
         <div class="fg">
-          <div class="upload-wrap" id="logo-wrap"
-            ondragover="this.classList.add('drag');event.preventDefault()"
-            ondragleave="this.classList.remove('drag')"
-            ondrop="handleLogoDrop(event)">
-            <input type="file" accept="image/*" id="logo-file" onchange="handleLogoFile(this.files[0])">
-            <img class="upload-preview" id="logo-preview" alt="">
-            <span class="upload-ico" id="logo-ico">📷</span>
-            <div class="upload-txt">Tap to upload logo</div>
-            <div class="upload-sub">JPG, PNG, WebP • Max 5MB</div>
+          <label class="lbl">Business Name <span class="req">*</span></label>
+          <input class="inp" id="c-nm" placeholder="e.g. Sharma Salon" autocomplete="organization">
+        </div>
+        <div class="fg">
+          <label class="lbl">Business Type</label>
+          <select class="sel" id="c-ty">
+            <option value="">Select…</option>
+            <option>Restaurant</option><option>Salon / Spa</option><option>Retail Shop</option>
+            <option>Medical / Clinic</option><option>Education</option>
+            <option>Hotel / Hospitality</option><option>Automotive</option>
+            <option>Gym / Fitness</option><option>Real Estate</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="fg">
+          <label class="lbl">Phone <span class="req">*</span></label>
+          <input class="inp" id="c-ph" type="tel" placeholder="+91 98765 43210" autocomplete="tel">
+        </div>
+        <div class="fg">
+          <label class="lbl">WhatsApp Number</label>
+          <input class="inp" id="c-wa" type="tel" placeholder="+91 98765 43210">
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="lbl">Email</label>
+        <input class="inp" id="c-em" type="email" placeholder="you@business.com" autocomplete="email">
+      </div>
+      <div class="fg">
+        <label class="lbl">Address</label>
+        <input class="inp" id="c-ad" placeholder="Full address with city">
+      </div>
+      <div class="fg">
+        <label class="lbl">Google Review Link</label>
+        <input class="inp" id="c-gl" placeholder="https://g.page/r/…/review">
+      </div>
+      <div class="fg">
+        <label class="lbl">Payment Link <span style="color:var(--txt3);font-size:.85em;font-weight:500">(UPI / Razorpay)</span></label>
+        <input class="inp" id="c-pl" placeholder="upi://pay?pa=… or Razorpay link">
+      </div>
+      <div class="fg">
+        <label class="lbl">Description</label>
+        <textarea class="ta" id="c-ds" rows="3" placeholder="Tell customers what makes your business special…"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="fg">
+          <label class="lbl">Password <span class="req">*</span></label>
+          <div class="pw-wrap">
+            <input class="inp" id="c-pw" type="password" placeholder="Min 6 characters" autocomplete="new-password">
+            <button type="button" class="pw-toggle" onclick="togglePw('c-pw','eye-1')" id="eye-1">👁️</button>
           </div>
         </div>
-        <div class="fg" style="align-self:flex-start">
-          <label class="lbl">Or Paste URL</label>
-          <input class="inp" id="c-lo" placeholder="https://…/logo.png" oninput="previewLogoUrl(this.value)" style="margin-bottom:6px">
-          <div style="font-size:11px;color:var(--txt3);line-height:1.5">
-            ℹ️ Drive: use <code style="color:var(--blue3)">lh3.googleusercontent.com/d/FILE_ID</code>
+        <div class="fg">
+          <label class="lbl">Confirm Password <span class="req">*</span></label>
+          <div class="pw-wrap">
+            <input class="inp" id="c-pw2" type="password" placeholder="Re-enter password" autocomplete="new-password">
+            <button type="button" class="pw-toggle" onclick="togglePw('c-pw2','eye-2')" id="eye-2">👁️</button>
           </div>
         </div>
       </div>
 
-    </div><!-- form-card -->
+      <!-- ★ NEW: REFERRAL CODE FIELD ★ -->
+      <div class="fg">
+        <label class="lbl">Referral Code <span style="color:var(--txt3);font-size:.85em;font-weight:500">(Optional)</span></label>
+        <div class="ref-wrap">
+          <input class="inp" id="c-ref" placeholder="Enter referral code (if you have one)"
+            autocomplete="off" oninput="onRefInput(this.value)">
+          <button class="ref-check-btn" onclick="validateRefCode()">Check</button>
+        </div>
+        <div class="ref-status" id="ref-status-msg"></div>
+      </div>
+      <!-- ★ END REFERRAL FIELD ★ -->
 
-    <div class="btn-wrap">
-      <button class="btn btn-primary" onclick="submitProfile()">
-        🚀 Create My Business Profile
+    </div><!-- form-grid -->
+
+    <div class="form-section" style="margin-top:22px">Business Logo</div>
+    <div class="form-row">
+      <div class="fg">
+        <div class="upload-wrap" id="logo-wrap"
+          ondragover="this.classList.add('drag');event.preventDefault()"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="handleLogoDrop(event)">
+          <input type="file" accept="image/*" id="logo-file" onchange="handleLogoFile(this.files[0])">
+          <img class="upload-preview" id="logo-preview" alt="">
+          <span class="upload-ico" id="logo-ico">📷</span>
+          <div class="upload-txt">Tap to upload logo</div>
+          <div class="upload-sub">JPG, PNG, WebP • Max 5MB</div>
+        </div>
+      </div>
+      <div class="fg" style="align-self:flex-start">
+        <label class="lbl">Or Paste URL</label>
+        <input class="inp" id="c-lo" placeholder="https://…/logo.png" oninput="previewLogoUrl(this.value)" style="margin-bottom:6px">
+        <div style="font-size:11px;color:var(--txt3);line-height:1.5">
+          ℹ️ Drive: use <code style="color:var(--blue3)">lh3.googleusercontent.com/d/FILE_ID</code>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- form-card -->
+
+  <div class="btn-wrap">
+    <button class="btn btn-primary" onclick="submitProfile()">
+      🚀 Create My Business Profile
+    </button>
+  </div>
+
+  <div class="trust-bar">
+    <div class="trust-item"><div class="trust-dot">🏆</div>500+ Businesses</div>
+    <div class="trust-item"><div class="trust-dot">🔒</div>Secure &amp; Private</div>
+    <div class="trust-item"><div class="trust-dot">⚡</div>Setup in 2 min</div>
+  </div>
+</div><!-- step-1 -->
+
+
+<!-- ═══════════════════════════════════════════════
+     STEP 2 — PLAN SELECTION + PAYMENT STATUS
+     (original plans + new payment checker + referral before pay)
+═══════════════════════════════════════════════ -->
+<div class="step" id="step-2">
+  <header class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-ico">⭐</div>
+      <div class="hdr-name">Wanza</div>
+    </div>
+    <div class="hdr-step">Step <span>2</span> of 3</div>
+  </header>
+
+  <div class="step-dots">
+    <div class="step-dot done"></div>
+    <div class="step-dot active"></div>
+    <div class="step-dot"></div>
+  </div>
+
+  <div class="success-card">
+    <div class="success-ico">✅</div>
+    <div class="success-title">Profile Created!</div>
+    <div class="success-sub">Your business profile is live. Choose a plan to unlock the full power of Wanza.</div>
+    <div style="text-align:left;margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">🔗 Your Profile Link</div>
+      <div class="profile-url-box">
+        <span class="profile-url-txt" id="profile-url-txt">Loading…</span>
+        <button class="copy-url-btn" id="copy-url-btn" onclick="copyProfileUrl()" title="Copy link">📋</button>
+      </div>
+      <a class="open-profile-link" id="open-profile-btn" href="#" target="_blank" rel="noopener">
+        👁️ Preview My Profile →
+      </a>
+    </div>
+  </div>
+
+  <div class="profile-chip" id="profile-chip">
+    <div class="chip-dot">🏢</div>
+    <span id="chip-name">Your business</span> — profile saved ✓
+  </div>
+
+  <div style="height:16px"></div>
+
+  <!-- ★ NEW: PAYMENT STATUS VERIFICATION WIDGET ★ -->
+  <div class="pv-card" id="pv-card">
+    <div class="pv-hd" onclick="togglePvCard()">
+      <div class="pv-hd-left">
+        <div class="pv-hd-ico">💳</div>
+        <div>
+          <div class="pv-hd-title">Check Payment Status</div>
+          <div class="pv-hd-sub">Already paid? Verify your plan here</div>
+        </div>
+      </div>
+      <span class="pv-toggle-ico" id="pv-toggle-ico">▼</span>
+    </div>
+    <div class="pv-body" id="pv-body">
+      <div class="pv-status-row">
+        <div class="pv-status-left">
+          <div class="pv-status-dot none" id="pv-dot"></div>
+          <div class="pv-status-label" id="pv-label">Not checked yet</div>
+        </div>
+        <span class="pv-status-value pv-sv-none" id="pv-badge">—</span>
+      </div>
+
+      <div class="pv-detail-grid" id="pv-details" style="display:none">
+        <div class="pv-detail-item">
+          <div class="pv-di-label">Plan</div>
+          <div class="pv-di-value" id="pv-plan-val">—</div>
+        </div>
+        <div class="pv-detail-item">
+          <div class="pv-di-label">Status</div>
+          <div class="pv-di-value" id="pv-status-val">—</div>
+        </div>
+        <div class="pv-detail-item">
+          <div class="pv-di-label">Payment ID</div>
+          <div class="pv-di-value" id="pv-payid-val">—</div>
+        </div>
+        <div class="pv-detail-item">
+          <div class="pv-di-label">Valid Until</div>
+          <div class="pv-di-value" id="pv-expiry-val">—</div>
+        </div>
+      </div>
+
+      <button class="pv-refresh-btn" id="pv-refresh-btn" onclick="checkPaymentStatus()">
+        <span class="pv-spin" id="pv-spin"></span>
+        <span class="pv-ref-txt">🔄 Refresh Payment Status</span>
+      </button>
+      <div class="pv-last-check" id="pv-last-check"></div>
+
+      <!-- Activate button shown only when payment confirmed ★ -->
+      <div id="pv-activate-wrap" style="display:none;margin-top:12px">
+        <button class="btn btn-primary" style="height:46px;font-size:13px"
+          onclick="activateFromVerified()">
+          ✅ Activate My Plan Now
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- ★ END PAYMENT STATUS WIDGET ★ -->
+
+  <div style="height:4px"></div>
+
+  <div class="urgency-bar">
+    <span class="urgency-ico">🔥</span>
+    <span><strong>Limited Time:</strong> All paid plans just ₹1 today — Normal price from next week!</span>
+  </div>
+
+  <div class="section-label">Choose Your Plan</div>
+
+  <div class="plans-section">
+    <div class="plans-grid" id="plans-grid"></div>
+  </div>
+
+  <div style="height:12px"></div>
+  <div class="section-label">Feature Comparison</div>
+
+  <div class="compare-mini">
+    <table>
+      <thead>
+        <tr>
+          <th class="f">Feature</th><th>Free</th><th>Start</th><th class="pro">Pro</th><th>Prem</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="f">Digital Profile</td><td class="ck">✓</td><td class="ck">✓</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+        <tr><td class="f">QR Code</td><td class="cr">✗</td><td class="ck">✓</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+        <tr><td class="f">Review Redirect</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+        <tr><td class="f">Offer Banners</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+        <tr><td class="f">Pay Now Button</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+        <tr><td class="f">Analytics</td><td class="cr">✗</td><td>Basic</td><td class="pro">Advanced</td><td>Full</td></tr>
+        <tr><td class="f">Custom Branding</td><td class="cr">✗</td><td class="cr">✗</td><td class="cr">✗</td><td class="ck">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Sad failed payment banner -->
+  <div class="payment-sad-banner" id="sad-banner">
+    <div class="sad-ico">😞</div>
+    <div>
+      <div class="sad-title">Oohoo… payment not completed 😔</div>
+      <div class="sad-sub">You were <strong>so close</strong> to unlocking all the amazing features.<br>
+        Your competitors are already using Pro to get more reviews &amp; grow faster.</div>
+      <div class="sad-highlight">👉 Just ₹1 — less than a chai! Start your plan now.</div>
+    </div>
+  </div>
+
+  <!-- ★ NEW: Referral code field before payment ★ -->
+  <div style="margin:0 var(--pad) 8px;background:rgba(245,158,11,.06);border:1px solid var(--bdr3);
+    border-radius:var(--r2);padding:14px 16px" id="ref-before-pay">
+    <div style="font-size:11px;font-weight:800;color:var(--amber);text-transform:uppercase;
+      letter-spacing:1px;margin-bottom:8px">🎁 Have a Referral Code?</div>
+    <div class="ref-wrap">
+      <input class="inp" id="ref-pay-inp" placeholder="Enter referral code for discount"
+        autocomplete="off" oninput="onRefPayInput(this.value)"
+        style="background:rgba(245,158,11,.05);border-color:rgba(245,158,11,.2)">
+      <button class="ref-check-btn" onclick="validateRefPay()"
+        style="background:rgba(245,158,11,.18);border-color:rgba(245,158,11,.3);color:var(--amber)">
+        Apply
       </button>
     </div>
+    <div class="ref-status" id="ref-pay-status"></div>
+  </div>
+  <!-- ★ END ★ -->
 
-    <div class="trust-bar">
-      <div class="trust-item"><div class="trust-dot">🏆</div>500+ Businesses</div>
-      <div class="trust-item"><div class="trust-dot">🔒</div>Secure &amp; Private</div>
-      <div class="trust-item"><div class="trust-dot">⚡</div>Setup in 2 min</div>
+  <div class="pay-strip" id="pay-strip">
+    <button class="btn btn-pro" id="pay-btn" onclick="handlePayment()">
+      🔥 Start for ₹1 — Activate Plan
+    </button>
+    <button class="btn btn-free" onclick="skipToFree()">
+      Continue with Free Plan for now
+    </button>
+  </div>
+</div><!-- step-2 -->
+
+
+<!-- ═══════════════════════════════════════════════
+     STEP 3 — SUCCESS + ACTIVE PLAN + SUPPORT
+     (original done screen + new plan card + support)
+═══════════════════════════════════════════════ -->
+<div class="step" id="step-3">
+  <header class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-ico">⭐</div>
+      <div class="hdr-name">Wanza</div>
     </div>
-  </div><!-- step-1 -->
+    <div class="hdr-step">Step <span>3</span> of 3 ✓</div>
+  </header>
 
+  <div class="step-dots">
+    <div class="step-dot done"></div>
+    <div class="step-dot done"></div>
+    <div class="step-dot done"></div>
+  </div>
 
-  <!-- ═══════════════════════════════════════════════
-       STEP 2 — PROFILE SUCCESS / CHOOSE PLAN
-  ═══════════════════════════════════════════════ -->
-  <div class="step" id="step-2">
-    <header class="hdr">
-      <div class="hdr-logo">
-        <div class="hdr-ico">⭐</div>
-        <div class="hdr-name">Wanza</div>
+  <div style="padding:40px var(--pad) 24px;text-align:center">
+    <div class="success-ico" style="width:90px;height:90px;font-size:2.5rem">🎉</div>
+    <div style="height:16px"></div>
+    <h1 class="screen-title">You're All Set!</h1>
+    <p class="screen-sub" style="margin-top:8px">
+      Your Wanza profile is live and your plan is active.<br>Share your profile link with customers!
+    </p>
+  </div>
+
+  <!-- ★ NEW: ACTIVE PLAN CARD ★ -->
+  <div class="active-plan-card" id="active-plan-display">
+    <div class="apc-header">
+      <div class="apc-ico">🎯</div>
+      <div>
+        <div class="apc-title" id="apc-title">Plan Active</div>
+        <div class="apc-sub" id="apc-sub">Your subscription is live</div>
       </div>
-      <div class="hdr-step">Step <span>2</span> of 3</div>
-    </header>
-
-    <div class="step-dots">
-      <div class="step-dot done" id="dot-1b"></div>
-      <div class="step-dot active" id="dot-2b"></div>
-      <div class="step-dot" id="dot-3b"></div>
     </div>
+    <div class="apc-grid">
+      <div class="apc-item">
+        <div class="apc-label">Plan</div>
+        <div class="apc-value plan-name" id="apc-plan">—</div>
+      </div>
+      <div class="apc-item">
+        <div class="apc-label">Status</div>
+        <div class="apc-value" id="apc-status" style="color:var(--grn)">—</div>
+      </div>
+      <div class="apc-item">
+        <div class="apc-label">Payment ID</div>
+        <div class="apc-value pay-id" id="apc-payid">—</div>
+      </div>
+      <div class="apc-item">
+        <div class="apc-label">Valid Until</div>
+        <div class="apc-value" id="apc-expiry">—</div>
+      </div>
+    </div>
+  </div>
+  <!-- ★ END ACTIVE PLAN CARD ★ -->
 
-    <div class="success-card">
-      <div class="success-ico">✅</div>
-      <div class="success-title">Profile Created!</div>
-      <div class="success-sub">Your business profile is live. Now choose a plan to unlock the full power of Wanza.</div>
+  <!-- Original done details -->
+  <div style="margin:0 var(--pad) 16px;background:var(--g-card);border:1px solid var(--bdr);
+    border-radius:var(--r3);padding:24px;box-shadow:var(--sh-card)">
+    <div style="display:flex;flex-direction:column;gap:13px">
 
-      <div style="text-align:left;margin-bottom:10px">
-        <div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">
-          🔗 Your Profile Link
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(16,185,129,.12);
+          border:1px solid rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">✅</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Business Profile Live</div>
+          <div style="font-size:12px;color:var(--txt2)" id="done-biz">—</div>
         </div>
-        <div class="profile-url-box">
-          <span class="profile-url-txt" id="profile-url-txt">Loading…</span>
-          <button class="copy-url-btn" id="copy-url-btn" onclick="copyProfileUrl()" title="Copy link">📋</button>
-        </div>
-        <a class="open-profile-link" id="open-profile-btn" href="#" target="_blank" rel="noopener">
-          👁️ Preview My Profile →
-        </a>
       </div>
-    </div>
 
-    <div class="profile-chip" id="profile-chip">
-      <div class="chip-dot">🏢</div>
-      <span id="chip-name">Your business</span> — profile saved ✓
-    </div>
-
-    <div style="height:20px"></div>
-
-    <div class="urgency-bar">
-      <span class="urgency-ico">🔥</span>
-      <span><strong>Limited Time:</strong> All paid plans just ₹1 today — Normal price from next week!</span>
-    </div>
-
-    <div class="section-label">Choose Your Plan</div>
-
-    <div class="plans-section">
-      <div class="plans-grid" id="plans-grid">
-        <!-- Rendered by JS -->
-      </div>
-    </div>
-
-    <div style="height:12px"></div>
-    <div class="section-label">Feature Comparison</div>
-
-    <div class="compare-mini">
-      <table>
-        <thead>
-          <tr>
-            <th class="f">Feature</th>
-            <th>Free</th>
-            <th>Start</th>
-            <th class="pro">Pro</th>
-            <th>Prem</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="f">Digital Profile</td><td class="ck">✓</td><td class="ck">✓</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
-          <tr><td class="f">QR Code</td><td class="cr">✗</td><td class="ck">✓</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
-          <tr><td class="f">Review Redirect</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
-          <tr><td class="f">Offers Banners</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
-          <tr><td class="f">Pay Now Button</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
-          <tr><td class="f">Analytics</td><td class="cr">✗</td><td>Basic</td><td class="pro">Advanced</td><td>Full</td></tr>
-          <tr><td class="f">Custom Branding</td><td class="cr">✗</td><td class="cr">✗</td><td class="cr">✗</td><td class="ck">✓</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- ✅ NEW: Sad payment failed banner — shown only after failed/cancelled payment -->
-    <div class="payment-sad-banner" id="sad-banner">
-      <div class="sad-ico">😞</div>
-      <div class="sad-texts">
-        <div class="sad-title">Oohoo… payment not completed 😔</div>
-        <div class="sad-sub">
-          You were <strong>so close</strong> to unlocking all the amazing features for your business.<br>
-          Your competitors are already using Pro to get more Google reviews &amp; grow faster.
-        </div>
-        <div class="sad-highlight">👉 Just ₹1 — less than a chai! Start your plan now.</div>
-      </div>
-    </div>
-
-    <div class="pay-strip" id="pay-strip">
-      <button class="btn btn-pro" id="pay-btn" onclick="handlePayment()">
-        🔥 Start for ₹1 — Activate Plan
-      </button>
-      <button class="btn btn-free" onclick="skipToFree()">
-        Continue with Free Plan for now
-      </button>
-    </div>
-  </div><!-- step-2 -->
-
-
-  <!-- ═══════════════════════════════════════════════
-       STEP 3 — ALL DONE
-  ═══════════════════════════════════════════════ -->
-  <div class="step" id="step-3">
-    <header class="hdr">
-      <div class="hdr-logo">
-        <div class="hdr-ico">⭐</div>
-        <div class="hdr-name">Wanza</div>
-      </div>
-      <div class="hdr-step">Step <span>3</span> of 3 ✓</div>
-    </header>
-
-    <div class="step-dots">
-      <div class="step-dot done"></div>
-      <div class="step-dot done"></div>
-      <div class="step-dot done"></div>
-    </div>
-
-    <div style="padding:40px var(--pad) 24px;text-align:center">
-      <div class="success-ico" style="width:90px;height:90px;font-size:2.5rem">🎉</div>
-      <div style="height:16px"></div>
-      <h1 class="screen-title">You're All Set!</h1>
-      <p class="screen-sub" style="margin-top:8px">
-        Your Wanza profile is live and your plan is active.<br>
-        Share your profile link with customers!
-      </p>
-    </div>
-
-    <div style="margin:0 var(--pad);background:var(--g-card);border:1px solid var(--bdr);border-radius:var(--r3);padding:24px;box-shadow:var(--sh-card)">
-      <div style="display:flex;flex-direction:column;gap:13px">
-
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">✅</div>
-          <div>
-            <div style="font-weight:700;font-size:13px">Business Profile Live</div>
-            <div style="font-size:12px;color:var(--txt2)" id="done-biz">—</div>
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,.12);
+          border:1px solid rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">🔗</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:13px">Your Profile Link</div>
+          <div class="done-link-row">
+            <a class="done-link" id="done-id" href="#" target="_blank" rel="noopener">—</a>
+            <button class="done-copy-btn" id="done-copy-btn" onclick="copyDoneUrl()">📋 Copy</button>
           </div>
         </div>
-
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">🎯</div>
-          <div>
-            <div style="font-weight:700;font-size:13px">Plan Activated</div>
-            <div style="font-size:12px;color:var(--txt2)" id="done-plan">—</div>
-          </div>
-        </div>
-
-        <div style="display:flex;align-items:flex-start;gap:12px">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">🔗</div>
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:700;font-size:13px">Your Profile Link</div>
-            <div class="done-link-row">
-              <a class="done-link" id="done-id" href="#" target="_blank" rel="noopener">—</a>
-              <button class="done-copy-btn" id="done-copy-btn" onclick="copyDoneUrl()">📋 Copy</button>
-            </div>
-          </div>
-        </div>
-
       </div>
-    </div>
 
-    <div class="btn-wrap" style="margin-top:24px">
-      <button class="btn btn-primary" onclick="goToProfile()">
-        👁️ View My Profile
-      </button>
-      <button class="btn btn-ghost" onclick="goToAdmin()" style="width:100%;height:46px">
-        ⚙️ Go to Admin Panel
-      </button>
-    </div>
+      <!-- ★ NEW: SHARE BUTTONS ★ -->
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">
+          📤 Share Your Profile
+        </div>
+        <div class="share-row">
+          <button class="share-btn share-btn-wa" onclick="shareViaWhatsApp()">
+            💬 WhatsApp
+          </button>
+          <button class="share-btn share-btn-copy" onclick="copyDoneUrl()">
+            📋 Copy Link
+          </button>
+        </div>
+      </div>
+      <!-- ★ END SHARE ★ -->
 
-    <div style="text-align:center;padding:20px var(--pad);font-size:12px;color:var(--txt3)">
-      Your profile link is saved in your browser. Bookmark this page to return.
     </div>
-  </div><!-- step-3 -->
+  </div>
+
+  <!-- ★ NEW: SUPPORT SECTION ★ -->
+  <div class="support-section">
+    <div class="support-label">Need Help?</div>
+    <div class="support-grid">
+      <a href="tel:+919999999999" class="support-btn support-btn-call" id="support-call-btn">
+        <div class="support-btn-ico">📞</div>
+        <div class="support-btn-text">
+          <div class="support-btn-title">Call Us</div>
+          <div class="support-btn-sub" id="support-phone-txt">Support team</div>
+        </div>
+      </a>
+      <a href="https://wa.me/919999999999?text=Hi%20Wanza%20Support" class="support-btn support-btn-wa" id="support-wa-btn" target="_blank" rel="noopener">
+        <div class="support-btn-ico">💬</div>
+        <div class="support-btn-text">
+          <div class="support-btn-title">WhatsApp</div>
+          <div class="support-btn-sub">Chat with us</div>
+        </div>
+      </a>
+    </div>
+  </div>
+  <!-- ★ END SUPPORT ★ -->
+
+  <div class="btn-wrap" style="margin-top:8px">
+    <button class="btn btn-primary" onclick="goToProfile()">
+      👁️ View My Profile
+    </button>
+    <button class="btn btn-ghost" onclick="goToAdmin()" style="width:100%;height:46px">
+      ⚙️ Go to Admin Panel
+    </button>
+  </div>
+
+  <div style="text-align:center;padding:20px var(--pad);font-size:12px;color:var(--txt3)">
+    Your profile link is saved in your browser. Bookmark this page to return.
+  </div>
+</div><!-- step-3 -->
 
 </div><!-- #pg -->
 
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT — Complete with all new features
+     ★ marks every new/changed section
+═══════════════════════════════════════════════════════ -->
 <script>
-// ════════════════════════════════════════════════════════════════
-//  WANZA ONBOARDING v2.1
-//  ✅ FIX 1: NO demo-mode auto-success — payment system must be real
-//  ✅ FIX 2: handlePayment() only calls savePlan() on confirmed success
-//  ✅ FIX 3: savePlan() gates Step 3 — only 'paid' or 'free' allowed
-//  ✅ FIX 4: STATE.paymentStatus tracks payment result
-//  ✅ FIX 5: goToStep(3) double-checks payment gate before rendering
-//  ✅ FIX 6: Sad banner shown on failed/cancelled payment (psychology)
-//  ✅ FIX 7: Pro button enhanced glow (psychology)
-// ════════════════════════════════════════════════════════════════
-
 // ──────────────────────────────────────────────────────────────
-//  ⚙️ CONFIG
+//  ⚙️ CONFIG  — change these two lines
 // ──────────────────────────────────────────────────────────────
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbwElneRldll9zYTyD5L5sqwywdvCRBQqwUuxDOvad40TJVIXbCKMlDtWisurzz6f2iE/exec';
 
-var GAS_URL      = 'https://script.google.com/macros/s/AKfycbwElneRldll9zYTyD5L5sqwywdvCRBQqwUuxDOvad40TJVIXbCKMlDtWisurzz6f2iE/exec';
-var RAZORPAY_KEY = 'rzp_test_REPLACE_WITH_YOUR_KEY';
+// ★ NEW: Support contact numbers — change to your own numbers
+var SUPPORT_PHONE     = '+918910475493';   // call button
+var SUPPORT_WHATSAPP  = '918910475493';    // WhatsApp (no + sign, no spaces)
 
 var PROFILE_URL = window.location.origin;
 var ADMIN_URL   = window.location.origin + '/admin';
 
 // ──────────────────────────────────────────────────────────────
-//  PLANS DATA
+//  PLANS DATA  (same as original)
 // ──────────────────────────────────────────────────────────────
 var PLANS = [
   {
-    id: 'free', name: 'FREE', css: 'free',
-    display: 0, original: 0, monthly: 0,
-    popular: false, cta: 'Start Free',
-    features: [
-      { text: 'Digital Business Profile',  yes: true  },
-      { text: 'QR Code Generation',        yes: false },
-      { text: 'WhatsApp / Call Button',    yes: false },
-      { text: '3 Social Media Links',      yes: true  },
-      { text: 'Review Templates',          yes: false },
-      { text: 'Analytics Dashboard',       yes: false }
+    id:'free', name:'FREE', css:'free', display:0, original:0, monthly:0, popular:false,
+    features:[
+      {text:'Digital Business Profile',yes:true},{text:'QR Code Generation',yes:false},
+      {text:'WhatsApp / Call Button',yes:false},{text:'3 Social Media Links',yes:true},
+      {text:'Review Templates',yes:false},{text:'Analytics Dashboard',yes:false}
     ]
   },
   {
-    id: 'starter', name: 'STARTER', css: 'starter',
-    display: 1, original: 199, monthly: 99,
-     payLink: 'https://razorpay.me/@ramaltielectronics',
-    popular: false, cta: 'Start for ₹1',
-    features: [
-      { text: 'Digital Profile + QR Code', yes: true  },
-      { text: 'WhatsApp & Call Button',    yes: true  },
-      { text: '10 Social Media Links',     yes: true  },
-      { text: '5 Review Templates',        yes: true  },
-      { text: 'Basic Analytics',           yes: true  },
-      { text: 'Offer Banners',             yes: false }
+    id:'starter', name:'STARTER', css:'starter', display:1, original:199, monthly:99,
+    payLink:'https://razorpay.me/@ramaltielectronics', popular:false,
+    features:[
+      {text:'Digital Profile + QR Code',yes:true},{text:'WhatsApp & Call Button',yes:true},
+      {text:'10 Social Media Links',yes:true},{text:'5 Review Templates',yes:true},
+      {text:'Basic Analytics',yes:true},{text:'Offer Banners',yes:false}
     ]
   },
   {
-    id: 'pro', name: 'PRO', css: 'pro',
-    display: 1, original: 499, monthly: 249,
-     payLink: 'https://razorpay.me/@ramaltielectronics',
-    popular: true, cta: '🔥 Start Pro for ₹1',
-    features: [
-      { text: 'Everything in Starter',         yes: true },
-      { text: 'Unlimited Social Links',         yes: true },
-      { text: '25 Review Templates',            yes: true },
-      { text: 'Auto Review Redirect',           yes: true },
-      { text: 'Offers Banners + Ads Carousel',  yes: true },
-      { text: 'Pay Now Button (UPI)',            yes: true }
+    id:'pro', name:'PRO', css:'pro', display:1, original:499, monthly:249,
+    payLink:'https://razorpay.me/@ramaltielectronics', popular:true,
+    features:[
+      {text:'Everything in Starter',yes:true},{text:'Unlimited Social Links',yes:true},
+      {text:'25 Review Templates',yes:true},{text:'Auto Review Redirect',yes:true},
+      {text:'Offers Banners + Ads Carousel',yes:true},{text:'Pay Now Button (UPI)',yes:true}
     ]
   },
   {
-    id: 'premium', name: 'PREMIUM', css: 'premium',
-    display: 1, original: 799, monthly: 399,
-     payLink: 'https://razorpay.me/@ramaltielectronics',
-    popular: false, cta: 'Start for ₹1',
-    features: [
-      { text: 'Everything in Pro',           yes: true },
-      { text: 'Unlimited Review Templates',  yes: true },
-      { text: 'Custom Branding',             yes: true },
-      { text: 'Full Analytics + Export',     yes: true },
-      { text: 'Dedicated Account Manager',   yes: true },
-      { text: 'Multiple Profiles',           yes: true }
+    id:'premium', name:'PREMIUM', css:'premium', display:1, original:799, monthly:399,
+    payLink:'https://razorpay.me/@ramaltielectronics', popular:false,
+    features:[
+      {text:'Everything in Pro',yes:true},{text:'Unlimited Review Templates',yes:true},
+      {text:'Custom Branding',yes:true},{text:'Full Analytics + Export',yes:true},
+      {text:'Dedicated Account Manager',yes:true},{text:'Multiple Profiles',yes:true}
     ]
   }
 ];
-   
+
 // ──────────────────────────────────────────────────────────────
-//  ✅ STATE — paymentStatus added
+//  STATE
 // ──────────────────────────────────────────────────────────────
 var STATE = {
   currentStep:   1,
@@ -1200,149 +1043,65 @@ var STATE = {
   selectedPlan:  'pro',
   logoUrl:       '',
   profileName:   '',
-  paymentStatus: ''   // ✅ FIX 4: '' | 'paid' | 'free' | 'failed'
+  paymentStatus: '',     // '' | 'paid' | 'free' | 'failed'
+  referralCode:  '',     // ★ NEW
+  referralOwner: '',     // ★ NEW
+  verifiedPlan:  null    // ★ NEW — set when payment verified via API
 };
 
 // ──────────────────────────────────────────────────────────────
 //  UTILS
 // ──────────────────────────────────────────────────────────────
 function esc(s) {
-  return String(s || '')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
-
 var _toastTimer;
 function toast(msg, type, dur) {
   var el = document.getElementById('toast');
   clearTimeout(_toastTimer);
   el.textContent = msg;
-  el.className   = 'show ' + (type || '');
-  _toastTimer = setTimeout(function(){ el.className = ''; }, dur || 3000);
+  el.className   = 'show ' + (type||'');
+  _toastTimer = setTimeout(function(){ el.className=''; }, dur||3000);
 }
-
-function genId() {
-  return 'USR_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6).toUpperCase();
-}
-
-function setProgress(pct) {
-  document.getElementById('prog').style.width = pct + '%';
-}
-
-// ── Show / hide sad payment banner ──
-function showSadBanner() {
-  var el = document.getElementById('sad-banner');
-  if (el) el.classList.add('show');
-}
-function hideSadBanner() {
-  var el = document.getElementById('sad-banner');
-  if (el) el.classList.remove('show');
-}
-
-// ──────────────────────────────────────────────────────────────
-//  Toggle password visibility
-// ──────────────────────────────────────────────────────────────
-function togglePw(inputId, btnId) {
-  var inp = document.getElementById(inputId);
-  var btn = document.getElementById(btnId);
-  if (!inp) return;
-  if (inp.type === 'password') {
-    inp.type = 'text';
-    if (btn) btn.textContent = '🙈';
-  } else {
-    inp.type = 'password';
-    if (btn) btn.textContent = '👁️';
-  }
-}
-
-// ──────────────────────────────────────────────────────────────
-//  Build profile URL
-// ──────────────────────────────────────────────────────────────
-function buildProfileUrl(clientId) {
-  return window.location.origin + '/?client_id=' + encodeURIComponent(clientId);
-}
-
-// ──────────────────────────────────────────────────────────────
-//  Copy helpers
-// ──────────────────────────────────────────────────────────────
-function _doCopy(text, btnEl, successText) {
-  successText = successText || '✅';
-  function onSuccess() {
-    if (btnEl) {
-      var orig = btnEl.textContent;
-      btnEl.textContent = successText;
-      setTimeout(function(){ btnEl.textContent = orig; }, 2200);
-    }
-    toast('Link copied! 🔗', 'ok');
-  }
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(onSuccess).catch(function() { _fbCopy(text, onSuccess); });
-  } else {
-    _fbCopy(text, onSuccess);
-  }
-}
-
-function _fbCopy(text, cb) {
-  try {
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
-    document.body.appendChild(ta);
-    ta.focus(); ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    if (cb) cb();
-  } catch(e) {
-    toast('Please copy manually.', 'err');
-  }
-}
-
-function copyProfileUrl() {
-  var txt = document.getElementById('profile-url-txt');
-  var btn = document.getElementById('copy-url-btn');
-  if (!txt || txt.textContent === 'Loading…') return;
-  _doCopy(txt.textContent, btn, '✅');
-}
-
-function copyDoneUrl() {
-  var el  = document.getElementById('done-id');
-  var btn = document.getElementById('done-copy-btn');
-  if (!el || !el.textContent || el.textContent === '—') return;
-  _doCopy(el.textContent, btn, '✅ Copied!');
-}
+function genId() { return 'USR_'+Date.now()+'_'+Math.random().toString(36).substr(2,6).toUpperCase(); }
+function setProgress(pct) { document.getElementById('prog').style.width = pct + '%'; }
 
 // ──────────────────────────────────────────────────────────────
 //  SESSION
 // ──────────────────────────────────────────────────────────────
-function saveSession(data) {
-  try { localStorage.setItem('wanza_ob_session', JSON.stringify(data)); } catch(e) {}
-}
-
-function loadSession() {
-  try {
-    var s = localStorage.getItem('wanza_ob_session');
-    return s ? JSON.parse(s) : null;
-  } catch(e) { return null; }
-}
+function saveSession(d) { try{ localStorage.setItem('wanza_ob_session',JSON.stringify(d)); }catch(e){} }
+function loadSession()  { try{ var s=localStorage.getItem('wanza_ob_session'); return s?JSON.parse(s):null; }catch(e){return null;} }
 
 // ──────────────────────────────────────────────────────────────
-//  API HELPERS
+//  API
 // ──────────────────────────────────────────────────────────────
-function apiPost(action, body) {
-  // ✅ FIX 1: NO demo mode — if GAS_URL not configured, we still try real API
-  // If you want to test locally, configure the GAS_URL properly
-  var payload = Object.assign({ action: action }, body || {});
-  return fetch(GAS_URL, {
-    method: 'POST',
-    body: JSON.stringify(payload),
-    redirect: 'follow'
-  })
-  .then(function(r) { return r.text(); })
-  .then(function(text) {
-    var d = JSON.parse(text);
-    if (d && d.success === false) throw new Error(d.error || 'API error');
-    return d.data !== undefined ? d.data : d;
+function apiGet(action, params) {
+  var url = GAS_URL + '?action=' + encodeURIComponent(action);
+  if (params) Object.keys(params).forEach(function(k){
+    if (params[k]!==undefined && params[k]!==null)
+      url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
   });
+  return fetch(url, {method:'GET'})
+    .then(function(r){ return r.text(); })
+    .then(function(t){ var d=JSON.parse(t); if(d.success===false) throw new Error(d.error||'API error'); return d.data!==undefined?d.data:d; });
+}
+
+function apiPost(action, body) {
+  var payload = Object.assign({action:action}, body||{});
+  return fetch(GAS_URL, {method:'POST', body:JSON.stringify(payload), redirect:'follow'})
+    .then(function(r){ return r.text(); })
+    .then(function(t){ var d=JSON.parse(t); if(d.success===false) throw new Error(d.error||'API error'); return d.data!==undefined?d.data:d; });
+}
+
+// ──────────────────────────────────────────────────────────────
+//  PASSWORD TOGGLE
+// ──────────────────────────────────────────────────────────────
+function togglePw(inputId, btnId) {
+  var inp=document.getElementById(inputId), btn=document.getElementById(btnId);
+  if (!inp) return;
+  inp.type = inp.type==='password' ? 'text' : 'password';
+  if (btn) btn.textContent = inp.type==='text' ? '🙈' : '👁️';
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -1350,94 +1109,223 @@ function apiPost(action, body) {
 // ──────────────────────────────────────────────────────────────
 function handleLogoFile(file) {
   if (!file) return;
-  if (file.size > 5 * 1024 * 1024) { toast('File too large! Max 5MB.', 'err'); return; }
-
+  if (file.size > 5*1024*1024) { toast('File too large! Max 5MB.','err'); return; }
   var reader = new FileReader();
   reader.onload = function(ev) {
-    var prev = document.getElementById('logo-preview');
-    var ico  = document.getElementById('logo-ico');
-    prev.src = ev.target.result; prev.style.display = 'block'; ico.style.display = 'none';
+    var prev=document.getElementById('logo-preview'), ico=document.getElementById('logo-ico');
+    prev.src=ev.target.result; prev.style.display='block'; ico.style.display='none';
   };
   reader.readAsDataURL(file);
-
-  var b64reader = new FileReader();
-  b64reader.onload = function(ev) {
-    var base64   = ev.target.result.split(',')[1];
-    var fileName = 'wanza_logo_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    apiPost('uploadImage', { fileName: fileName, fileData: base64, mimeType: file.type })
-      .then(function(d) {
-        STATE.logoUrl = d.url || '';
-        document.getElementById('c-lo').value = STATE.logoUrl;
-        toast('Logo uploaded! ✅', 'ok');
-      })
-      .catch(function(e) {
-        console.error('Logo upload failed:', e);
-        toast('Upload failed — paste a URL instead.', '');
-      });
+  var b64r = new FileReader();
+  b64r.onload = function(ev) {
+    apiPost('uploadImage', {
+      fileName: 'wanza_logo_'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'),
+      fileData: ev.target.result.split(',')[1],
+      mimeType: file.type
+    }).then(function(d){ STATE.logoUrl=d.url||''; document.getElementById('c-lo').value=STATE.logoUrl; toast('Logo uploaded! ✅','ok'); })
+      .catch(function(){ toast('Upload failed — paste a URL instead.',''); });
   };
-  b64reader.readAsDataURL(file);
+  b64r.readAsDataURL(file);
 }
-
 function handleLogoDrop(e) {
-  e.preventDefault();
-  document.getElementById('logo-wrap').classList.remove('drag');
-  var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-  if (file) handleLogoFile(file);
+  e.preventDefault(); document.getElementById('logo-wrap').classList.remove('drag');
+  var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) handleLogoFile(f);
+}
+function previewLogoUrl(url) {
+  var prev=document.getElementById('logo-preview'), ico=document.getElementById('logo-ico');
+  if (url&&url.startsWith('http')){ prev.src=url; prev.style.display='block'; ico.style.display='none'; STATE.logoUrl=url; }
+  else{ prev.style.display='none'; ico.style.display='block'; STATE.logoUrl=''; }
 }
 
-function previewLogoUrl(url) {
-  var prev = document.getElementById('logo-preview');
-  var ico  = document.getElementById('logo-ico');
-  if (url && url.startsWith('http')) {
-    prev.src = url; prev.style.display = 'block'; ico.style.display = 'none';
-    STATE.logoUrl = url;
-  } else {
-    prev.style.display = 'none'; ico.style.display = 'block';
-    STATE.logoUrl = '';
+// ──────────────────────────────────────────────────────────────
+//  ★ NEW: REFERRAL CODE — Step 1 validation
+// ──────────────────────────────────────────────────────────────
+var _refTimer = null;
+function onRefInput(val) {
+  var el = document.getElementById('ref-status-msg');
+  el.style.display = 'none'; el.className = 'ref-status';
+  clearTimeout(_refTimer);
+  if (!val.trim()) return;
+  _refTimer = setTimeout(function(){ validateRefCode(); }, 600);
+}
+
+function validateRefCode() {
+  var code = (document.getElementById('c-ref').value||'').trim();
+  var el   = document.getElementById('ref-status-msg');
+  if (!code) { el.style.display='none'; return; }
+  el.style.display='block'; el.className='ref-status';
+  el.textContent = '⏳ Checking…';
+  apiGet('validateReferral', {code:code})
+    .then(function(d){
+      if (d && d.valid) {
+        STATE.referralCode  = d.code       || code.toUpperCase();
+        STATE.referralOwner = d.owner_name || '';
+        el.className = 'ref-status valid';
+        el.textContent = d.message || '✅ Valid referral code!';
+        toast('Referral code applied! 🎁','ok');
+      } else {
+        STATE.referralCode = ''; STATE.referralOwner = '';
+        el.className = 'ref-status invalid';
+        el.textContent = (d && d.message) ? d.message : '❌ Invalid referral code';
+      }
+    })
+    .catch(function(){ el.className='ref-status invalid'; el.textContent='Could not verify — try again.'; });
+}
+
+// ★ NEW: Referral on Step 2 (before payment)
+var _refPayTimer = null;
+function onRefPayInput(val) {
+  var el = document.getElementById('ref-pay-status');
+  el.style.display='none'; el.className='ref-status';
+  clearTimeout(_refPayTimer);
+  if (!val.trim()) return;
+  _refPayTimer = setTimeout(function(){ validateRefPay(); }, 600);
+}
+
+function validateRefPay() {
+  var code = (document.getElementById('ref-pay-inp').value||'').trim();
+  var el   = document.getElementById('ref-pay-status');
+  if (!code) { el.style.display='none'; return; }
+  el.style.display='block'; el.className='ref-status';
+  el.textContent = '⏳ Checking…';
+  apiGet('validateReferral', {code:code})
+    .then(function(d){
+      if (d && d.valid) {
+        STATE.referralCode  = d.code       || code.toUpperCase();
+        STATE.referralOwner = d.owner_name || '';
+        el.className = 'ref-status valid';
+        el.textContent = d.message || '✅ Valid!';
+        toast('Referral code applied! 🎁','ok');
+      } else {
+        el.className = 'ref-status invalid';
+        el.textContent = (d && d.message) ? d.message : '❌ Invalid code';
+      }
+    })
+    .catch(function(){ el.className='ref-status invalid'; el.textContent='Could not verify.'; });
+}
+
+// ──────────────────────────────────────────────────────────────
+//  ★ NEW: PAYMENT STATUS CHECKER — Step 2 widget
+// ──────────────────────────────────────────────────────────────
+function togglePvCard() {
+  var body = document.getElementById('pv-body');
+  var ico  = document.getElementById('pv-toggle-ico');
+  body.classList.toggle('open'); ico.classList.toggle('open');
+}
+
+function checkPaymentStatus() {
+  if (!STATE.clientId) { toast('Profile not created yet.','err'); return; }
+  var btn  = document.getElementById('pv-refresh-btn');
+  btn.classList.add('loading'); btn.disabled = true;
+
+  apiGet('getClientPlanStatus', {client_id: STATE.clientId})
+    .then(function(d) {
+      btn.classList.remove('loading'); btn.disabled = false;
+      renderPaymentStatusWidget(d);
+      document.getElementById('pv-last-check').textContent =
+        'Last checked: ' + new Date().toLocaleTimeString('en-IN');
+
+      // If payment confirmed — show activate button
+      if (d && d.payment_status === 'paid' && !d.is_active) {
+        document.getElementById('pv-activate-wrap').style.display = 'block';
+        STATE.verifiedPlan = d;
+      } else if (d && d.is_active && d.plan !== 'free') {
+        // Already active — proceed to Step 3
+        STATE.verifiedPlan      = d;
+        STATE.selectedPlan      = d.plan;
+        STATE.paymentStatus     = 'paid';
+        toast('✅ Payment verified! Activating plan…','ok',3000);
+        setTimeout(function(){ savePlan(d.plan, d.payment_id, 'paid'); }, 1200);
+      } else {
+        document.getElementById('pv-activate-wrap').style.display = 'none';
+      }
+    })
+    .catch(function(e) {
+      btn.classList.remove('loading'); btn.disabled = false;
+      toast('Could not fetch status: ' + e.message,'err');
+    });
+}
+
+function renderPaymentStatusWidget(d) {
+  if (!d) return;
+  var dot   = document.getElementById('pv-dot');
+  var label = document.getElementById('pv-label');
+  var badge = document.getElementById('pv-badge');
+  var dets  = document.getElementById('pv-details');
+
+  var plan   = String(d.plan           || 'free').toUpperCase();
+  var status = String(d.payment_status || '').toLowerCase();
+  var active = d.is_active;
+
+  // Dot color
+  dot.className = 'pv-status-dot ' + (status==='paid' ? 'paid' : status==='free'||plan==='FREE' ? 'free' : 'none');
+
+  // Label
+  label.textContent = active
+    ? (plan==='FREE' ? 'Free Plan Active' : plan + ' Plan — Active')
+    : (status==='paid' ? 'Payment Received' : 'No active plan');
+
+  // Badge
+  badge.textContent  = active ? (plan==='FREE'?'FREE':plan) : (status||'NONE');
+  badge.className    = 'pv-status-value ' + (active ? (plan==='FREE'?'pv-sv-free':'pv-sv-paid') : 'pv-sv-none');
+
+  // Detail grid
+  if (d.plan || d.payment_id) {
+    dets.style.display = 'grid';
+    document.getElementById('pv-plan-val').textContent   = (d.plan || 'free').toUpperCase();
+    document.getElementById('pv-status-val').textContent = (d.payment_status || 'none').toUpperCase();
+    document.getElementById('pv-payid-val').textContent  = d.payment_id || '—';
+    document.getElementById('pv-expiry-val').textContent = d.plan_expiry
+      ? new Date(d.plan_expiry).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+      : (d.plan==='free' ? 'Forever' : '—');
   }
+}
+
+// Called when user clicks "Activate My Plan Now" after verification
+function activateFromVerified() {
+  if (!STATE.verifiedPlan) return;
+  var d = STATE.verifiedPlan;
+  STATE.selectedPlan  = d.plan;
+  STATE.paymentStatus = 'paid';
+  savePlan(d.plan, d.payment_id || ('VERIFIED_'+Date.now()), 'paid');
 }
 
 // ──────────────────────────────────────────────────────────────
 //  STEP 1 → SUBMIT PROFILE
 // ──────────────────────────────────────────────────────────────
 function submitProfile() {
-  var name = (document.getElementById('c-nm').value || '').trim();
-  var phone= (document.getElementById('c-ph').value || '').trim();
-  var pw   = (document.getElementById('c-pw').value  || '').trim();
-  var pw2  = (document.getElementById('c-pw2').value || '').trim();
+  var name  = (document.getElementById('c-nm').value||'').trim();
+  var phone = (document.getElementById('c-ph').value||'').trim();
+  var pw    = (document.getElementById('c-pw').value||'').trim();
+  var pw2   = (document.getElementById('c-pw2').value||'').trim();
 
-  if (!name)  { toast('Business name is required!', 'err'); document.getElementById('c-nm').focus(); return; }
-  if (!phone) { toast('Phone number is required!',  'err'); document.getElementById('c-ph').focus(); return; }
-  if (!pw)    { toast('Password is required!',      'err'); document.getElementById('c-pw').focus(); return; }
-  if (pw.length < 6) { toast('Password must be at least 6 characters!', 'err'); document.getElementById('c-pw').focus(); return; }
-  if (pw !== pw2)    { toast('Passwords do not match!', 'err'); document.getElementById('c-pw2').focus(); return; }
+  if (!name)       { toast('Business name is required!','err'); document.getElementById('c-nm').focus(); return; }
+  if (!phone)      { toast('Phone number is required!','err'); document.getElementById('c-ph').focus(); return; }
+  if (!pw)         { toast('Password is required!','err'); document.getElementById('c-pw').focus(); return; }
+  if (pw.length<6) { toast('Password must be at least 6 characters!','err'); document.getElementById('c-pw').focus(); return; }
+  if (pw!==pw2)    { toast('Passwords do not match!','err'); document.getElementById('c-pw2').focus(); return; }
 
-  var logoUrl = STATE.logoUrl || (document.getElementById('c-lo').value || '').trim();
-
-  var clientData = {
-    name:               name,
-    business_type:      (document.getElementById('c-ty').value  || '').trim(),
-    phone:              phone,
-    whatsapp_number:    (document.getElementById('c-wa').value  || '').trim(),
-    email:              (document.getElementById('c-em').value  || '').trim(),
-    address:            (document.getElementById('c-ad').value  || '').trim(),
-    google_review_link: (document.getElementById('c-gl').value  || '').trim(),
-    payment_link:       (document.getElementById('c-pl').value  || '').trim(),
-    description:        (document.getElementById('c-ds').value  || '').trim(),
-    logo_url:           logoUrl,
-    password:           pw
-  };
-
-  var submitBtn = document.querySelector('#step-1 .btn-primary');
-  submitBtn.disabled    = true;
-  submitBtn.textContent = '⏳ Creating profile…';
+  var logoUrl = STATE.logoUrl || (document.getElementById('c-lo').value||'').trim();
+  var btn = document.querySelector('#step-1 .btn-primary');
+  btn.disabled=true; btn.textContent='⏳ Creating profile…';
   setProgress(33);
 
   apiPost('saveClient', {
     payload: {
-      client:      clientData,
-      socialLinks: [],
-      reviews:     []
+      client: {
+        name:               name,
+        business_type:      (document.getElementById('c-ty').value||'').trim(),
+        phone:              phone,
+        whatsapp_number:    (document.getElementById('c-wa').value||'').trim(),
+        email:              (document.getElementById('c-em').value||'').trim(),
+        address:            (document.getElementById('c-ad').value||'').trim(),
+        google_review_link: (document.getElementById('c-gl').value||'').trim(),
+        payment_link:       (document.getElementById('c-pl').value||'').trim(),
+        description:        (document.getElementById('c-ds').value||'').trim(),
+        logo_url:           logoUrl,
+        password:           pw
+      },
+      socialLinks: [], reviews: []
     }
   })
   .then(function(result) {
@@ -1445,26 +1333,26 @@ function submitProfile() {
     STATE.clientId    = clientId;
     STATE.profileName = name;
 
-    saveSession({
-      clientId:    clientId,
-      profileName: name,
-      plan:        'free',
-      created:     new Date().toISOString(),
-      profileUrl:  buildProfileUrl(clientId)
-    });
+    // ★ NEW: Save referral code if entered
+    if (STATE.referralCode) {
+      apiPost('saveReferral', {
+        client_id:     clientId,
+        client_name:   name,
+        referral_code: STATE.referralCode,
+        owner_name:    STATE.referralOwner,
+        plan_id:       ''
+      }).catch(function(){}); // silent — don't block onboarding
+    }
 
-    submitBtn.disabled    = false;
-    submitBtn.textContent = '🚀 Create My Business Profile';
-
+    saveSession({ clientId:clientId, profileName:name, plan:'free', created:new Date().toISOString(), profileUrl:buildProfileUrl(clientId) });
+    btn.disabled=false; btn.textContent='🚀 Create My Business Profile';
     goToStep(2);
-    toast('Profile created! 🎉', 'ok', 4000);
+    toast('Profile created! 🎉','ok',4000);
   })
   .catch(function(e) {
-    submitBtn.disabled    = false;
-    submitBtn.textContent = '🚀 Create My Business Profile';
+    btn.disabled=false; btn.textContent='🚀 Create My Business Profile';
     setProgress(0);
-    console.error('Profile save failed:', e);
-    toast('Could not save profile: ' + (e.message || 'Please check connection.'), 'err');
+    toast('Could not save profile: '+(e.message||'Check connection.'),'err');
   });
 }
 
@@ -1476,44 +1364,16 @@ function renderPlans() {
   grid.innerHTML = PLANS.map(function(p) {
     var isSelected = (STATE.selectedPlan === p.id);
     var feats = p.features.map(function(f) {
-      return '<li>'
-        + '<span class="feat-ico ' + (f.yes ? 'yes' : 'no') + '">' + (f.yes ? '✓' : '✗') + '</span>'
-        + '<span>' + esc(f.text) + '</span>'
-        + '</li>';
+      return '<li><span class="feat-ico '+(f.yes?'yes':'no')+'">'+(f.yes?'✓':'✗')+'</span><span>'+esc(f.text)+'</span></li>';
     }).join('');
-    var amountDisplay = p.display === 0 ? '0' : '1';
-    var priceBlock = '';
-    if (p.display === 0) {
-      // FREE plan
-      priceBlock = '<div class="plan-price-row">'
-        + '<span class="plan-currency">₹</span>'
-        + '<span class="plan-amount">0</span>'
-        + '</div>'
-        + '<div class="plan-real">'
-        + '<span class="badge-save" style="background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.2);color:var(--grn)">Free Forever</span>'
-        + '</div>'
-        + '<div style="height:22px"></div>';
-    } else {
-      // PAID plan
-      priceBlock = '<div class="plan-price-row" style="align-items:flex-end;gap:4px">'
-        + '<span class="plan-currency">₹</span>'
-        + '<span class="plan-amount">1</span>'
-        + '</div>'
-        + '<div class="plan-monthly-txt">Then ₹' + p.monthly + '/month</div>';
-    }  // ← THIS CLOSING BRACE WAS MISSING
-
-    return '<div class="plan-card ' + p.css + (isSelected ? ' selected' : '') + '" onclick="selectPlan(\'' + p.id + '\')" id="plan-' + p.id + '">'
-      + (p.popular ? '<div class="plan-popular">🔥 Most Popular</div>' : '')
-      + '<div class="plan-header">'
-      + '<div>'
-      + '<div class="plan-name">' + esc(p.name) + '</div>'
-      + priceBlock
-      + '</div>'
-      + '<div class="plan-select-indicator"></div>'
-      + '</div>'
-      + '<div class="plan-divider"></div>'
-      + '<ul class="plan-features">' + feats + '</ul>'
-      + '</div>';
+    var priceBlock = p.display===0
+      ? '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">0</span></div><div style="height:22px"></div>'
+      : '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">1</span></div><div class="plan-monthly-txt">Then ₹'+p.monthly+'/month</div>';
+    return '<div class="plan-card '+p.css+(isSelected?' selected':'')+'" onclick="selectPlan(\''+p.id+'\')" id="plan-'+p.id+'">'
+      +(p.popular?'<div class="plan-popular">🔥 Most Popular</div>':'')
+      +'<div class="plan-header"><div><div class="plan-name">'+esc(p.name)+'</div>'+priceBlock+'</div>'
+      +'<div class="plan-select-indicator"></div></div>'
+      +'<div class="plan-divider"></div><ul class="plan-features">'+feats+'</ul></div>';
   }).join('');
   updatePayBtn();
 }
@@ -1521,96 +1381,70 @@ function renderPlans() {
 function selectPlan(planId) {
   STATE.selectedPlan = planId;
   PLANS.forEach(function(p) {
-    var card = document.getElementById('plan-' + p.id);
-    if (!card) return;
-    card.classList.toggle('selected', p.id === planId);
+    var c = document.getElementById('plan-'+p.id);
+    if (c) c.classList.toggle('selected', p.id===planId);
   });
-  // ✅ Hide sad banner when user selects a new plan (fresh attempt)
-  hideSadBanner();
-  updatePayBtn();
+  hideSadBanner(); updatePayBtn();
 }
 
 function updatePayBtn() {
-  var plan = PLANS.find(function(p) { return p.id === STATE.selectedPlan; });
+  var plan = PLANS.find(function(p){ return p.id===STATE.selectedPlan; });
   var btn  = document.getElementById('pay-btn');
   if (!plan || !btn) return;
-  if (plan.id === 'free') {
-    btn.textContent = '✅ Activate Free Plan';
-    btn.className   = 'btn btn-primary';
-  } else if (plan.id === 'pro') {
-    btn.textContent = '🔥 Start Pro for ₹1 — Activate Now';
-    btn.className   = 'btn btn-pro';
-  } else {
-    btn.textContent = '⚡ Start ' + plan.name + ' for ₹1';
-    btn.className   = 'btn btn-amber';
-  }
+  if (plan.id==='free')        { btn.textContent='✅ Activate Free Plan'; btn.className='btn btn-primary'; }
+  else if (plan.id==='pro')    { btn.textContent='🔥 Start Pro for ₹1 — Activate Now'; btn.className='btn btn-pro'; }
+  else                         { btn.textContent='⚡ Start '+plan.name+' for ₹1'; btn.className='btn btn-amber'; }
 }
 
 // ──────────────────────────────────────────────────────────────
-//  ✅ FIX 2: HANDLE PAYMENT — strict, no demo fallback
+//  HANDLE PAYMENT
 // ──────────────────────────────────────────────────────────────
-// ── PAYMENT LINKS SYSTEM — NAYA handlePayment ──────────────────
 function handlePayment() {
-  var plan = PLANS.find(function(p) { return p.id === STATE.selectedPlan; });
+  var plan = PLANS.find(function(p){ return p.id===STATE.selectedPlan; });
   if (!plan) return;
+  if (plan.id==='free') { savePlan('free','','free'); return; }
+  if (!plan.payLink) { toast('⚠️ Payment link not configured. Contact support.','err',5000); return; }
 
-  // Free plan — koi payment nahi
-  if (plan.id === 'free') {
-    savePlan('free', '', 'free');
-    return;
-  }
-
-  // Check karo payLink configured hai ya nahi
-   // ── TRACK: Button click ──
   logPayment('click', plan.id, '', '');
-  if (!plan.payLink) {
-    toast('⚠️ Payment link configure nahi hua. Support se contact karo.', 'err', 5000);
-    return;
-  }
 
-  // Payment se pehle localStorage mein save karo
-  var pendingData = {
-    clientId:    STATE.clientId,
-    profileName: STATE.profileName,
-    planId:      plan.id,
-    planName:    plan.name,
-    timestamp:   Date.now()
-  };
-  try {
-    localStorage.setItem('wanza_pending_payment', JSON.stringify(pendingData));
-  } catch(e) {}
-
-  // Return URL banao — payment ke baad yahan wapas aayega user
-  var returnUrl = window.location.origin + window.location.pathname
-    + '?payment_return=1'
-    + '&client_id=' + encodeURIComponent(STATE.clientId)
-    + '&plan_id='   + encodeURIComponent(plan.id);
-
-  toast('Secure payment page pe ja rahe hain... 🔒', 'info', 3000);
-
-  var payBtn = document.getElementById('pay-btn');
-  if (payBtn) {
-    payBtn.disabled    = true;
-    payBtn.textContent = '⏳ Payment page khul raha hai…';
-  }
-
-  // Thodi der baad redirect karo taaki toast dikh sake
-  setTimeout(function() {
-    var finalUrl = plan.payLink;
+  // ★ NEW: Save referral before redirect
+  if (STATE.referralCode) {
     try {
-      var sep = finalUrl.indexOf('?') >= 0 ? '&' : '?';
-      finalUrl = finalUrl + sep + 'callback_url=' + encodeURIComponent(returnUrl);
+      apiPost('saveReferral', {
+        client_id: STATE.clientId, client_name: STATE.profileName,
+        referral_code: STATE.referralCode, owner_name: STATE.referralOwner, plan_id: plan.id
+      }).catch(function(){});
     } catch(e) {}
+  }
+
+  var pendingData = {
+    clientId:STATE.clientId, profileName:STATE.profileName, planId:plan.id, planName:plan.name,
+    referralCode:STATE.referralCode, referralOwner:STATE.referralOwner, timestamp:Date.now()
+  };
+  try { localStorage.setItem('wanza_pending_payment', JSON.stringify(pendingData)); } catch(e) {}
+
+  var returnUrl = window.location.origin + window.location.pathname
+    + '?payment_return=1&client_id='+encodeURIComponent(STATE.clientId)+'&plan_id='+encodeURIComponent(plan.id);
+
+  toast('Redirecting to secure payment… 🔒','info',3000);
+  var payBtn = document.getElementById('pay-btn');
+  if (payBtn) { payBtn.disabled=true; payBtn.textContent='⏳ Opening payment…'; }
+
+  setTimeout(function() {
+    var finalUrl = plan.payLink + (plan.payLink.indexOf('?')>=0?'&':'?')
+      + 'callback_url='+encodeURIComponent(returnUrl);
+    // ★ NEW: Pass referral + client info in URL notes for Razorpay
+    if (STATE.clientId)    finalUrl += '&notes[client_id]='   + encodeURIComponent(STATE.clientId);
+    if (STATE.clientId)    finalUrl += '&notes[client_name]=' + encodeURIComponent(STATE.profileName||'');
+    if (plan.id)           finalUrl += '&notes[plan_id]='     + encodeURIComponent(plan.id);
+    if (STATE.referralCode)finalUrl += '&notes[referral_code]='+ encodeURIComponent(STATE.referralCode);
     window.location.href = finalUrl;
   }, 600);
 }
 
-   // ── PAYMENT RETURN HANDLER — user wapas aaya Razorpay se ───────
 function checkPaymentReturn() {
   var params = new URLSearchParams(window.location.search);
   if (params.get('payment_return') !== '1') return false;
-
-  // URL clean karo browser history se
   try { window.history.replaceState({}, '', window.location.pathname); } catch(e) {}
 
   var returnClientId = params.get('client_id') || '';
@@ -1619,345 +1453,305 @@ function checkPaymentReturn() {
   var rzpPaymentId   = params.get('razorpay_payment_id')         || '';
 
   var pending = null;
-  try {
-    var raw = localStorage.getItem('wanza_pending_payment');
-    if (raw) pending = JSON.parse(raw);
-  } catch(e) {}
+  try { var r=localStorage.getItem('wanza_pending_payment'); if(r) pending=JSON.parse(r); } catch(e) {}
 
-  var clientId = returnClientId || (pending && pending.clientId) || '';
-  var planId   = returnPlanId   || (pending && pending.planId)   || '';
+  var clientId = returnClientId || (pending&&pending.clientId) || '';
+  var planId   = returnPlanId   || (pending&&pending.planId)   || '';
 
   if (!clientId || !planId) return false;
 
-  STATE.clientId     = clientId;
-  STATE.profileName  = (pending && pending.profileName) || '';
-  STATE.selectedPlan = planId;
+  STATE.clientId      = clientId;
+  STATE.profileName   = (pending&&pending.profileName) || '';
+  STATE.selectedPlan  = planId;
+  STATE.referralCode  = (pending&&pending.referralCode)  || '';
+  STATE.referralOwner = (pending&&pending.referralOwner) || '';
   try { localStorage.removeItem('wanza_pending_payment'); } catch(e) {}
 
-  // ✅ CASE 1: Payment successful
-  if (rzpStatus === 'paid' && rzpPaymentId) {
+  if (rzpStatus==='paid' && rzpPaymentId) {
     STATE.paymentStatus = 'paid';
-    toast('✅ Payment successful! Plan activate ho raha hai…', 'ok', 4000);
-       logPayment('success', planId, rzpPaymentId, 'paid');
+    toast('✅ Payment successful! Activating plan…','ok',4000);
+    logPayment('success', planId, rzpPaymentId, 'paid');
     goToStep(2);
-    setTimeout(function() { savePlan(planId, rzpPaymentId, 'paid'); }, 500);
+    setTimeout(function(){ savePlan(planId, rzpPaymentId, 'paid'); }, 500);
     return true;
   }
 
-  // ❌ CASE 2: Payment nahi hua / cancel kiya
-   logPayment('failed', planId, '', 'cancelled_or_failed');
+  logPayment('failed', planId, '', 'cancelled_or_failed');
   STATE.paymentStatus = 'failed';
   goToStep(2);
-  setTimeout(function() { showPaymentFailedScreen(clientId, planId); }, 500);
+  setTimeout(function(){ showPaymentFailedScreen(clientId, planId); }, 500);
   return true;
 }
-// ── VERIFY BANNER — jab auto-confirm na ho ─────────────────────
+
 function showPaymentFailedScreen(clientId, planId) {
   var sadEl = document.getElementById('sad-banner');
   if (!sadEl) return;
-
-  var plan = PLANS.find(function(p) { return p.id === planId; }) || {};
-
-  sadEl.innerHTML = ''
-    + '<div style="font-size:2rem;flex-shrink:0">😔</div>'
-    + '<div style="flex:1">'
-    + '<div class="sad-title">Payment Complete Nahi Hua</div>'
-    + '<div class="sad-sub" style="margin-bottom:12px">'
-    + 'Aapka payment process nahi hua. Koi charge nahi kiya gaya.<br>'
-    + 'Dobara try karo — sirf <strong>₹1</strong> mein '
-    + (plan.name || planId.toUpperCase()) + ' plan activate karo!'
-    + '</div>'
-    + '<div style="display:flex;gap:10px;flex-wrap:wrap">'
-    + '<button class="btn btn-amber btn-sm" onclick="retryPayment(\''+ planId +'\')" '
-    + 'style="height:40px;font-size:13px;width:auto;padding:0 20px;animation:none">'
-    + '🔄 Dobara Try Karo'
-    + '</button>'
-    + '<button class="btn btn-ghost btn-sm" onclick="skipToFree()" '
-    + 'style="height:40px;font-size:13px;width:auto;padding:0 16px">'
-    + 'Free Plan Se Continue Karo'
-    + '</button>'
-    + '</div>'
-    + '</div>';
-
-  sadEl.style.borderColor = 'rgba(239,68,68,.40)';
-  sadEl.classList.add('show');
-
-  // Pay button bhi update karo
-  var payBtn = document.getElementById('pay-btn');
-  if (payBtn) {
-    payBtn.disabled = false;
-    selectPlan(planId);
-  }
-}
-// ── MANUAL VERIFY — GAS se check karo ─────────────────────────
-function manualVerifyPayment(clientId, planId, rzpPaymentId) {
-  toast('Payment verify ho raha hai… ⏳', 'info', 5000);
-
-  apiPost('verifyPayment', {
-    client_id:  clientId,
-    plan_id:    planId,
-    payment_id: rzpPaymentId || ''
-  })
-  .then(function(result) {
-    if (result && result.verified) {
-      hideSadBanner();
-      toast('✅ Verified! Plan activate ho raha hai…', 'ok', 3000);
-      STATE.clientId     = clientId;
-      STATE.selectedPlan = planId;
-      savePlan(planId, result.payment_id || rzpPaymentId, 'paid');
-    } else {
-      toast('⚠️ Payment abhi nahi mila. Thoda wait karke dobara try karo.', 'err', 5000);
-    }
-  })
-  .catch(function(e) {
-    // Server error — paying user ko punish mat karo
-    toast('Server se connect nahi hua. Activate kar rahe hain…', '', 3500);
-    STATE.clientId     = clientId;
-    STATE.selectedPlan = planId;
-    savePlan(planId, rzpPaymentId || ('MANUAL_' + Date.now()), 'paid');
-  });
+  var plan = PLANS.find(function(p){ return p.id===planId; }) || {};
+  sadEl.innerHTML = '<div style="font-size:2rem;flex-shrink:0">😔</div><div style="flex:1">'
+    +'<div class="sad-title">Payment Complete Nahi Hua</div>'
+    +'<div class="sad-sub" style="margin-bottom:12px">Koi charge nahi kiya gaya.<br>Sirf <strong>₹1</strong> mein '+(plan.name||planId.toUpperCase())+' plan activate karo!</div>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
+    +'<button class="btn btn-amber btn-sm" onclick="retryPayment(\''+planId+'\')" style="height:40px;font-size:13px;width:auto;padding:0 20px;animation:none">🔄 Dobara Try Karo</button>'
+    +'<button class="btn btn-ghost btn-sm" onclick="skipToFree()" style="height:40px;font-size:13px;width:auto;padding:0 16px">Free Plan Se Continue</button>'
+    +'</div></div>';
+  sadEl.style.borderColor='rgba(239,68,68,.40)'; sadEl.classList.add('show');
+  var payBtn=document.getElementById('pay-btn'); if(payBtn){ payBtn.disabled=false; selectPlan(planId); }
+  // ★ NEW: Auto-open status checker when payment fails
+  var body=document.getElementById('pv-body'), ico=document.getElementById('pv-toggle-ico');
+  if(body&&!body.classList.contains('open')){ body.classList.add('open'); if(ico) ico.classList.add('open'); }
 }
 
-// ── RETRY — dobara payment karo ────────────────────────────────
-function retryPayment(planId) {
-  hideSadBanner();
-  selectPlan(planId);
-  handlePayment();
-}
-   
+function retryPayment(planId) { hideSadBanner(); selectPlan(planId); handlePayment(); }
+
 // ──────────────────────────────────────────────────────────────
-//  ✅ FIX 3: SAVE PLAN — gate Step 3 strictly
+//  SAVE PLAN → GATE STEP 3
 // ──────────────────────────────────────────────────────────────
 function savePlan(planId, paymentId, paymentStatus) {
-
-  // ✅ FIX 3 + FIX 5: Gate check — only 'paid' or 'free' allowed to reach Step 3
-  if (paymentStatus !== 'paid' && paymentStatus !== 'free') {
-    STATE.paymentStatus = 'failed';
-    toast('Please complete payment to activate your plan.', 'err', 4000);
-    showSadBanner();
-    return;
+  if (paymentStatus!=='paid' && paymentStatus!=='free') {
+    STATE.paymentStatus='failed'; toast('Please complete payment to activate your plan.','err',4000);
+    showSadBanner(); return;
   }
-
   setProgress(66);
+  var payBtn=document.getElementById('pay-btn');
+  if(payBtn){ payBtn.disabled=true; payBtn.textContent='⏳ Activating plan…'; }
 
-  var payBtn = document.getElementById('pay-btn');
-  if (payBtn) { payBtn.disabled = true; payBtn.textContent = '⏳ Activating plan…'; }
-
-  var expiry = new Date();
-  expiry.setMonth(expiry.getMonth() + 1);
-
+  var expiry=new Date(); expiry.setMonth(expiry.getMonth()+1);
   apiPost('userUpdatePlan', {
-    client_id:      STATE.clientId,
-    plan:           planId,
-    payment_id:     paymentId   || '',
-    payment_status: paymentStatus,
-    plan_date:      new Date().toISOString(),
-    plan_expiry:    expiry.toISOString()
+    client_id:STATE.clientId, plan:planId, payment_id:paymentId||'',
+    payment_status:paymentStatus, plan_date:new Date().toISOString(), plan_expiry:expiry.toISOString()
   })
   .then(function() {
-    var sess = loadSession() || {};
-    sess.plan          = planId;
-    sess.paymentId     = paymentId;
-    sess.paymentStatus = paymentStatus;
+    var sess=loadSession()||{};
+    sess.plan=planId; sess.paymentId=paymentId; sess.paymentStatus=paymentStatus;
     saveSession(sess);
-    STATE.selectedPlan  = planId;
-    STATE.paymentStatus = paymentStatus;   // ✅ FIX 4
+    STATE.selectedPlan=planId; STATE.paymentStatus=paymentStatus;
+
+    // ★ NEW: Save referral with final plan
+    if (STATE.referralCode) {
+      apiPost('saveReferral',{
+        client_id:STATE.clientId, client_name:STATE.profileName,
+        referral_code:STATE.referralCode, owner_name:STATE.referralOwner, plan_id:planId
+      }).catch(function(){});
+    }
     goToStep(3);
   })
   .catch(function(e) {
-    console.error('Plan update failed:', e);
-    // Even if API fails, if payment was successful we still proceed
-    // (payment already taken — don't punish the customer)
-    if (paymentStatus === 'paid' || paymentStatus === 'free') {
-      var sess = loadSession() || {};
-      sess.plan          = planId;
-      sess.paymentStatus = paymentStatus;
-      saveSession(sess);
-      STATE.selectedPlan  = planId;
-      STATE.paymentStatus = paymentStatus;   // ✅ FIX 4
+    // If payment was taken, still advance (don't punish customer)
+    if(paymentStatus==='paid'||paymentStatus==='free'){
+      var sess=loadSession()||{}; sess.plan=planId; sess.paymentStatus=paymentStatus; saveSession(sess);
+      STATE.selectedPlan=planId; STATE.paymentStatus=paymentStatus;
       goToStep(3);
     } else {
-      if (payBtn) { payBtn.disabled = false; updatePayBtn(); }
-      toast('Activation failed. Please try again.', 'err', 4000);
-      showSadBanner();
+      if(payBtn){ payBtn.disabled=false; updatePayBtn(); }
+      toast('Activation failed. Please try again.','err',4000); showSadBanner();
     }
   });
 }
 
-function skipToFree() {
-  // Intentional free selection — allowed
-  hideSadBanner();
-  savePlan('free', '', 'free');
-}
+function skipToFree() { hideSadBanner(); savePlan('free','','free'); }
 
 // ──────────────────────────────────────────────────────────────
-//  ✅ FIX 5: STEP NAVIGATION — payment gate before Step 3
+//  SAD BANNER HELPERS
+// ──────────────────────────────────────────────────────────────
+function showSadBanner() { var el=document.getElementById('sad-banner'); if(el) el.classList.add('show'); }
+function hideSadBanner() { var el=document.getElementById('sad-banner'); if(el) el.classList.remove('show'); }
+
+// ──────────────────────────────────────────────────────────────
+//  STEP NAVIGATION
 // ──────────────────────────────────────────────────────────────
 function goToStep(n) {
-
-  // ✅ FIX 5: Hard gate — Step 3 is ONLY accessible with valid payment
-  if (n === 3) {
-    var isPaymentOk = (STATE.paymentStatus === 'paid' || STATE.paymentStatus === 'free');
-    if (!isPaymentOk) {
-      console.warn('Blocked: Attempted to go to Step 3 without valid payment. paymentStatus =', STATE.paymentStatus);
-      toast('⚠️ Please complete payment to continue.', 'err', 4000);
-      showSadBanner();
-      // Force back to Step 2 if someone tries to bypass
-      n = 2;
-      if (STATE.currentStep !== 2) {
-        document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
-        var t2 = document.getElementById('step-2');
-        if (t2) t2.classList.add('active');
-        STATE.currentStep = 2;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-      return;
-    }
+  // Gate: only valid payment status can enter Step 3
+  if (n===3) {
+    var ok = (STATE.paymentStatus==='paid' || STATE.paymentStatus==='free');
+    if (!ok) { toast('⚠️ Please complete payment to continue.','err',4000); showSadBanner(); return; }
   }
 
-  document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
-  var target = document.getElementById('step-' + n);
-  if (target) target.classList.add('active');
+  document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+  var target=document.getElementById('step-'+n); if(target) target.classList.add('active');
+  STATE.currentStep=n;
+  window.scrollTo({top:0,behavior:'smooth'});
 
-  STATE.currentStep = n;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  if (n === 2) {
+  if (n===2) {
     setProgress(50);
-
-    var profileUrl = buildProfileUrl(STATE.clientId);
-    var urlTxt  = document.getElementById('profile-url-txt');
-    var openBtn = document.getElementById('open-profile-btn');
-    if (urlTxt)  urlTxt.textContent = profileUrl;
-    if (openBtn) openBtn.href = profileUrl;
-
-    document.getElementById('chip-name').textContent = STATE.profileName || 'Your business';
+    var profileUrl=buildProfileUrl(STATE.clientId);
+    var urlTxt=document.getElementById('profile-url-txt'), openBtn=document.getElementById('open-profile-btn');
+    if(urlTxt) urlTxt.textContent=profileUrl;
+    if(openBtn) openBtn.href=profileUrl;
+    document.getElementById('chip-name').textContent = STATE.profileName||'Your business';
     renderPlans();
-    setTimeout(function() { selectPlan('pro'); }, 300);
+    setTimeout(function(){ selectPlan('pro'); },300);
+
+    // ★ NEW: Update support buttons with configured numbers
+    updateSupportButtons();
   }
 
-  if (n === 3) {
+  if (n===3) {
     setProgress(100);
-    var plan        = PLANS.find(function(p) { return p.id === STATE.selectedPlan; });
-    var profileUrl3 = buildProfileUrl(STATE.clientId);
+    var plan       = PLANS.find(function(p){ return p.id===STATE.selectedPlan; });
+    var profileUrl3= buildProfileUrl(STATE.clientId);
 
-    document.getElementById('done-biz').textContent  = STATE.profileName || '—';
-    document.getElementById('done-plan').textContent = plan
-      ? (plan.name + (plan.real > 0
-          ? ' — ₹1 today, ₹' + Math.round(plan.real/100) + '/month after'
-          : ' — Free forever'))
-      : '—';
+    document.getElementById('done-biz').textContent  = STATE.profileName||'—';
 
-    var doneId = document.getElementById('done-id');
-    if (doneId) {
-      doneId.textContent = profileUrl3;
-      doneId.href        = profileUrl3;
-    }
+    var doneId=document.getElementById('done-id');
+    if(doneId){ doneId.textContent=profileUrl3; doneId.href=profileUrl3; }
+
+    // ★ NEW: Render active plan card
+    renderActivePlanCard();
   }
 }
 
 // ──────────────────────────────────────────────────────────────
-//  NAVIGATION BUTTONS
+//  ★ NEW: ACTIVE PLAN CARD — Step 3
 // ──────────────────────────────────────────────────────────────
-function goToProfile() {
-  var url = STATE.clientId
-    ? buildProfileUrl(STATE.clientId)
-    : window.location.origin;
-  window.location.href = url;
+function renderActivePlanCard() {
+  var planName = (STATE.selectedPlan||'free').toUpperCase();
+  var isFree   = STATE.selectedPlan==='free';
+  var sess     = loadSession()||{};
+
+  var expiry = new Date();
+  expiry.setMonth(expiry.getMonth()+1);
+
+  document.getElementById('apc-plan').textContent    = planName;
+  document.getElementById('apc-status').textContent  = isFree ? 'Free Forever' : '✅ Active';
+  document.getElementById('apc-payid').textContent   = sess.paymentId || (isFree?'N/A':'Processing…');
+  document.getElementById('apc-expiry').textContent  = isFree ? 'Forever'
+    : expiry.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+
+  if (!isFree) {
+    document.getElementById('apc-title').textContent = '🎯 '+planName+' Plan Active!';
+    document.getElementById('apc-sub').textContent   = 'Your subscription is live and running';
+  } else {
+    document.getElementById('apc-title').textContent = '✅ Free Plan Active';
+    document.getElementById('apc-sub').textContent   = 'Upgrade anytime to unlock more features';
+  }
+
+  // Also fetch real-time status from API and update
+  if (STATE.clientId) {
+    apiGet('getClientPlanStatus', {client_id:STATE.clientId})
+      .then(function(d){
+        if (!d||!d.found) return;
+        document.getElementById('apc-plan').textContent   = (d.plan||'free').toUpperCase();
+        document.getElementById('apc-payid').textContent  = d.payment_id || (isFree?'N/A':'—');
+        document.getElementById('apc-expiry').textContent = d.plan_expiry
+          ? new Date(d.plan_expiry).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+          : (d.plan==='free'?'Forever':'—');
+        document.getElementById('apc-status').textContent = d.is_active ? (d.plan==='free'?'Free Forever':'✅ Active') : '⚠️ Check Payment';
+      })
+      .catch(function(){});
+  }
 }
 
-function goToAdmin() {
-  window.location.href = ADMIN_URL;
+// ──────────────────────────────────────────────────────────────
+//  ★ NEW: SUPPORT BUTTONS — Step 3
+// ──────────────────────────────────────────────────────────────
+function updateSupportButtons() {
+  // Already done at page load; can be called again to refresh
+  var callBtn = document.getElementById('support-call-btn');
+  var waBtn   = document.getElementById('support-wa-btn');
+  var phTxt   = document.getElementById('support-phone-txt');
+  if (callBtn) callBtn.href = 'tel:'+SUPPORT_PHONE;
+  if (waBtn)   waBtn.href   = 'https://wa.me/'+SUPPORT_WHATSAPP+'?text='+encodeURIComponent('Hi Wanza! I need help with my business profile. Client ID: '+(STATE.clientId||''));
+  if (phTxt)   phTxt.textContent = SUPPORT_PHONE;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  ★ NEW: SHARE VIA WHATSAPP
+// ──────────────────────────────────────────────────────────────
+function shareViaWhatsApp() {
+  var url  = buildProfileUrl(STATE.clientId);
+  var name = STATE.profileName || 'my business';
+  var text = '⭐ Check out '+name+' on Wanza!\n'+url;
+  if (navigator.share) {
+    navigator.share({title:name, text:text, url:url})
+      .then(function(){ toast('Shared!','ok'); })
+      .catch(function(e){ if(e.name!=='AbortError') window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener'); });
+  } else {
+    window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
+    toast('WhatsApp opened!','ok');
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  COPY HELPERS
+// ──────────────────────────────────────────────────────────────
+function buildProfileUrl(clientId) {
+  return window.location.origin + '/?client_id=' + encodeURIComponent(clientId||'');
+}
+
+function _doCopy(text, btnEl) {
+  function onSuccess() { if(btnEl){ var o=btnEl.textContent; btnEl.textContent='✅'; setTimeout(function(){btnEl.textContent=o;},2000); } toast('Link copied! 🔗','ok'); }
+  if (navigator.clipboard&&navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(onSuccess).catch(function(){ _fbCopy(text,onSuccess); });
+  } else { _fbCopy(text,onSuccess); }
+}
+function _fbCopy(text,cb) {
+  try{ var ta=document.createElement('textarea'); ta.value=text; ta.style.cssText='position:fixed;top:-9999px;left:-9999px;opacity:0'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); if(cb) cb(); }catch(e){ toast('Please copy manually.','err'); }
+}
+function copyProfileUrl() { var t=document.getElementById('profile-url-txt'); if(t&&t.textContent!=='Loading…') _doCopy(t.textContent,document.getElementById('copy-url-btn')); }
+function copyDoneUrl()    { var e=document.getElementById('done-id'); if(e&&e.textContent&&e.textContent!=='—') _doCopy(e.textContent,document.getElementById('done-copy-btn')); }
+
+// ──────────────────────────────────────────────────────────────
+//  NAVIGATION
+// ──────────────────────────────────────────────────────────────
+function goToProfile() { window.location.href = STATE.clientId ? buildProfileUrl(STATE.clientId) : window.location.origin; }
+function goToAdmin()   { window.location.href = ADMIN_URL; }
+
+// ──────────────────────────────────────────────────────────────
+//  PAYMENT EVENT LOGGER
+// ──────────────────────────────────────────────────────────────
+function logPayment(eventType, planId, paymentId, status) {
+  try {
+    fetch(GAS_URL, {
+      method:'POST',
+      body:JSON.stringify({ action:'logPaymentEvent',
+        client_id:STATE.clientId||'', client_name:STATE.profileName||'',
+        plan_id:planId||'', event_type:eventType, payment_id:paymentId||'', status:status||'',
+        device:/Mobi|Android/i.test(navigator.userAgent)?'mobile':'desktop'
+      }), redirect:'follow'
+    }).catch(function(){});
+  } catch(e){}
 }
 
 // ──────────────────────────────────────────────────────────────
 //  INIT
 // ──────────────────────────────────────────────────────────────
-// ── FORCE HIDE: Loader always disappears within 1s no matter what ──
 setTimeout(function() {
-  var ls = document.getElementById('ls');
-  var pg = document.getElementById('pg');
-  if (ls) { ls.classList.add('out'); ls.style.display = 'none'; }
-  if (pg) pg.style.display = 'block';
+  var ls=document.getElementById('ls'), pg=document.getElementById('pg');
+  if(ls){ls.classList.add('out'); ls.style.display='none';}
+  if(pg) pg.style.display='block';
 }, 1000);
 
 function init() {
-  console.log('Wanza: init() started');
   try {
-    var ls = document.getElementById('ls');
-    var pg = document.getElementById('pg');
-    if (ls) { ls.classList.add('out'); setTimeout(function(){ ls.style.display = 'none'; }, 500); }
-    if (pg) pg.style.display = 'block';
+    var ls=document.getElementById('ls'), pg=document.getElementById('pg');
+    if(ls){ls.classList.add('out'); setTimeout(function(){ls.style.display='none';},500);}
+    if(pg) pg.style.display='block';
 
-     // Payment return check — agar user Razorpay se wapas aaya hai
-if (checkPaymentReturn()) return;
-     
-   // Agar pending payment tha aur user wapas aaya — activate karo
-try {
-  var pend = JSON.parse(localStorage.getItem('wanza_pending_payment') || 'null');
- 
-} catch(e) {}
-var sess = loadSession();
-    console.log('Wanza: session =', sess);
+    // ★ NEW: Set support buttons at init
+    updateSupportButtons();
 
-    if (sess && sess.clientId) {
-      STATE.clientId      = sess.clientId;
-      STATE.profileName   = sess.profileName   || '';
-      STATE.paymentStatus = sess.paymentStatus || '';
-      console.log('Wanza: returning user, plan =', sess.plan, '| paymentStatus =', STATE.paymentStatus);
-      if (!sess.plan || sess.plan === 'free') {
-        goToStep(2);
-      }
+    if (checkPaymentReturn()) return;
+
+    var sess=loadSession();
+    if (sess&&sess.clientId) {
+      STATE.clientId=sess.clientId; STATE.profileName=sess.profileName||'';
+      STATE.paymentStatus=sess.paymentStatus||'';
+      if (!sess.plan||sess.plan==='free') goToStep(2);
     } else {
-      console.log('Wanza: new user, showing Step 1');
-      goToStep(1);   // ← always explicitly land on Step 1
+      goToStep(1);
     }
-
   } catch(e) {
-    console.error('Wanza: init() error —', e);
-    // Fallback: force UI visible so user is never stuck
-    var ls = document.getElementById('ls');
-    var pg = document.getElementById('pg');
-    if (ls) { ls.classList.add('out'); ls.style.display = 'none'; }
-    if (pg) pg.style.display = 'block';
+    var ls=document.getElementById('ls'), pg=document.getElementById('pg');
+    if(ls){ls.classList.add('out'); ls.style.display='none';}
+    if(pg) pg.style.display='block';
     goToStep(1);
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('Wanza: DOMContentLoaded fired');
-  setTimeout(init, 500);
+document.addEventListener('DOMContentLoaded', function(){ setTimeout(init,500); });
+document.addEventListener('keydown', function(e){
+  if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA'&&STATE.currentStep===1) submitProfile();
 });
-
-// Enter key → submit Step 1 form
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && STATE.currentStep === 1) {
-    submitProfile();
-  }
-});
-
-// ── Payment event logger ──────────────────────────────────────
-function logPayment(eventType, planId, paymentId, status) {
-  try {
-    var device = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
-    fetch(GAS_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action:      'logPaymentEvent',
-        client_id:   STATE.clientId   || '',
-        client_name: STATE.profileName || '',
-        plan_id:     planId            || '',
-        event_type:  eventType,
-        payment_id:  paymentId         || '',
-        status:      status            || '',
-        device:      device
-      }),
-      redirect: 'follow'
-    }).catch(function(){});  // silently fail — tracking important nahi
-  } catch(e) {}
-}
-   
 </script>
 </body>
 </html>
-
