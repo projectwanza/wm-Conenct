@@ -1021,87 +1021,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 
 </div><!-- #pg -->
 // ──────────────────────────────────────────────────────────────
-//  ★ NEW: MANUAL PAYMENT VERIFICATION
-// ──────────────────────────────────────────────────────────────
-function submitManualVerify() {
-  var phone = (document.getElementById('mv-phone').value || '').trim();
-  var email = (document.getElementById('mv-email').value || '').trim();
 
-  if (!phone) {
-    toast('Please enter your phone number.', 'err');
-    document.getElementById('mv-phone').focus();
-    return;
-  }
-  if (!email) {
-    toast('Please enter your email address.', 'err');
-    document.getElementById('mv-email').focus();
-    return;
-  }
-
-  var btn    = document.getElementById('mv-submit-btn');
-  var result = document.getElementById('mv-result');
-  btn.disabled       = true;
-  btn.textContent    = '⏳ Checking…';
-  result.style.display = 'none';
-
-  // ── Use the existing apiPost helper (same as rest of your code) ──
-  apiPost('verifyManualPayment', {
-    phone:     phone,
-    email:     email,
-    client_id: STATE.clientId || ''
-  })
-  .then(function(res) {
-    // apiPost already unwraps data.data for us → res = { status, payment_id, plan_id, message }
-    btn.disabled    = false;
-    btn.textContent = '🔍 Verify My Payment';
-
-    if (res && res.status === 'success') {
-      // ✅ Payment found
-      result.style.display    = 'block';
-      result.style.background = 'rgba(16,185,129,.12)';
-      result.style.border     = '1px solid rgba(16,185,129,.30)';
-      result.style.color      = '#10B981';
-      result.innerHTML =
-        '✅ Payment Verified!<br>'
-        + '<span style="font-size:11px;font-weight:500;color:rgba(16,185,129,.75)">'
-        + 'Your payment was found. Activating your plan now…</span>';
-
-      toast('✅ Payment verified! Activating plan…', 'ok', 4000);
-
-      var planToActivate = res.plan_id || STATE.selectedPlan || 'pro';
-      var payId          = res.payment_id || ('MANUAL_' + Date.now());
-
-      setTimeout(function() {
-        STATE.selectedPlan  = planToActivate;
-        STATE.paymentStatus = 'paid';
-        savePlan(planToActivate, payId, 'paid');
-      }, 1500);
-
-    } else {
-      // ❌ Not found
-      result.style.display    = 'block';
-      result.style.background = 'rgba(239,68,68,.08)';
-      result.style.border     = '1px solid rgba(239,68,68,.25)';
-      result.style.color      = '#EF4444';
-      result.innerHTML =
-        '❌ Payment Not Found<br>'
-        + '<span style="font-size:11px;font-weight:500;color:rgba(239,68,68,.70)">'
-        + (res.message || 'No successful payment found. Check your details and try again.') + '</span>';
-
-      toast('Payment not found. Check your details.', 'err', 5000);
-    }
-  })
-  .catch(function(e) {
-    btn.disabled    = false;
-    btn.textContent = '🔍 Verify My Payment';
-    result.style.display    = 'block';
-    result.style.background = 'rgba(239,68,68,.08)';
-    result.style.border     = '1px solid rgba(239,68,68,.25)';
-    result.style.color      = '#EF4444';
-    result.textContent      = '❌ Error: ' + (e.message || 'Connection failed. Try again.');
-    toast('Error: ' + (e.message || 'Try again'), 'err');
-  });
-}
    
 <!-- ═══════════════════════════════════════════════════════
      JAVASCRIPT — Complete with all new features
@@ -1839,6 +1759,68 @@ function logPayment(eventType, planId, paymentId, status) {
   } catch(e){}
 }
 
+   // ──────────────────────────────────────────────────────────────
+//  ★ MANUAL PAYMENT VERIFICATION
+// ──────────────────────────────────────────────────────────────
+function submitManualVerify() {
+  var phone = (document.getElementById('mv-phone').value || '').trim();
+  var email = (document.getElementById('mv-email').value || '').trim();
+
+  if (!phone) { toast('Please enter your phone number.', 'err'); document.getElementById('mv-phone').focus(); return; }
+  if (!email) { toast('Please enter your email address.', 'err'); document.getElementById('mv-email').focus(); return; }
+
+  var btn    = document.getElementById('mv-submit-btn');
+  var result = document.getElementById('mv-result');
+  btn.disabled = true;
+  btn.textContent = '⏳ Checking…';
+  result.style.display = 'none';
+
+  apiPost('verifyManualPayment', {
+    phone:     phone,
+    email:     email,
+    client_id: STATE.clientId || ''
+  })
+  .then(function(res) {
+    btn.disabled    = false;
+    btn.textContent = '🔍 Verify My Payment';
+
+    if (res && res.status === 'success') {
+      result.style.display    = 'block';
+      result.style.background = 'rgba(16,185,129,.12)';
+      result.style.border     = '1px solid rgba(16,185,129,.30)';
+      result.style.color      = '#10B981';
+      result.innerHTML = '✅ Payment Verified!<br><span style="font-size:11px;font-weight:500;color:rgba(16,185,129,.75)">Your payment was found. Activating your plan now…</span>';
+      toast('✅ Payment verified! Activating plan…', 'ok', 4000);
+
+      var planToActivate = res.plan_id || STATE.selectedPlan || 'pro';
+      var payId = res.payment_id || ('MANUAL_' + Date.now());
+      setTimeout(function() {
+        STATE.selectedPlan  = planToActivate;
+        STATE.paymentStatus = 'paid';
+        savePlan(planToActivate, payId, 'paid');
+      }, 1500);
+
+    } else {
+      result.style.display    = 'block';
+      result.style.background = 'rgba(239,68,68,.08)';
+      result.style.border     = '1px solid rgba(239,68,68,.25)';
+      result.style.color      = '#EF4444';
+      result.innerHTML = '❌ Payment Not Found<br><span style="font-size:11px;font-weight:500;color:rgba(239,68,68,.70)">' + (res.message || 'No payment found. Check details and retry.') + '</span>';
+      toast('Payment not found. Check your details.', 'err', 5000);
+    }
+  })
+  .catch(function(e) {
+    btn.disabled    = false;
+    btn.textContent = '🔍 Verify My Payment';
+    result.style.display    = 'block';
+    result.style.background = 'rgba(239,68,68,.08)';
+    result.style.border     = '1px solid rgba(239,68,68,.25)';
+    result.style.color      = '#EF4444';
+    result.textContent = '❌ Error: ' + (e.message || 'Connection failed. Try again.');
+    toast('Error: ' + (e.message || 'Try again'), 'err');
+  });
+}
+   
 // ──────────────────────────────────────────────────────────────
 //  INIT
 // ──────────────────────────────────────────────────────────────
