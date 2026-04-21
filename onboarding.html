@@ -1024,11 +1024,9 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 //  ★ NEW: MANUAL PAYMENT VERIFICATION
 // ──────────────────────────────────────────────────────────────
 function submitManualVerify() {
-  // 1. Get values from inputs
   var phone = (document.getElementById('mv-phone').value || '').trim();
   var email = (document.getElementById('mv-email').value || '').trim();
 
-  // 2. Basic validation
   if (!phone) {
     toast('Please enter your phone number.', 'err');
     document.getElementById('mv-phone').focus();
@@ -1040,76 +1038,68 @@ function submitManualVerify() {
     return;
   }
 
-  // 3. Show loading state
   var btn    = document.getElementById('mv-submit-btn');
   var result = document.getElementById('mv-result');
-  btn.disabled    = true;
-  btn.textContent = '⏳ Checking…';
+  btn.disabled       = true;
+  btn.textContent    = '⏳ Checking…';
   result.style.display = 'none';
 
-  // 4. Send POST request to Google Apps Script
-  fetch(GAS_URL, {
-    method:   'POST',
-    redirect: 'follow',
-    body: JSON.stringify({
-      action:    'verifyManualPayment',
-      phone:     phone,
-      email:     email,
-      client_id: STATE.clientId || ''
-    })
+  // ── Use the existing apiPost helper (same as rest of your code) ──
+  apiPost('verifyManualPayment', {
+    phone:     phone,
+    email:     email,
+    client_id: STATE.clientId || ''
   })
-  .then(function(r) { return r.text(); })
-  .then(function(t) {
-    var data = JSON.parse(t);
+  .then(function(res) {
+    // apiPost already unwraps data.data for us → res = { status, payment_id, plan_id, message }
     btn.disabled    = false;
     btn.textContent = '🔍 Verify My Payment';
 
-    if (data && data.status === 'success') {
-      // ✅ Payment found and verified
-      result.style.display      = 'block';
-      result.style.background   = 'rgba(16,185,129,.12)';
-      result.style.border       = '1px solid rgba(16,185,129,.30)';
-      result.style.color        = '#10B981';
-      result.innerHTML          =
+    if (res && res.status === 'success') {
+      // ✅ Payment found
+      result.style.display    = 'block';
+      result.style.background = 'rgba(16,185,129,.12)';
+      result.style.border     = '1px solid rgba(16,185,129,.30)';
+      result.style.color      = '#10B981';
+      result.innerHTML =
         '✅ Payment Verified!<br>'
         + '<span style="font-size:11px;font-weight:500;color:rgba(16,185,129,.75)">'
         + 'Your payment was found. Activating your plan now…</span>';
 
       toast('✅ Payment verified! Activating plan…', 'ok', 4000);
 
-      // Auto-activate plan after short delay
-      var planToActivate = data.plan_id || STATE.selectedPlan || 'pro';
-      var payId          = data.payment_id || ('MANUAL_VERIFIED_' + Date.now());
-      setTimeout(function () {
+      var planToActivate = res.plan_id || STATE.selectedPlan || 'pro';
+      var payId          = res.payment_id || ('MANUAL_' + Date.now());
+
+      setTimeout(function() {
         STATE.selectedPlan  = planToActivate;
         STATE.paymentStatus = 'paid';
         savePlan(planToActivate, payId, 'paid');
       }, 1500);
 
     } else {
-      // ❌ Payment not found
-      result.style.display      = 'block';
-      result.style.background   = 'rgba(239,68,68,.08)';
-      result.style.border       = '1px solid rgba(239,68,68,.25)';
-      result.style.color        = '#EF4444';
-      result.innerHTML          =
+      // ❌ Not found
+      result.style.display    = 'block';
+      result.style.background = 'rgba(239,68,68,.08)';
+      result.style.border     = '1px solid rgba(239,68,68,.25)';
+      result.style.color      = '#EF4444';
+      result.innerHTML =
         '❌ Payment Not Found<br>'
         + '<span style="font-size:11px;font-weight:500;color:rgba(239,68,68,.70)">'
-        + (data.message || 'No successful payment found for this phone + email. '
-        + 'Please check and try again, or contact support.') + '</span>';
+        + (res.message || 'No successful payment found. Check your details and try again.') + '</span>';
 
-      toast('Payment not found. Check details and retry.', 'err', 5000);
+      toast('Payment not found. Check your details.', 'err', 5000);
     }
   })
-  .catch(function (e) {
+  .catch(function(e) {
     btn.disabled    = false;
     btn.textContent = '🔍 Verify My Payment';
     result.style.display    = 'block';
     result.style.background = 'rgba(239,68,68,.08)';
     result.style.border     = '1px solid rgba(239,68,68,.25)';
     result.style.color      = '#EF4444';
-    result.textContent      = '❌ Connection error. Please try again.';
-    toast('Network error: ' + (e.message || 'Try again'), 'err');
+    result.textContent      = '❌ Error: ' + (e.message || 'Connection failed. Try again.');
+    toast('Error: ' + (e.message || 'Try again'), 'err');
   });
 }
    
