@@ -749,6 +749,51 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
       </button>
       <div class="pv-last-check" id="pv-last-check"></div>
 
+       <!-- ★ MANUAL PAYMENT VERIFICATION FORM ★ -->
+      <div id="manual-verify-section" style="margin-top:14px;
+        background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);
+        border-radius:14px;padding:16px">
+
+        <div style="font-size:10px;font-weight:800;color:var(--amber);
+          text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;
+          display:flex;align-items:center;gap:6px">
+          <span>🔍</span> Manual Payment Verification
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+
+          <div class="fg">
+            <label class="lbl" style="font-size:10px">Phone Number Used During Payment</label>
+            <input class="inp" id="mv-phone" type="tel"
+              placeholder="e.g. 9876543210"
+              style="background:rgba(255,255,255,.04);font-size:13px;padding:10px 14px">
+          </div>
+
+          <div class="fg">
+            <label class="lbl" style="font-size:10px">Email ID Used During Payment</label>
+            <input class="inp" id="mv-email" type="email"
+              placeholder="e.g. you@gmail.com"
+              style="background:rgba(255,255,255,.04);font-size:13px;padding:10px 14px">
+          </div>
+
+          <button onclick="submitManualVerify()"
+            id="mv-submit-btn"
+            style="width:100%;height:44px;background:linear-gradient(135deg,#D97706,#F59E0B);
+              border:none;border-radius:999px;color:#0A0F2C;font-size:13px;font-weight:800;
+              cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+              font-family:'Plus Jakarta Sans',sans-serif;transition:opacity .2s">
+            🔍 Verify My Payment
+          </button>
+
+        </div>
+
+        <!-- Result message box — hidden by default -->
+        <div id="mv-result" style="display:none;margin-top:12px;padding:12px 14px;
+          border-radius:10px;font-size:13px;font-weight:700;line-height:1.5;text-align:center">
+        </div>
+
+      </div>
+      <!-- ★ END MANUAL VERIFY FORM ★ -->
       <!-- Activate button shown only when payment confirmed ★ -->
       <div id="pv-activate-wrap" style="display:none;margin-top:12px">
         <button class="btn btn-primary" style="height:46px;font-size:13px"
@@ -975,7 +1020,99 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 </div><!-- step-3 -->
 
 </div><!-- #pg -->
+// ──────────────────────────────────────────────────────────────
+//  ★ NEW: MANUAL PAYMENT VERIFICATION
+// ──────────────────────────────────────────────────────────────
+function submitManualVerify() {
+  // 1. Get values from inputs
+  var phone = (document.getElementById('mv-phone').value || '').trim();
+  var email = (document.getElementById('mv-email').value || '').trim();
 
+  // 2. Basic validation
+  if (!phone) {
+    toast('Please enter your phone number.', 'err');
+    document.getElementById('mv-phone').focus();
+    return;
+  }
+  if (!email) {
+    toast('Please enter your email address.', 'err');
+    document.getElementById('mv-email').focus();
+    return;
+  }
+
+  // 3. Show loading state
+  var btn    = document.getElementById('mv-submit-btn');
+  var result = document.getElementById('mv-result');
+  btn.disabled    = true;
+  btn.textContent = '⏳ Checking…';
+  result.style.display = 'none';
+
+  // 4. Send POST request to Google Apps Script
+  fetch(GAS_URL, {
+    method:   'POST',
+    redirect: 'follow',
+    body: JSON.stringify({
+      action:    'verifyManualPayment',
+      phone:     phone,
+      email:     email,
+      client_id: STATE.clientId || ''
+    })
+  })
+  .then(function(r) { return r.text(); })
+  .then(function(t) {
+    var data = JSON.parse(t);
+    btn.disabled    = false;
+    btn.textContent = '🔍 Verify My Payment';
+
+    if (data && data.status === 'success') {
+      // ✅ Payment found and verified
+      result.style.display      = 'block';
+      result.style.background   = 'rgba(16,185,129,.12)';
+      result.style.border       = '1px solid rgba(16,185,129,.30)';
+      result.style.color        = '#10B981';
+      result.innerHTML          =
+        '✅ Payment Verified!<br>'
+        + '<span style="font-size:11px;font-weight:500;color:rgba(16,185,129,.75)">'
+        + 'Your payment was found. Activating your plan now…</span>';
+
+      toast('✅ Payment verified! Activating plan…', 'ok', 4000);
+
+      // Auto-activate plan after short delay
+      var planToActivate = data.plan_id || STATE.selectedPlan || 'pro';
+      var payId          = data.payment_id || ('MANUAL_VERIFIED_' + Date.now());
+      setTimeout(function () {
+        STATE.selectedPlan  = planToActivate;
+        STATE.paymentStatus = 'paid';
+        savePlan(planToActivate, payId, 'paid');
+      }, 1500);
+
+    } else {
+      // ❌ Payment not found
+      result.style.display      = 'block';
+      result.style.background   = 'rgba(239,68,68,.08)';
+      result.style.border       = '1px solid rgba(239,68,68,.25)';
+      result.style.color        = '#EF4444';
+      result.innerHTML          =
+        '❌ Payment Not Found<br>'
+        + '<span style="font-size:11px;font-weight:500;color:rgba(239,68,68,.70)">'
+        + (data.message || 'No successful payment found for this phone + email. '
+        + 'Please check and try again, or contact support.') + '</span>';
+
+      toast('Payment not found. Check details and retry.', 'err', 5000);
+    }
+  })
+  .catch(function (e) {
+    btn.disabled    = false;
+    btn.textContent = '🔍 Verify My Payment';
+    result.style.display    = 'block';
+    result.style.background = 'rgba(239,68,68,.08)';
+    result.style.border     = '1px solid rgba(239,68,68,.25)';
+    result.style.color      = '#EF4444';
+    result.textContent      = '❌ Connection error. Please try again.';
+    toast('Network error: ' + (e.message || 'Try again'), 'err');
+  });
+}
+   
 <!-- ═══════════════════════════════════════════════════════
      JAVASCRIPT — Complete with all new features
      ★ marks every new/changed section
@@ -984,7 +1121,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 // ──────────────────────────────────────────────────────────────
 //  ⚙️ CONFIG  — change these two lines
 // ──────────────────────────────────────────────────────────────
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbzntWnfqDPT0FUqwHQaBcQixwoMKMSrD-EPH3zGobJRtHJeSv2pC3LMSRCR1RBbo_fU/exec';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbwFUnOJ1TGuuxrHf_HCRDw0bOA_bfB2HSoeP4AFN41uDcWOeAsk2UN8U693EisNCC0G/exec';
 
 // ★ NEW: Support contact numbers — change to your own numbers
 var SUPPORT_PHONE     = '+918910475493';   // call button
