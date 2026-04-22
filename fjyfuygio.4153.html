@@ -2405,7 +2405,6 @@ function _renderMerchantsTable(data) {
 
   if (!data.length) {
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:36px;color:var(--txt2)"><div style="font-size:2rem;margin-bottom:8px">🎫</div>No merchants yet. Click ⚡ Generate IDs.</td></tr>';
-    return;
   }
 
   // Build rows safely using array then join — avoids quote-breaking issues
