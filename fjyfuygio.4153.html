@@ -344,6 +344,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
     <button class="nav-btn"     onclick="nav('settings')"  id="nb-settings">⚙️ Settings</button>
     <button class="nav-btn"     onclick="nav('diag')"      id="nb-diag">🔧 Diagnostics</button>
      <button class="nav-btn"     onclick="nav('mapping')"   id="nb-mapping">🔗 URL Mappings</button>
+     <button class="nav-btn" onclick="nav('merchants')" id="nb-merchants">🎫 Merchants</button>
     <div class="sb-bottom">
       <div class="conn-pill cp-wait" id="conn-pill">⏳ Checking…</div>
       <button class="btn btn-ghost btn-sm" onclick="doLogout()" style="width:100%;justify-content:center;margin-top:6px">🚪 Logout</button>
@@ -1049,6 +1050,7 @@ function nav(id){
   if(id==='reviews')  fillRvSel();
   if(id==='banners')  loadBanners();
   if(id==='ads')      { loadAds(); fillAdClientSel(); }
+   if(id==='merchants') loadMerchants();
   if(id==='settings') loadSettings();
   if(id==='add' && !EDIT_ID) resetForm();
   closeSb();
