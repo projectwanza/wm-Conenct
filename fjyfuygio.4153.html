@@ -2402,34 +2402,76 @@ function _updateMerchantStats(data) {
 function _renderMerchantsTable(data) {
   var tbody = document.getElementById('merch-tbody');
   if (!tbody) return;
+
   if (!data.length) {
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:36px;color:var(--txt2)"><div style="font-size:2rem;margin-bottom:8px">🎫</div>No merchants yet. Click ⚡ Generate IDs.</td></tr>';
     return;
   }
-  tbody.innerHTML = data.map(function(m) {
+
+  // Build rows safely using array then join — avoids quote-breaking issues
+  var rows = data.map(function(m, idx) {
     var isActive = (m.status || 'active') !== 'disabled';
     var gen      = m.generated_at ? new Date(m.generated_at).toLocaleDateString('en-IN') : '—';
     var last     = m.last_used    ? new Date(m.last_used).toLocaleDateString('en-IN')    : '—';
     var usedBadge= parseInt(m.reviews_used) > 0 ? 'b-org' : 'b-blue';
     var sel      = _selMerchants.has(m.merchant_id);
+    var mid      = esc(m.merchant_id);
+    var cid      = esc(m.client_id || '');
+    var cname    = esc(m.client_name || m.client_id || '—');
+    var statBadge= isActive ? 'b-grn' : 'b-red';
+    var statText = isActive ? 'Active' : 'Off';
 
-    return '<tr id="mr-' + esc(m.merchant_id) + '">'
-      + '<td><input type="checkbox" class="merch-cb" value="' + esc(m.merchant_id) + '" '
-        + (sel ? 'checked' : '') + ' onchange="onMerchantCheck(this)"></td>'
-      + '<td><code style="font-size:11px;background:rgba(255,106,0,.08);padding:3px 8px;border-radius:6px;color:var(--org1);cursor:pointer" onclick="copyMerchantId(\'' + esc(m.merchant_id) + '\')">'
-        + esc(m.merchant_id) + '</code>'
-      + ' <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:10px" onclick="copyMerchantId(\'' + esc(m.merchant_id) + '\')">📋</button>'
-      + ' <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:10px" onclick="copyMerchantLink(\'' + esc(m.merchant_id) + '\',\'' + esc(m.client_id) + '\')">🔗</button></td>'
-      + '<td style="font-size:12px">' + esc(m.client_name || m.client_id || '—') + '</td>'
-      + '<td><span class="badge ' + (isActive ? 'b-grn' : 'b-red') + '">' + (isActive ? 'Active' : 'Off') + '</span></td>'
+    var tr = document.createElement('tr');
+    tr.id  = 'mr-' + mid;
+
+    // Use innerHTML safely — all dynamic values are escaped above
+    tr.innerHTML = 
+      '<td><input type="checkbox" class="merch-cb" value="' + mid + '" '
+      + (sel ? 'checked' : '') + '></td>'
+      + '<td>'
+        + '<code style="font-size:11px;background:rgba(255,106,0,.08);padding:3px 8px;border-radius:6px;color:var(--org1)">'
+        + mid + '</code>'
+        + ' <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:10px" data-copy-id="' + mid + '">📋</button>'
+        + ' <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:10px" data-link-id="' + mid + '" data-link-client="' + cid + '">🔗</button>'
+      + '</td>'
+      + '<td style="font-size:12px">' + cname + '</td>'
+      + '<td><span class="badge ' + statBadge + '">' + statText + '</span></td>'
       + '<td style="text-align:center"><span class="badge ' + usedBadge + '">' + (m.reviews_used || 0) + '</span></td>'
       + '<td style="font-size:11px;color:var(--txt2)">' + gen + '</td>'
       + '<td style="font-size:11px;color:var(--txt2)">' + last + '</td>'
-      + '<td><div style="display:flex;gap:4px">'
-      + '<button class="btn btn-del btn-sm" onclick="deleteMerchantAdmin(\'' + esc(m.merchant_id) + '\')">🗑️</button>'
-      + '</div></td>'
-      + '</tr>';
-  }).join('');
+      + '<td><button class="btn btn-del btn-sm" data-del-id="' + mid + '">🗑️</button></td>';
+
+    return tr;
+  });
+
+  // Clear tbody and append all rows
+  tbody.innerHTML = '';
+  rows.forEach(function(tr) { tbody.appendChild(tr); });
+
+  // ✅ Safe event delegation — no inline onclick with dynamic values
+  tbody.onclick = function(e) {
+    var btn = e.target.closest('button, input[type="checkbox"]');
+    if (!btn) return;
+
+    // Checkbox toggle
+    if (btn.type === 'checkbox') {
+      onMerchantCheck(btn);
+      return;
+    }
+
+    // Copy merchant ID
+    var copyId = btn.getAttribute('data-copy-id');
+    if (copyId) { copyMerchantId(copyId); return; }
+
+    // Copy merchant link
+    var linkId     = btn.getAttribute('data-link-id');
+    var linkClient = btn.getAttribute('data-link-client');
+    if (linkId && linkClient) { copyMerchantLink(linkId, linkClient); return; }
+
+    // Delete merchant
+    var delId = btn.getAttribute('data-del-id');
+    if (delId) { deleteMerchantAdmin(delId); return; }
+  };
 }
 
 function _fillMerchantFilters() {
