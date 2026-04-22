@@ -2074,22 +2074,6 @@ function loadSettings(){
     });
 }
 
-// FIND THIS:
-function saveSettings(){
-  showLoad('Saving settings…');
-  var logoUrl=_compLogoUrl||(document.getElementById('s-lo').value||'').trim();
-  apiPost('saveSettings',{settings:{
-    company_name: (document.getElementById('s-cn').value||'').trim(),
-    logo_url:     logoUrl,
-    tagline:      (document.getElementById('s-tg').value||'').trim(),
-    phone:        (document.getElementById('s-ph').value||'').trim(),
-    email:        (document.getElementById('s-em').value||'').trim(),
-    share_message:(document.getElementById('s-sm').value||'').trim()
-  }})
-  .then(function(){ hideLoad(); toast('Settings saved! 🎉','ok'); _compLogoUrl=''; })
-  .catch(function(e){ hideLoad(); toast('Save failed: '+e.message,'err'); });
-}
-
 // REPLACE WITH:
 function saveSettings(){
   showLoad('Saving settings…');
