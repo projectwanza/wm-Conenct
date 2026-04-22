@@ -2176,41 +2176,57 @@ function renderMappings(maps) {
     el.innerHTML = '<div class="empty"><div class="empty-ic">🔗</div><div class="empty-tx">No mappings yet. Add one above!</div></div>';
     return;
   }
-  el.innerHTML = maps.map(function(m) {
+
+  var html = '';
+
+  for (var i = 0; i < maps.length; i++) {
+    var m = maps[i];
     var on = String(m.enabled || 'TRUE').toUpperCase() !== 'FALSE';
     var shortLink = GAS_URL + '?code=' + encodeURIComponent(m.code);
     var clientName = '';
-    var cl = ALL_CL.find(function(c) { return c.client_id === m.client_id; });
-    if (cl) clientName = cl.name;
 
-    return '<div class="banner-item" id="mpi-' + esc(m.code) + '">'
-      + '<div style="font-size:1.5rem;flex-shrink:0">🔗</div>'
-      + '<div class="banner-preview" style="flex:1;min-width:0">'
-      + '<strong style="font-family:monospace;font-size:15px;color:var(--org1)">?' + 'code=' + esc(m.code) + '</strong>'
-      + '<span style="display:block;font-size:12px;color:var(--txt2);margin-top:2px">'
-        + (m.label ? '📝 ' + esc(m.label) + ' &nbsp;|&nbsp; ' : '')
-        + '🏢 ' + esc(clientName || m.client_id)
-      + '</span>'
-      + '<span style="display:block;font-family:monospace;font-size:11px;color:var(--txt3);margin-top:4px;word-break:break-all">'
-        + esc(shortLink.length > 70 ? shortLink.substr(0, 70) + '…' : shortLink)
-      + '</span>'
-      + '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">'
-      + '<button class="btn btn-ghost btn-sm" onclick="copyMappingUrl(\'' + esc(shortLink) + '\')">📋 Copy Link</button>'
-      + '<button class="btn btn-ghost btn-sm" onclick="testMappingUrl(\'' + esc(shortLink) + '\')">🔍 Test</button>'
-      + '</div>'
-      + '</div>'
-      + '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
-      + '<label class="toggle-switch"><input type="checkbox" ' + (on ? 'checked' : '')
-        + ' onchange="doToggleMapping(\'' + esc(m.code) + '\',this.checked)"><span class="toggle-slider"></span></label>'
-      + '<span class="badge ' + (on ? 'b-grn' : 'b-red') + '">' + (on ? 'Active' : 'Off') + '</span>'
-      + '</div>'
-      + '<div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">'
-      + '<button class="btn btn-del btn-sm" onclick="doDeleteMapping(\'' + esc(m.code) + '\')">🗑️</button>'
-      + '</div>'
-      + '</div>';
-  }).join('');
+    for (var j = 0; j < ALL_CL.length; j++) {
+      if (ALL_CL[j].client_id === m.client_id) {
+        clientName = ALL_CL[j].name;
+        break;
+      }
+    }
+
+    var shortLinkDisplay = shortLink.length > 70 ? shortLink.substr(0, 70) + '…' : shortLink;
+    var labelHtml = m.label ? '📝 ' + esc(m.label) + ' &nbsp;|&nbsp; ' : '';
+    var activeClass = on ? 'b-grn' : 'b-red';
+    var activeText  = on ? 'Active' : 'Off';
+    var checkedAttr = on ? 'checked' : '';
+
+    html += '<div class="banner-item" id="mpi-' + esc(m.code) + '">';
+    html += '<div style="font-size:1.5rem;flex-shrink:0">🔗</div>';
+    html += '<div class="banner-preview" style="flex:1;min-width:0">';
+    html += '<strong style="font-family:monospace;font-size:15px;color:var(--org1)">code=' + esc(m.code) + '</strong>';
+    html += '<span style="display:block;font-size:12px;color:var(--txt2);margin-top:2px">';
+    html += labelHtml + '🏢 ' + esc(clientName || m.client_id);
+    html += '</span>';
+    html += '<span style="display:block;font-family:monospace;font-size:11px;color:var(--txt3);margin-top:4px;word-break:break-all">';
+    html += esc(shortLinkDisplay);
+    html += '</span>';
+    html += '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">';
+    html += '<button class="btn btn-ghost btn-sm" onclick="copyMappingUrl(\'' + esc(shortLink) + '\')">📋 Copy Link</button>';
+    html += '<button class="btn btn-ghost btn-sm" onclick="testMappingUrl(\'' + esc(shortLink) + '\')">🔍 Test</button>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">';
+    html += '<label class="toggle-switch">';
+    html += '<input type="checkbox" ' + checkedAttr + ' onchange="doToggleMapping(\'' + esc(m.code) + '\',this.checked)">';
+    html += '<span class="toggle-slider"></span></label>';
+    html += '<span class="badge ' + activeClass + '">' + activeText + '</span>';
+    html += '</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">';
+    html += '<button class="btn btn-del btn-sm" onclick="doDeleteMapping(\'' + esc(m.code) + '\')">🗑️</button>';
+    html += '</div>';
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
 }
-
 function openAddMapping() {
   document.getElementById('m-mapping-title').textContent = '➕ Add Mapping';
   document.getElementById('mp-code').value    = '';
