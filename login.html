@@ -4,383 +4,921 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0F52BA">
-<title>Wanza — Login</title>
+<title>Wanza — Login & Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* ═══════════════════════════════════════════════════
+   WANZA — LOGIN + DASHBOARD (Single File)
+   ═══════════════════════════════════════════════════ */
 :root{
   --navy:#0A0F2C;--blue:#2563EB;--blue2:#3B82F6;--blue3:#93C5FD;
-  --amber:#F59E0B;--grn:#10B981;--red:#EF4444;
+  --amber:#F59E0B;--grn:#10B981;--red:#EF4444;--purple:#8B5CF6;
   --bg:#070C1F;--card:#111B3A;--card2:#162040;
-  --glass:rgba(255,255,255,.04);
   --txt:#F0F4FF;--txt2:#94A3B8;--txt3:#4B5884;
   --bdr:rgba(255,255,255,.06);--bdr2:rgba(37,99,235,.25);
   --g-blue:linear-gradient(135deg,#1D4ED8,#2563EB,#3B82F6);
+  --g-amber:linear-gradient(135deg,#D97706,#F59E0B,#FCD34D);
+  --g-pro:linear-gradient(135deg,#4F46E5,#7C3AED,#8B5CF6);
+  --g-grn:linear-gradient(135deg,#059669,#10B981);
   --g-brand:linear-gradient(135deg,#1D4ED8,#4F46E5,#F59E0B);
+  --g-card:linear-gradient(145deg,rgba(17,27,58,.95),rgba(13,21,48,.90));
   --sh-blue:0 8px 32px rgba(37,99,235,.35);
-  --r1:10px;--r2:16px;--r3:22px;--pill:999px;
+  --sh-card:0 4px 24px rgba(0,0,0,.40);
+  --r1:10px;--r2:16px;--r3:22px;--pill:999px;--pad:20px;--max:620px
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--txt);
-  min-height:100dvh;display:flex;align-items:center;justify-content:center;
-  padding:20px;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+html{scroll-behavior:smooth}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;line-height:1.6;
+  background:var(--bg);color:var(--txt);min-height:100dvh;overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:linear-gradient(rgba(37,99,235,.03) 1px,transparent 1px),
     linear-gradient(90deg,rgba(37,99,235,.03) 1px,transparent 1px);
-  background-size:40px 40px}
-body::after{content:'';position:fixed;z-index:0;pointer-events:none;
-  width:600px;height:300px;border-radius:50%;top:-150px;left:50%;transform:translateX(-50%);
-  background:radial-gradient(ellipse,rgba(37,99,235,.12),transparent 70%)}
+  background-size:40px 40px
+}
+body::after{
+  content:'';position:fixed;z-index:0;pointer-events:none;
+  width:700px;height:350px;border-radius:50%;top:-180px;left:50%;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse,rgba(37,99,235,.10),transparent 70%)
+}
 
-/* TOAST */
-#toast{position:fixed;z-index:9999;bottom:24px;left:50%;
+/* ── LOADER ─────────────────────────────────────── */
+#ls{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px
+}
+#ls.out{opacity:0;pointer-events:none;transition:opacity .4s ease}
+.ld-ico{
+  width:64px;height:64px;border-radius:18px;background:var(--g-brand);
+  display:flex;align-items:center;justify-content:center;font-size:1.8rem;
+  box-shadow:var(--sh-blue),0 0 60px rgba(37,99,235,.2);
+  animation:iconPulse 2s ease infinite
+}
+@keyframes iconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.ld-ring{
+  width:36px;height:36px;border:3px solid rgba(37,99,235,.15);
+  border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-txt{font-size:11px;color:var(--txt3);font-weight:700;letter-spacing:2.5px;text-transform:uppercase}
+
+/* ── TOAST ──────────────────────────────────────── */
+#toast{
+  position:fixed;z-index:9999;bottom:24px;left:50%;
   transform:translateX(-50%) translateY(14px);
   background:var(--card2);border:1px solid var(--bdr2);border-radius:var(--pill);
   padding:11px 26px;font-size:13px;font-weight:600;
   opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;
   white-space:nowrap;max-width:calc(100vw - 32px);text-align:center;
-  box-shadow:0 8px 36px rgba(0,0,0,.5)}
+  box-shadow:0 8px 36px rgba(0,0,0,.5)
+}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#toast.ok  {border-color:rgba(16,185,129,.4);color:var(--grn)}
-#toast.err {border-color:rgba(239,68,68,.4);color:var(--red)}
+#toast.ok{border-color:rgba(16,185,129,.4);color:var(--grn)}
+#toast.err{border-color:rgba(239,68,68,.4);color:var(--red)}
 #toast.info{border-color:var(--bdr2);color:var(--blue2)}
+#toast.warn{border-color:rgba(245,158,11,.4);color:var(--amber)}
 
-/* CARD */
-.login-card{position:relative;z-index:1;width:100%;max-width:420px;
+/* ══════════════════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════════════════ */
+#login-screen{
+  display:none;position:relative;z-index:1;
+  min-height:100dvh;display:flex;align-items:center;
+  justify-content:center;padding:20px
+}
+.login-card{
+  width:100%;max-width:420px;
   background:linear-gradient(145deg,rgba(17,27,58,.98),rgba(13,21,48,.95));
   border:1px solid var(--bdr);border-radius:28px;
   padding:clamp(28px,6vw,44px);
-  box-shadow:0 4px 24px rgba(0,0,0,.4),0 0 60px rgba(37,99,235,.08)}
+  box-shadow:0 4px 24px rgba(0,0,0,.4),0 0 60px rgba(37,99,235,.08);
+  animation:slideUp .5s cubic-bezier(.22,1,.36,1)
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 
-/* LOGO */
-.logo-wrap{text-align:center;margin-bottom:30px}
-.logo-ico{width:64px;height:64px;border-radius:18px;
-  background:var(--g-brand);display:flex;align-items:center;justify-content:center;
-  font-size:1.8rem;margin:0 auto 14px;
-  box-shadow:var(--sh-blue),0 0 60px rgba(37,99,235,.2)}
-.logo-title{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;
-  background:var(--g-brand);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-wrap{text-align:center;margin-bottom:28px}
+.logo-ico{
+  width:64px;height:64px;border-radius:18px;
+  background:var(--g-brand);display:flex;align-items:center;
+  justify-content:center;font-size:1.8rem;margin:0 auto 14px;
+  box-shadow:var(--sh-blue),0 0 60px rgba(37,99,235,.2)
+}
+.logo-title{
+  font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;
+  background:var(--g-brand);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text
+}
 .logo-sub{font-size:12px;color:var(--txt3);margin-top:5px;font-weight:600;
   text-transform:uppercase;letter-spacing:1.5px}
 
-/* TABS */
-.tabs{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--bdr);
-  border-radius:var(--pill);padding:4px;margin-bottom:24px;gap:4px}
-.tab{flex:1;height:38px;border:none;border-radius:var(--pill);cursor:pointer;
+/* login tabs */
+.l-tabs{
+  display:flex;background:rgba(255,255,255,.04);border:1px solid var(--bdr);
+  border-radius:var(--pill);padding:4px;margin-bottom:22px;gap:4px
+}
+.l-tab{
+  flex:1;height:38px;border:none;border-radius:var(--pill);cursor:pointer;
   font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;
-  color:var(--txt3);background:transparent;transition:all .25s ease}
-.tab.active{background:var(--g-blue);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35)}
+  color:var(--txt3);background:transparent;transition:all .25s ease
+}
+.l-tab.active{background:var(--g-blue);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35)}
 
-/* FORM */
 .form-group{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
-.lbl{font-size:11px;font-weight:700;color:var(--txt2);
-  text-transform:uppercase;letter-spacing:.8px}
-.inp{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);
+.lbl-l{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.8px}
+.inp-l{
+  background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);
   border-radius:var(--r2);color:var(--txt);padding:13px 16px;
   font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;
-  transition:border-color .2s,box-shadow .2s,background .2s;width:100%}
-.inp:focus{border-color:rgba(37,99,235,.6);background:rgba(37,99,235,.05);
-  box-shadow:0 0 0 4px rgba(37,99,235,.10)}
-.inp::placeholder{color:var(--txt3)}
+  transition:border-color .2s,box-shadow .2s,background .2s;width:100%
+}
+.inp-l:focus{
+  border-color:rgba(37,99,235,.6);background:rgba(37,99,235,.05);
+  box-shadow:0 0 0 4px rgba(37,99,235,.10)
+}
+.inp-l::placeholder{color:var(--txt3)}
 .pw-wrap{position:relative}
-.pw-wrap .inp{padding-right:46px}
-.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+.pw-wrap .inp-l{padding-right:46px}
+.pw-eye{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
   background:none;border:none;cursor:pointer;color:var(--txt3);
-  font-size:1rem;padding:4px;line-height:1;transition:color .2s}
+  font-size:1rem;padding:4px;line-height:1;transition:color .2s
+}
 .pw-eye:hover{color:var(--blue2)}
-    <!-- Logout button — add anywhere in profile page -->
-<button onclick="logoutClient()"
-  style="position:fixed;top:14px;right:14px;z-index:999;
-    background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);
-    color:#EF4444;border-radius:999px;padding:8px 16px;
-    font-size:12px;font-weight:700;cursor:pointer;
-    font-family:'Plus Jakarta Sans',sans-serif">
-  🚪 Logout
-</button>
 
-/* BUTTON */
-.btn-login{width:100%;height:52px;background:var(--g-blue);color:#fff;border:none;
-  border-radius:var(--pill);font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:15px;font-weight:700;cursor:pointer;
-  box-shadow:var(--sh-blue);transition:transform .22s,box-shadow .2s;
-  display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
-.btn-login:hover{transform:translateY(-3px);box-shadow:0 12px 44px rgba(37,99,235,.5)}
+/* Premium Login Button */
+.btn-login{
+  width:100%;height:54px;
+  background:linear-gradient(135deg,#1D4ED8,#4F46E5,#7C3AED);
+  color:#fff;border:none;border-radius:var(--pill);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:15px;font-weight:800;cursor:pointer;
+  box-shadow:0 8px 32px rgba(79,70,229,.45),
+    0 0 0 1px rgba(139,92,246,.3),
+    inset 0 1px 0 rgba(255,255,255,.15);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .25s ease;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-top:6px;letter-spacing:.3px;position:relative;overflow:hidden
+}
+.btn-login::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.12),transparent);
+  pointer-events:none
+}
+.btn-login:hover{
+  transform:translateY(-4px) scale(1.01);
+  box-shadow:0 16px 48px rgba(79,70,229,.60),
+    0 0 0 2px rgba(139,92,246,.5),
+    inset 0 1px 0 rgba(255,255,255,.2)
+}
 .btn-login:active{transform:scale(.97)}
 .btn-login:disabled{opacity:.45;cursor:default;transform:none}
 
-/* BOTTOM LINK */
-.bottom-txt{text-align:center;font-size:13px;color:var(--txt3);margin-top:20px}
-.bottom-txt a{color:var(--blue2);font-weight:700;text-decoration:none}
-.bottom-txt a:hover{text-decoration:underline}
-
-/* ERROR BOX */
-.err-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);
+.err-box{
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);
   border-radius:var(--r2);padding:12px 16px;font-size:13px;color:var(--red);
-  margin-bottom:16px;line-height:1.5;display:none}
+  margin-bottom:16px;line-height:1.5;display:none
+}
 .err-box.show{display:block}
-
-/* DIVIDER */
 .divider{display:flex;align-items:center;gap:12px;margin:18px 0}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--bdr)}
 .divider span{font-size:11px;color:var(--txt3);font-weight:600;white-space:nowrap}
+.bottom-txt{text-align:center;font-size:13px;color:var(--txt3);margin-top:16px}
+.bottom-txt a{color:var(--blue2);font-weight:700;text-decoration:none}
+.bottom-txt a:hover{text-decoration:underline}
 
-/* SPINNER */
-.spin{display:inline-block;width:16px;height:16px;
+.spin-sm{
+  display:inline-block;width:16px;height:16px;
   border:2px solid rgba(255,255,255,.2);border-top-color:#fff;
-  border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+  border-radius:50%;animation:spin .7s linear infinite
+}
 
-@media(max-width:400px){.login-card{padding:24px 18px}}
+/* ══════════════════════════════════════════════════
+   DASHBOARD SCREEN
+══════════════════════════════════════════════════ */
+#dash-screen{
+  display:none;position:relative;z-index:1;
+  max-width:var(--max);margin:0 auto;padding-bottom:60px
+}
+
+/* HEADER */
+.hdr{
+  padding:16px var(--pad);display:flex;align-items:center;
+  justify-content:space-between;border-bottom:1px solid var(--bdr);
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,12,31,.92);backdrop-filter:blur(12px)
+}
+.hdr-logo{display:flex;align-items:center;gap:10px}
+.hdr-ico{
+  width:32px;height:32px;border-radius:9px;background:var(--g-brand);
+  display:flex;align-items:center;justify-content:center;font-size:1rem
+}
+.hdr-name{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:700}
+.logout-btn{
+  background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.25);
+  color:var(--red);border-radius:var(--pill);padding:7px 16px;
+  font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;transition:background .2s
+}
+.logout-btn:hover{background:rgba(239,68,68,.22)}
+
+/* PROFILE HERO */
+.profile-hero{
+  padding:24px var(--pad) 18px;display:flex;align-items:center;gap:16px;
+  border-bottom:1px solid var(--bdr)
+}
+.profile-avatar{
+  width:68px;height:68px;border-radius:50%;object-fit:cover;
+  border:2px solid var(--bdr2);flex-shrink:0
+}
+.profile-avatar-ph{
+  width:68px;height:68px;border-radius:50%;background:var(--g-brand);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.7rem;flex-shrink:0;border:2px solid var(--bdr2)
+}
+.profile-name{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700}
+.profile-type{font-size:12px;color:var(--txt3);margin-top:2px}
+.plan-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:var(--pill);font-size:11px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.8px;margin-top:7px
+}
+.plan-pill.free{background:rgba(37,99,235,.12);color:var(--blue2);border:1px solid rgba(37,99,235,.25)}
+.plan-pill.starter{background:rgba(37,99,235,.12);color:var(--blue2);border:1px solid rgba(37,99,235,.25)}
+.plan-pill.pro{background:rgba(139,92,246,.12);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
+.plan-pill.premium{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.plan-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 1.4s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* TABS */
+.tabs{
+  display:flex;padding:0 var(--pad);border-bottom:1px solid var(--bdr);
+  gap:0;overflow-x:auto;scrollbar-width:none
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{
+  padding:13px 18px;border:none;background:transparent;color:var(--txt3);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;border-bottom:2px solid transparent;
+  white-space:nowrap;transition:color .2s,border-color .2s
+}
+.tab-btn.active{color:var(--blue2);border-bottom-color:var(--blue2)}
+.tab-btn:hover{color:var(--txt)}
+
+/* TAB PANELS */
+.tab-panel{display:none;padding:18px var(--pad)}.tab-panel.active{display:block}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat-card{
+  background:var(--g-card);border:1px solid var(--bdr);border-radius:var(--r2);
+  padding:15px 12px;text-align:center;box-shadow:var(--sh-card)
+}
+.stat-n{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;line-height:1}
+.stat-l{font-size:9px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:5px}
+
+/* INFO CARD */
+.info-card{
+  background:var(--g-card);border:1px solid var(--bdr);
+  border-radius:var(--r3);padding:18px;margin-bottom:12px;box-shadow:var(--sh-card)
+}
+.info-row{
+  display:flex;align-items:flex-start;gap:12px;padding:9px 0;
+  border-bottom:1px solid var(--bdr)
+}
+.info-row:last-child{border-bottom:none;padding-bottom:0}
+.info-ico{
+  width:32px;height:32px;border-radius:8px;background:rgba(37,99,235,.10);
+  border:1px solid rgba(37,99,235,.2);display:flex;align-items:center;
+  justify-content:center;font-size:.85rem;flex-shrink:0
+}
+.info-label{font-size:9px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
+.info-value{font-size:13px;font-weight:600;color:var(--txt);word-break:break-all}
+
+/* DAYS BAR */
+.days-bar-wrap{
+  background:var(--g-card);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:14px;margin-bottom:12px
+}
+.days-label{
+  font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:10px;display:flex;justify-content:space-between
+}
+.days-bar{height:7px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden}
+.days-fill{height:100%;border-radius:4px;background:var(--g-blue);transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.days-fill.warn{background:var(--g-amber)}
+.days-fill.good{background:var(--g-grn)}
+
+/* FORM */
+.form-sec-lbl{
+  font-size:9px;font-weight:800;color:var(--txt3);text-transform:uppercase;
+  letter-spacing:2px;padding-bottom:10px;margin-bottom:12px;
+  border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px
+}
+.form-sec-lbl::before{content:'';width:10px;height:2px;background:var(--g-blue);border-radius:1px}
+.form-grid{display:flex;flex-direction:column;gap:12px}
+.fg{display:flex;flex-direction:column;gap:6px}
+.lbl{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.8px}
+.inp,.ta{
+  background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);
+  border-radius:var(--r2);color:var(--txt);padding:11px 14px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;
+  transition:border-color .2s,box-shadow .2s;width:100%
+}
+.inp:focus,.ta:focus{
+  border-color:rgba(37,99,235,.6);background:rgba(37,99,235,.05);
+  box-shadow:0 0 0 4px rgba(37,99,235,.10)
+}
+.inp::placeholder,.ta::placeholder{color:var(--txt3)}
+.ta{resize:vertical;min-height:70px}
+
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:700;border-radius:var(--pill);
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;
+  text-decoration:none;-webkit-user-select:none;user-select:none
+}
+.btn:active{transform:scale(.96)!important}
+.btn:disabled{opacity:.45;cursor:default;transform:none!important}
+.btn-primary{
+  width:100%;height:50px;font-size:14px;
+  background:var(--g-blue);color:#fff;box-shadow:var(--sh-blue)
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(37,99,235,.45)}
+.btn-ghost{
+  width:100%;height:44px;background:transparent;
+  border:1.5px solid var(--bdr);color:var(--txt2);font-size:13px
+}
+.btn-ghost:hover{border-color:rgba(255,255,255,.2);color:var(--txt)}
+.btn-danger{
+  width:100%;height:44px;background:rgba(239,68,68,.10);
+  border:1.5px solid rgba(239,68,68,.3);color:var(--red);font-size:13px
+}
+.btn-wrap{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+
+/* PROFILE LINK BOX */
+.link-box{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(37,99,235,.08);border:1px solid var(--bdr2);
+  border-radius:var(--r2);padding:10px 14px;margin-top:12px
+}
+.link-txt{flex:1;font-size:11px;font-family:monospace;color:var(--blue3);word-break:break-all}
+.link-copy{
+  background:rgba(37,99,235,.18);border:1px solid var(--bdr2);border-radius:8px;
+  padding:6px 10px;cursor:pointer;color:var(--blue2);font-size:.85rem;
+  flex-shrink:0;transition:background .2s
+}
+.link-copy:hover{background:rgba(37,99,235,.32)}
+
+/* NOTICE */
+.notice{
+  margin-bottom:14px;
+  background:linear-gradient(135deg,rgba(245,158,11,.10),rgba(239,68,68,.06));
+  border:1px solid rgba(245,158,11,.22);border-radius:var(--r2);
+  padding:11px 14px;font-size:13px;font-weight:600;color:var(--amber);
+  display:flex;align-items:center;gap:10px
+}
+
+/* HISTORY */
+.hist-item{
+  display:flex;align-items:flex-start;gap:12px;padding:11px 0;
+  border-bottom:1px solid var(--bdr)
+}
+.hist-item:last-child{border-bottom:none}
+.hist-dot{width:7px;height:7px;border-radius:50%;background:var(--blue2);flex-shrink:0;margin-top:5px}
+.hist-field{font-size:12px;font-weight:800;color:var(--txt);text-transform:capitalize}
+.hist-change{font-size:11px;color:var(--txt3);margin-top:2px;line-height:1.5}
+.hist-time{font-size:10px;color:var(--txt3);margin-left:auto;white-space:nowrap;flex-shrink:0;padding-left:8px}
+
+/* SUPPORT BUTTONS */
+.support-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.support-btn{
+  display:flex;align-items:center;gap:10px;padding:13px;
+  border-radius:var(--r2);border:1.5px solid var(--bdr);
+  background:rgba(255,255,255,.03);text-decoration:none;color:var(--txt);
+  transition:transform .2s,border-color .2s,background .2s
+}
+.support-btn:hover{transform:translateY(-2px)}
+.support-btn-call:hover{border-color:rgba(37,99,235,.4);background:rgba(37,99,235,.06)}
+.support-btn-wa:hover{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.06)}
+.support-btn.support-btn-wa{border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.04)}
+.sb-ico{
+  width:34px;height:34px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:.9rem
+}
+.sb-ico-call{background:rgba(37,99,235,.15);border:1px solid rgba(37,99,235,.25)}
+.sb-ico-wa{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.25)}
+
+@media(max-width:400px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .support-grid{grid-template-columns:1fr}
+  .tabs .tab-btn{padding:12px 12px;font-size:12px}
+}
 </style>
 </head>
 <body>
 
+<!-- LOADER -->
+<div id="ls">
+  <div class="ld-ico">⭐</div>
+  <div class="ld-ring"></div>
+  <div class="ld-txt">Wanza Loading…</div>
+</div>
+
+<!-- TOAST -->
 <div id="toast"></div>
 
-<div class="login-card">
-  <div class="logo-wrap">
-    <div class="logo-ico">⭐</div>
-    <div class="logo-title">Wanza</div>
-    <div class="logo-sub">Business Dashboard</div>
-  </div>
+<!-- ══════════════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
 
-  <!-- TABS: Login / Register link -->
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('login')">🔐 Login</button>
-    <button class="tab" onclick="showTab('register')">🚀 New Account</button>
-  </div>
-
-  <!-- ERROR BOX -->
-  <div class="err-box" id="err-box">❌ Invalid email/phone or password</div>
-
-  <!-- LOGIN FORM -->
-  <div id="login-form">
-    <div class="form-group">
-      <label class="lbl">Email or Phone Number</label>
-      <input class="inp" id="l-id" type="text"
-        placeholder="you@email.com or 9876543210"
-        autocomplete="username">
+    <div class="logo-wrap">
+      <div class="logo-ico">⭐</div>
+      <div class="logo-title">Wanza</div>
+      <div class="logo-sub">Business Dashboard</div>
     </div>
-    <div class="form-group">
-      <label class="lbl">Password</label>
-      <div class="pw-wrap">
-        <input class="inp" id="l-pw" type="password"
-          placeholder="Enter your password"
-          autocomplete="current-password">
-        <button class="pw-eye" type="button" onclick="toggleEye('l-pw','eye-login')">
-          <span id="eye-login">👁️</span>
-        </button>
+
+    <!-- Tabs -->
+    <div class="l-tabs">
+      <button class="l-tab active" onclick="showLoginTab('login')">🔐 Login</button>
+      <button class="l-tab" onclick="showLoginTab('register')">🚀 New Account</button>
+    </div>
+
+    <!-- Error box -->
+    <div class="err-box" id="err-box"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="lf-login">
+      <div class="form-group">
+        <label class="lbl-l">Email या Phone Number</label>
+        <input class="inp-l" id="l-id" type="text"
+          placeholder="you@email.com or 9876543210"
+          autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="lbl-l">Password</label>
+        <div class="pw-wrap">
+          <input class="inp-l" id="l-pw" type="password"
+            placeholder="Enter your password"
+            autocomplete="current-password">
+          <button class="pw-eye" type="button" onclick="toggleEye('l-pw','eye-l')">
+            <span id="eye-l">👁️</span>
+          </button>
+        </div>
+      </div>
+      <button class="btn-login" id="login-btn" onclick="doLogin()">
+        🚀 Access Your Business Dashboard
+      </button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="lf-register" style="display:none">
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:2rem;margin-bottom:12px">🚀</div>
+        <div style="font-size:15px;font-weight:700;color:var(--txt);margin-bottom:8px">
+          अपना Free Account बनाएं
+        </div>
+        <div style="font-size:13px;color:var(--txt2);margin-bottom:20px;line-height:1.65">
+          2 मिनट में business profile ready। QR code, review system — सब कुछ free!
+        </div>
+        <a href="./onboarding.html"
+          style="display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 28px;
+            background:var(--g-blue);color:#fff;border-radius:999px;
+            font-size:14px;font-weight:700;text-decoration:none;
+            box-shadow:0 8px 28px rgba(37,99,235,.4)">
+          🚀 Create Free Account
+        </a>
       </div>
     </div>
-    <button class="btn-login" id="login-btn" onclick="doLogin()">
-      🔐 Login to Dashboard
-    </button>
-  </div>
 
-  <!-- REGISTER LINK -->
-  <div id="register-form" style="display:none">
-    <div style="text-align:center;padding:20px 0">
-      <div style="font-size:2rem;margin-bottom:12px">🚀</div>
-      <div style="font-size:15px;font-weight:700;color:var(--txt);margin-bottom:8px">
-        Create your free account
-      </div>
-      <div style="font-size:13px;color:var(--txt2);margin-bottom:20px;line-height:1.6">
-        Register your business in 2 minutes and get a professional digital profile.
-      </div>
-      <a href="./onboarding.html"
-        style="display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 28px;
-          background:linear-gradient(135deg,#1D4ED8,#2563EB);color:#fff;border-radius:999px;
-          font-size:14px;font-weight:700;text-decoration:none;
-          box-shadow:0 8px 28px rgba(37,99,235,.4)">
-        🚀 Create Free Account
+    <div class="divider"><span>OR</span></div>
+
+    <div class="bottom-txt">
+      Account नहीं है?
+      <a href="./onboarding.html">Register Free →</a>
+    </div>
+    <div class="bottom-txt" style="margin-top:8px">
+      <a href="#" onclick="goToProfileById()" style="color:var(--txt3);font-size:12px">
+        🌐 Client ID से profile देखें
       </a>
     </div>
-  </div>
 
-  <div class="divider"><span>OR</span></div>
-
-  <div class="bottom-txt">
-    Don't have an account?
-    <a href="./onboarding.html">Register Free →</a>
-  </div>
-  <div class="bottom-txt" style="margin-top:8px">
-    <a href="#" onclick="goToProfile()" style="color:var(--txt3);font-size:12px">
-      🌐 View a profile directly
-    </a>
   </div>
 </div>
 
- 
+<!-- ══════════════════════════════════════════════════
+     DASHBOARD SCREEN
+══════════════════════════════════════════════════ -->
+<div id="dash-screen">
+
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-ico">⭐</div>
+      <div class="hdr-name">Wanza</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">🚪 Logout</button>
+  </header>
+
+  <!-- PROFILE HERO -->
+  <div class="profile-hero">
+    <div id="avatar-wrap"></div>
+    <div style="min-width:0;flex:1">
+      <div class="profile-name" id="hero-name">Loading…</div>
+      <div class="profile-type" id="hero-type">—</div>
+      <div class="plan-pill free" id="hero-plan">
+        <span class="plan-dot"></span>
+        <span id="hero-plan-txt">FREE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('overview')">📊 Overview</button>
+    <button class="tab-btn" onclick="switchTab('edit')">✏️ Edit Profile</button>
+    <button class="tab-btn" onclick="switchTab('history')">📋 History</button>
+    <button class="tab-btn" onclick="switchTab('more')">⚙️ More</button>
+  </div>
+
+  <!-- ── TAB: OVERVIEW ─────────────────────────────── -->
+  <div class="tab-panel active" id="tab-overview">
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-n" id="stat-views">—</div>
+        <div class="stat-l">Profile Views</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-n" id="stat-reviews">—</div>
+        <div class="stat-l">Reviews</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-n" id="stat-social">—</div>
+        <div class="stat-l">Social Clicks</div>
+      </div>
+    </div>
+
+    <!-- Days bar -->
+    <div class="days-bar-wrap">
+      <div class="days-label">
+        <span>⏳ Plan Duration</span>
+        <span id="days-lbl">— days left</span>
+      </div>
+      <div class="days-bar">
+        <div class="days-fill" id="days-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="info-card">
+      <div class="info-row">
+        <div class="info-ico">🏢</div>
+        <div><div class="info-label">Business Name</div><div class="info-value" id="ov-name">—</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-ico">📞</div>
+        <div><div class="info-label">Phone</div><div class="info-value" id="ov-phone">—</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-ico">📧</div>
+        <div><div class="info-label">Email</div><div class="info-value" id="ov-email">—</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-ico">📍</div>
+        <div><div class="info-label">Address</div><div class="info-value" id="ov-address">—</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-ico">🗓️</div>
+        <div><div class="info-label">Plan Expires</div><div class="info-value" id="ov-expiry">—</div></div>
+      </div>
+    </div>
+
+    <!-- Profile Link -->
+    <div>
+      <div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">
+        🔗 Your Profile Link
+      </div>
+      <div class="link-box">
+        <span class="link-txt" id="ov-link">—</span>
+        <button class="link-copy" onclick="copyProfileLink()">📋</button>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="btn-wrap">
+      <a class="btn btn-primary" id="view-profile-btn" href="#" target="_blank" rel="noopener">
+        👁️ View My Live Profile
+      </a>
+      <button class="btn btn-ghost" onclick="switchTab('edit')">✏️ Edit Profile</button>
+      <button class="btn btn-ghost" onclick="openNewProfile()">➕ Create New Profile</button>
+    </div>
+
+  </div>
+
+  <!-- ── TAB: EDIT PROFILE ─────────────────────────── -->
+  <div class="tab-panel" id="tab-edit">
+
+    <div class="notice" id="edit-notice" style="display:none">
+      ⚠️ आपने changes किए हैं — Save करना मत भूलें
+    </div>
+
+    <div class="info-card">
+      <div class="form-sec-lbl">Business Details</div>
+      <div class="form-grid">
+        <div class="fg">
+          <label class="lbl">Business Name</label>
+          <input class="inp" id="e-name" placeholder="Business name" oninput="markDirty()">
+        </div>
+        <div class="fg">
+          <label class="lbl">Business Type</label>
+          <input class="inp" id="e-type" placeholder="Restaurant, Salon…" oninput="markDirty()">
+        </div>
+        <div class="fg">
+          <label class="lbl">Phone</label>
+          <input class="inp" id="e-phone" type="tel" placeholder="+91…" oninput="markDirty()">
+        </div>
+        <div class="fg">
+          <label class="lbl">WhatsApp</label>
+          <input class="inp" id="e-wa" type="tel" placeholder="+91…" oninput="markDirty()">
+        </div>
+        <div class="fg">
+          <label class="lbl">Email</label>
+          <input class="inp" id="e-email" type="email" placeholder="you@business.com" oninput="markDirty()">
+        </div>
+        <div class="fg">
+          <label class="lbl">Address</label>
+          <input class="inp" id="e-address" placeholder="Full address" oninput="markDirty()">
+        </div>
+        <div class="fg">
+          <label class="lbl">Google Review Link</label>
+          <input class="inp" id="e-google" placeholder="https://g.page/r/…" oninput="markDirty()">
+        </div>
+        <div class="fg">
+          <label class="lbl">Payment Link</label>
+          <input class="inp" id="e-payment" placeholder="UPI / Razorpay link" oninput="markDirty()">
+        </div>
+        <div class="fg">
+          <label class="lbl">Logo URL</label>
+          <input class="inp" id="e-logo" placeholder="https://…/logo.png" oninput="markDirty()">
+        </div>
+        <div class="fg">
+          <label class="lbl">Description</label>
+          <textarea class="ta" id="e-desc" rows="3" placeholder="About your business…" oninput="markDirty()"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="form-sec-lbl">Change Password</div>
+      <div class="form-grid">
+        <div class="fg">
+          <label class="lbl">New Password (blank = no change)</label>
+          <input class="inp" id="e-pw" type="password" placeholder="Min 6 characters" oninput="markDirty()">
+        </div>
+        <div class="fg">
+          <label class="lbl">Confirm New Password</label>
+          <input class="inp" id="e-pw2" type="password" placeholder="Re-enter" oninput="markDirty()">
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-wrap">
+      <button class="btn btn-primary" id="save-btn" onclick="saveProfile()">💾 Save Changes</button>
+      <button class="btn btn-ghost" onclick="resetEditForm()">↩️ Discard Changes</button>
+    </div>
+
+  </div>
+
+  <!-- ── TAB: HISTORY ──────────────────────────────── -->
+  <div class="tab-panel" id="tab-history">
+    <div style="font-size:13px;color:var(--txt3);margin-bottom:14px;line-height:1.6">
+      Profile में हर बदलाव यहाँ record होता है।
+    </div>
+    <div class="info-card" id="history-list">
+      <div style="text-align:center;padding:24px;color:var(--txt3)">
+        <div class="ld-ring" style="display:inline-block;width:24px;height:24px;border-width:2px;margin-bottom:8px"></div>
+        <div style="font-size:12px">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: MORE ─────────────────────────────────── -->
+  <div class="tab-panel" id="tab-more">
+
+    <div class="info-card">
+      <div class="form-sec-lbl">Account Info</div>
+      <div class="info-row">
+        <div class="info-ico">🆔</div>
+        <div><div class="info-label">Client ID</div>
+          <div class="info-value" id="more-cid" style="font-family:monospace;font-size:11px">—</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-ico">💳</div>
+        <div><div class="info-label">Current Plan</div><div class="info-value" id="more-plan">—</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-ico">🔑</div>
+        <div><div class="info-label">Payment ID</div>
+          <div class="info-value" id="more-payid" style="font-family:monospace;font-size:11px">—</div></div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="form-sec-lbl">Need Help?</div>
+      <div class="support-grid">
+        <a class="support-btn support-btn-call" id="more-call" href="tel:+918910475493">
+          <div class="sb-ico sb-ico-call">📞</div>
+          <div>
+            <div style="font-size:13px;font-weight:700">Call Us</div>
+            <div style="font-size:11px;color:var(--txt3)" id="more-phone-txt">Support team</div>
+          </div>
+        </a>
+        <a class="support-btn support-btn-wa" id="more-wa" href="https://wa.me/918910475493" target="_blank" rel="noopener">
+          <div class="sb-ico sb-ico-wa">💬</div>
+          <div>
+            <div style="font-size:13px;font-weight:700">WhatsApp</div>
+            <div style="font-size:11px;color:var(--txt3)">Chat with us</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="btn-wrap">
+      <button class="btn btn-ghost" onclick="openNewProfile()">➕ Create Another Profile</button>
+      <button class="btn btn-danger" onclick="doLogout()">🚪 Logout</button>
+    </div>
+
+  </div>
+
+</div><!-- #dash-screen -->
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT — Combined Login + Dashboard
+═══════════════════════════════════════════════════ -->
 <script>
-// ──────────────────────────────────────────────────────
-//  CONFIG — same GAS URL as your other pages
-// ──────────────────────────────────────────────────────
-var GAS_URL     = 'https://script.google.com/macros/s/AKfycbyCF0PMyaQZVWWrmRRRUFocNhHnSHtSJE0UxifCRtVcM7LbWZ0HK0-_TwDBT0sqNR2P/exec';
-var PROFILE_URL = './index.html';   // your customer profile page
-var ADMIN_URL   = './admin.html';   // your admin page
+// ── CONFIG — यहाँ अपना GAS URL डालें ────────────────
+var GAS_URL        = 'https://script.google.com/macros/s/AKfycbyCF0PMyaQZVWWrmRRRUFocNhHnSHtSJE0UxifCRtVcM7LbWZ0HK0-_TwDBT0sqNR2P/exec';
+var PROFILE_BASE   = window.location.origin + '/index.html';
+var ONBOARD_PAGE   = './onboarding.html';
+var SUPPORT_PHONE  = '+918910475493';
+var SUPPORT_WA     = '918910475493';
 
-     // ══════════════════════════════════════════════
-//  SESSION CHECK — auto load logged-in profile
-// ══════════════════════════════════════════════
+// ── STATE ────────────────────────────────────────────
+var CLIENT_ID   = '';
+var CLIENT_DATA = {};
+var IS_DIRTY    = false;
 
-// PASTE THIS at top of your profile page script
-
-var LOGIN_PAGE = './login.html'; // path to your login.html
-
-function getLoginSession() {
-  try { var s=localStorage.getItem('wanza_login'); return s?JSON.parse(s):null; } catch(e){return null;} 
+// ── SESSION HELPERS ──────────────────────────────────
+function getSession() {
+  try { return JSON.parse(localStorage.getItem('wanza_login') || 'null'); } catch(e) { return null; }
 }
-function clearLoginSession() {
+function saveSession(d) {
+  try { localStorage.setItem('wanza_login', JSON.stringify(d)); } catch(e) {}
+}
+function clearSession() {
   try { localStorage.removeItem('wanza_login'); } catch(e) {}
 }
 
-// Check URL for client_id, then check session
-(function autoLoadProfile() {
-  var params   = new URLSearchParams(window.location.search);
-  var urlId    = params.get('client_id');
-  var sess     = getLoginSession();
-
-  if (urlId) {
-    // URL has client_id → use it directly (existing behavior unchanged)
-    return;
-  }
-
-  if (sess && sess.client_id && sess.loggedIn) {
-    // Logged in → redirect with their client_id
-    var newUrl = window.location.pathname + '?client_id=' + encodeURIComponent(sess.client_id);
-    window.history.replaceState({}, '', newUrl);
-    return; // page will now load with client_id in URL
-  }
-
-  // No client_id anywhere → redirect to login
-  // Uncomment line below if you want forced login:
-  // window.location.href = LOGIN_PAGE;
-})();
-
-// ──────────────────────────────────────────────
-//  LOGOUT FUNCTION (call this from a button)
-// ──────────────────────────────────────────────
-function logoutClient() {
-  clearLoginSession();
-  toast('Logged out successfully.', 'info', 2000);
-  setTimeout(function() { window.location.href = LOGIN_PAGE; }, 1000);
-}
-
-    
-// ──────────────────────────────────────────────────────
-//  TOAST
-// ──────────────────────────────────────────────────────
+// ── TOAST ────────────────────────────────────────────
 var _tt;
 function toast(msg, type, dur) {
   var el = document.getElementById('toast');
   clearTimeout(_tt);
   el.textContent = msg;
-  el.className   = 'show ' + (type||'');
-  _tt = setTimeout(function(){ el.className=''; }, dur||3000);
+  el.className   = 'show ' + (type || '');
+  _tt = setTimeout(function() { el.className = ''; }, dur || 3200);
 }
 
-// ──────────────────────────────────────────────────────
-//  TAB SWITCH
-// ──────────────────────────────────────────────────────
-function showTab(tab) {
-  document.getElementById('login-form').style.display    = tab==='login'    ? 'block' : 'none';
-  document.getElementById('register-form').style.display = tab==='register' ? 'block' : 'none';
-  document.querySelectorAll('.tab').forEach(function(t,i){
-    t.classList.toggle('active', (tab==='login' && i===0) || (tab==='register' && i===1));
+// ── API ──────────────────────────────────────────────
+function apiGet(action, params) {
+  var url = GAS_URL + '?action=' + encodeURIComponent(action);
+  if (params) Object.keys(params).forEach(function(k) {
+    url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+  });
+  return fetch(url).then(function(r) { return r.text(); }).then(function(t) {
+    var d = JSON.parse(t);
+    if (d.success === false) throw new Error(d.error || 'API error');
+    return d.data !== undefined ? d.data : d;
+  });
+}
+function apiPost(action, body) {
+  var payload = Object.assign({ action: action }, body || {});
+  return fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload), redirect: 'follow' })
+    .then(function(r) { return r.text(); }).then(function(t) {
+      var d = JSON.parse(t);
+      if (d.success === false) throw new Error(d.error || 'API error');
+      return d.data !== undefined ? d.data : d;
+    });
+}
+
+// ── SCREEN SWITCHER ──────────────────────────────────
+// login screen दिखाएं
+function showLoginScreen() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('dash-screen').style.display  = 'none';
+}
+// dashboard screen दिखाएं
+function showDashScreen() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dash-screen').style.display  = 'block';
+}
+
+// ── INIT ─────────────────────────────────────────────
+function init() {
+  // loader hide करो
+  var ls = document.getElementById('ls');
+  if (ls) { ls.classList.add('out'); setTimeout(function() { ls.style.display = 'none'; }, 500); }
+
+  // session check करो
+  var sess = getSession();
+  if (sess && sess.client_id && sess.loggedIn) {
+    // already logged in → dashboard load करो
+    CLIENT_ID = sess.client_id;
+    showDashScreen();
+    loadDashboard();
+  } else {
+    // not logged in → login form दिखाओ
+    showLoginScreen();
+  }
+}
+
+// ── LOGIN TAB SWITCH ─────────────────────────────────
+function showLoginTab(tab) {
+  document.getElementById('lf-login').style.display    = tab === 'login'    ? 'block' : 'none';
+  document.getElementById('lf-register').style.display = tab === 'register' ? 'block' : 'none';
+  document.querySelectorAll('.l-tab').forEach(function(t, i) {
+    t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
   });
   document.getElementById('err-box').className = 'err-box';
 }
 
-// ──────────────────────────────────────────────────────
-//  PASSWORD TOGGLE
-// ──────────────────────────────────────────────────────
+// ── PASSWORD TOGGLE ──────────────────────────────────
 function toggleEye(inputId, spanId) {
   var inp  = document.getElementById(inputId);
   var span = document.getElementById(spanId);
   if (!inp) return;
-  inp.type   = inp.type==='password' ? 'text' : 'password';
-  span.textContent = inp.type==='text' ? '🙈' : '👁️';
+  inp.type          = inp.type === 'password' ? 'text' : 'password';
+  span.textContent  = inp.type === 'text' ? '🙈' : '👁️';
 }
 
-// ──────────────────────────────────────────────────────
-//  SESSION HELPERS
-// ──────────────────────────────────────────────────────
-function saveLoginSession(data) {
-  try { localStorage.setItem('wanza_login', JSON.stringify(data)); } catch(e) {}
-}
-function getLoginSession() {
-  try { var s=localStorage.getItem('wanza_login'); return s?JSON.parse(s):null; } catch(e) { return null; } 
-}
-function clearLoginSession() {
-  try { localStorage.removeItem('wanza_login'); } catch(e) {}
-}
-
-// ──────────────────────────────────────────────────────
-//  CHECK — already logged in?
-// ──────────────────────────────────────────────────────
-(function checkAlreadyLoggedIn() {
-  var sess = getLoginSession();
-  if (sess && sess.client_id && sess.loggedIn) {
-    toast('Already logged in! Redirecting…', 'ok', 1500);
-    setTimeout(function() {
-      window.location.href = PROFILE_URL + '?client_id=' + encodeURIComponent(sess.client_id);
-    }, 1000);
-  }
-})();
-
-// ──────────────────────────────────────────────────────
-//  DO LOGIN
-// ──────────────────────────────────────────────────────
+// ── DO LOGIN ─────────────────────────────────────────
 function doLogin() {
   var identifier = (document.getElementById('l-id').value || '').trim();
   var password   = (document.getElementById('l-pw').value || '').trim();
   var errBox     = document.getElementById('err-box');
   var btn        = document.getElementById('login-btn');
 
-  errBox.className = 'err-box'; // hide error
+  errBox.className = 'err-box';
 
   if (!identifier) {
-    errBox.textContent = '❌ Please enter your email or phone number';
+    errBox.textContent = '❌ Email या Phone number डालें';
     errBox.className   = 'err-box show'; return;
   }
   if (!password) {
-    errBox.textContent = '❌ Please enter your password';
+    errBox.textContent = '❌ Password डालें';
     errBox.className   = 'err-box show'; return;
   }
 
-  // Loading state
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span> Logging in…';
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spin-sm"></span> Logging in…';
 
   fetch(GAS_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'clientLogin', identifier: identifier, password: password }),
+    method:   'POST',
+    body:     JSON.stringify({ action: 'clientLogin', identifier: identifier, password: password }),
     redirect: 'follow'
   })
-  .then(function(r){ return r.text(); })
-  .then(function(t){
+  .then(function(r) { return r.text(); })
+  .then(function(t) {
     var d = JSON.parse(t);
-    btn.disabled = false;
-    btn.innerHTML = '🔐 Login to Dashboard';
+    btn.disabled  = false;
+    btn.innerHTML = '🚀 Access Your Business Dashboard';
 
     if (d && d.success && d.data && d.data.authenticated) {
-      var userData = d.data;
-
-      // Save session
-      saveLoginSession({
+      var u = d.data;
+      // session save करो
+      saveSession({
         loggedIn:  true,
-        client_id: userData.client_id,
-        name:      userData.name,
-        email:     userData.email,
-        phone:     userData.phone,
-        plan:      userData.plan || 'free',
+        client_id: u.client_id,
+        name:      u.name,
+        email:     u.email,
+        phone:     u.phone,
+        plan:      u.plan || 'free',
         loginTime: new Date().toISOString()
       });
+      CLIENT_ID = u.client_id;
+      toast('✅ Welcome back, ' + (u.name || '') + '!', 'ok', 2500);
 
-      toast('✅ Login successful! Welcome back, ' + (userData.name||''), 'ok', 2500);
-
-      setTimeout(function() {
-        window.location.href = PROFILE_URL + '?client_id=' + encodeURIComponent(userData.client_id);
-      }, 1000);
+      // dashboard दिखाओ (page reload नहीं)
+      showDashScreen();
+      loadDashboard();
 
     } else {
       errBox.textContent = '❌ ' + (d.error || 'Invalid email/phone or password');
@@ -388,31 +926,316 @@ function doLogin() {
       document.getElementById('l-pw').focus();
     }
   })
-  .catch(function(e) {
-    btn.disabled = false;
-    btn.innerHTML = '🔐 Login to Dashboard';
-    errBox.textContent = '❌ Connection failed. Check your internet and try again.';
+  .catch(function() {
+    btn.disabled  = false;
+    btn.innerHTML = '🚀 Access Your Business Dashboard';
+    errBox.textContent = '❌ Connection failed. Internet check करें।';
     errBox.className   = 'err-box show';
   });
 }
 
-// ──────────────────────────────────────────────────────
-//  NAVIGATE TO PROFILE (without login)
-// ──────────────────────────────────────────────────────
-function goToProfile() {
+// ── LOGOUT ───────────────────────────────────────────
+function doLogout() {
+  clearSession();
+  CLIENT_ID   = '';
+  CLIENT_DATA = {};
+  IS_DIRTY    = false;
+
+  // Form reset
+  ['l-id','l-pw'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('err-box').className = 'err-box';
+
+  toast('Logged out successfully.', 'info', 2000);
+  showLoginScreen();
+}
+
+// ── NAVIGATE TO PROFILE BY ID ─────────────────────────
+function goToProfileById() {
   var id = prompt('Enter your Client ID (e.g. CLT_xxxxx):');
   if (id && id.trim()) {
-    window.location.href = PROFILE_URL + '?client_id=' + encodeURIComponent(id.trim());
+    window.location.href = PROFILE_BASE + '?client_id=' + encodeURIComponent(id.trim());
   }
 }
 
-// ──────────────────────────────────────────────────────
-//  ENTER KEY
-// ──────────────────────────────────────────────────────
+// ══ DASHBOARD FUNCTIONS ══════════════════════════════
+
+// ── DASHBOARD TABS ───────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById('tab-' + name);
+  if (panel) panel.classList.add('active');
+  // active button find करो
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'" + name + "'") > -1) {
+      b.classList.add('active');
+    }
+  });
+  if (name === 'history') loadHistory();
+}
+
+// ── LOAD DASHBOARD DATA ──────────────────────────────
+function loadDashboard() {
+  apiGet('getClientDashboard', { client_id: CLIENT_ID })
+    .then(function(d) {
+      CLIENT_DATA = d.client || {};
+      renderHero(CLIENT_DATA);
+      renderOverview(CLIENT_DATA, d.stats || {}, d.daysLeft || 0);
+      fillEditForm(CLIENT_DATA);
+
+      // support buttons update करो
+      var callEl = document.getElementById('more-call');
+      var waEl   = document.getElementById('more-wa');
+      var phEl   = document.getElementById('more-phone-txt');
+      if (callEl) callEl.href = 'tel:' + SUPPORT_PHONE;
+      if (phEl)   phEl.textContent = SUPPORT_PHONE;
+      if (waEl)   waEl.href = 'https://wa.me/' + SUPPORT_WA +
+        '?text=' + encodeURIComponent('Hi Wanza! I need help. Client ID: ' + CLIENT_ID);
+    })
+    .catch(function(e) {
+      toast('Dashboard load failed: ' + e.message, 'err', 5000);
+    });
+}
+
+// ── RENDER HERO ──────────────────────────────────────
+function renderHero(c) {
+  setText('hero-name', c.name || '—');
+  setText('hero-type', c.business_type || 'Business');
+  var plan    = (c.plan || 'free').toLowerCase();
+  var planEl  = document.getElementById('hero-plan');
+  var planTxt = document.getElementById('hero-plan-txt');
+  if (planEl)  planEl.className  = 'plan-pill ' + plan;
+  if (planTxt) planTxt.textContent = plan.toUpperCase();
+
+  // Avatar
+  var wrap = document.getElementById('avatar-wrap');
+  wrap.innerHTML = '';
+  if (c.logo_url) {
+    var img = document.createElement('img');
+    img.className = 'profile-avatar'; img.src = c.logo_url; img.alt = 'logo';
+    img.onerror = function() { this.style.display = 'none'; };
+    wrap.appendChild(img);
+  } else {
+    var ph = document.createElement('div');
+    ph.className = 'profile-avatar-ph'; ph.textContent = '🏢';
+    wrap.appendChild(ph);
+  }
+}
+
+// ── RENDER OVERVIEW ──────────────────────────────────
+function renderOverview(c, stats, daysLeft) {
+  animNum(document.getElementById('stat-views'),   stats.total_visits || 0);
+  animNum(document.getElementById('stat-reviews'), stats.total_reviews_redirected || 0);
+  animNum(document.getElementById('stat-social'),  stats.total_social_clicks || 0);
+
+  setText('ov-name',    c.name    || '—');
+  setText('ov-phone',   c.phone   || '—');
+  setText('ov-email',   c.email   || '—');
+  setText('ov-address', c.address || '—');
+
+  var expTxt = '—';
+  if (c.plan === 'free')      expTxt = 'Forever (Free Plan)';
+  else if (c.plan_expiry)     expTxt = new Date(c.plan_expiry).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  setText('ov-expiry', expTxt);
+
+  var profileUrl = PROFILE_BASE + '?client_id=' + CLIENT_ID;
+  var linkEl     = document.getElementById('ov-link');
+  var viewBtn    = document.getElementById('view-profile-btn');
+  if (linkEl)  linkEl.textContent = profileUrl;
+  if (viewBtn) viewBtn.href       = profileUrl;
+
+  setText('more-cid',   c.client_id   || '—');
+  setText('more-plan',  (c.plan || 'free').toUpperCase());
+  setText('more-payid', c.payment_id  || 'N/A');
+
+  // Days bar
+  var daysLbl  = document.getElementById('days-lbl');
+  var daysFill = document.getElementById('days-fill');
+  if (c.plan === 'free') {
+    if (daysLbl)  daysLbl.textContent = 'Free — No expiry';
+    if (daysFill) { daysFill.style.width = '100%'; daysFill.className = 'days-fill good'; }
+  } else {
+    var pct = daysLeft >= 30 ? 100 : Math.max(5, Math.round(daysLeft / 30 * 100));
+    if (daysLbl)  daysLbl.textContent = daysLeft + ' days left';
+    if (daysFill) {
+      setTimeout(function() { daysFill.style.width = pct + '%'; }, 300);
+      daysFill.className = 'days-fill ' + (daysLeft > 10 ? 'good' : 'warn');
+    }
+  }
+}
+
+// ── FILL EDIT FORM ───────────────────────────────────
+function fillEditForm(c) {
+  setVal('e-name',    c.name                || '');
+  setVal('e-type',    c.business_type       || '');
+  setVal('e-phone',   c.phone               || '');
+  setVal('e-wa',      c.whatsapp_number     || '');
+  setVal('e-email',   c.email               || '');
+  setVal('e-address', c.address             || '');
+  setVal('e-google',  c.google_review_link  || '');
+  setVal('e-payment', c.payment_link        || '');
+  setVal('e-logo',    c.logo_url            || '');
+  setVal('e-desc',    c.description         || '');
+  IS_DIRTY = false;
+  var el = document.getElementById('edit-notice');
+  if (el) el.style.display = 'none';
+}
+
+function resetEditForm() {
+  fillEditForm(CLIENT_DATA);
+  toast('Changes discarded.', 'info');
+}
+
+function markDirty() {
+  IS_DIRTY = true;
+  var el = document.getElementById('edit-notice');
+  if (el) el.style.display = 'flex';
+}
+
+// ── SAVE PROFILE ─────────────────────────────────────
+function saveProfile() {
+  var newPw  = (document.getElementById('e-pw').value  || '').trim();
+  var newPw2 = (document.getElementById('e-pw2').value || '').trim();
+  if (newPw && newPw.length < 6) { toast('Password 6+ characters होना चाहिए!', 'err'); return; }
+  if (newPw && newPw !== newPw2)  { toast('Passwords match नहीं हुए!', 'err'); return; }
+
+  var btn = document.getElementById('save-btn');
+  btn.disabled  = true;
+  btn.textContent = '⏳ Saving…';
+
+  var data = {
+    name:               (document.getElementById('e-name').value    || '').trim(),
+    business_type:      (document.getElementById('e-type').value    || '').trim(),
+    phone:              (document.getElementById('e-phone').value   || '').trim(),
+    whatsapp_number:    (document.getElementById('e-wa').value      || '').trim(),
+    email:              (document.getElementById('e-email').value   || '').trim(),
+    address:            (document.getElementById('e-address').value || '').trim(),
+    google_review_link: (document.getElementById('e-google').value  || '').trim(),
+    payment_link:       (document.getElementById('e-payment').value || '').trim(),
+    logo_url:           (document.getElementById('e-logo').value    || '').trim(),
+    description:        (document.getElementById('e-desc').value    || '').trim()
+  };
+  if (newPw) data.new_password = newPw;
+
+  apiPost('updateClientProfile', {
+    client_id:  CLIENT_ID,
+    data:       data,
+    changed_by: 'client'
+  })
+  .then(function() {
+    btn.disabled    = false;
+    btn.textContent = '💾 Save Changes';
+    toast('✅ Profile update हो गया!', 'ok', 4000);
+    IS_DIRTY = false;
+    var noticeEl = document.getElementById('edit-notice');
+    if (noticeEl) noticeEl.style.display = 'none';
+    // Local data update करो
+    CLIENT_DATA = Object.assign(CLIENT_DATA, data);
+    renderHero(CLIENT_DATA);
+    setText('ov-name',    CLIENT_DATA.name    || '—');
+    setText('ov-phone',   CLIENT_DATA.phone   || '—');
+    setText('ov-email',   CLIENT_DATA.email   || '—');
+    setText('ov-address', CLIENT_DATA.address || '—');
+    // Password fields clear करो
+    setVal('e-pw', ''); setVal('e-pw2', '');
+  })
+  .catch(function(e) {
+    btn.disabled    = false;
+    btn.textContent = '💾 Save Changes';
+    toast('Save failed: ' + e.message, 'err', 5000);
+  });
+}
+
+// ── LOAD HISTORY ─────────────────────────────────────
+function loadHistory() {
+  var el = document.getElementById('history-list');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--txt3)">'
+    + '<div class="ld-ring" style="display:inline-block;width:20px;height:20px;border-width:2px;margin-bottom:8px"></div>'
+    + '<div style="font-size:12px">Loading history…</div></div>';
+
+  apiGet('getUpdateHistory', { client_id: CLIENT_ID })
+    .then(function(rows) {
+      if (!rows || !rows.length) {
+        el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--txt3)">'
+          + '📋 अभी कोई changes record नहीं हैं।<br>'
+          + '<small style="font-size:11px">Profile edit करें तो history यहाँ दिखेगी।</small></div>';
+        return;
+      }
+      el.innerHTML = rows.map(function(r) {
+        var dt = r.timestamp
+          ? new Date(r.timestamp).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+          : '—';
+        var oldTxt = r.old_value ? (r.old_value.length > 40 ? r.old_value.substr(0, 40) + '…' : r.old_value) : '(empty)';
+        var newTxt = r.new_value ? (r.new_value.length > 40 ? r.new_value.substr(0, 40) + '…' : r.new_value) : '(empty)';
+        return '<div class="hist-item">'
+          + '<div class="hist-dot"></div>'
+          + '<div style="flex:1;min-width:0">'
+          + '<div class="hist-field">' + esc(r.field_changed) + '</div>'
+          + '<div class="hist-change">' + esc(oldTxt) + ' → ' + esc(newTxt) + '</div>'
+          + '</div>'
+          + '<div class="hist-time">' + esc(dt) + '</div>'
+          + '</div>';
+      }).join('');
+    })
+    .catch(function(e) {
+      el.innerHTML = '<div style="color:var(--red);font-size:13px;padding:16px">❌ ' + esc(e.message) + '</div>';
+    });
+}
+
+// ── COPY PROFILE LINK ────────────────────────────────
+function copyProfileLink() {
+  var url = PROFILE_BASE + '?client_id=' + CLIENT_ID;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() { toast('Link copied! 🔗', 'ok'); });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = url; ta.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('Link copied!', 'ok');
+  }
+}
+
+// ── OPEN NEW PROFILE ─────────────────────────────────
+function openNewProfile() {
+  if (confirm('Registration page नई tab में खुलेगी। आप यहाँ logged in रहेंगे।')) {
+    window.open(ONBOARD_PAGE, '_blank', 'noopener');
+  }
+}
+
+// ── HELPERS ──────────────────────────────────────────
+function setText(id, val) {
+  var el = document.getElementById(id); if (el) el.textContent = val;
+}
+function setVal(id, val) {
+  var el = document.getElementById(id); if (el) el.value = val;
+}
+function esc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function animNum(el, n) {
+  if (!el) return; n = Number(n) || 0;
+  if (n === 0) { el.textContent = '0'; return; }
+  var steps = 30, step = 0;
+  var iv = setInterval(function() {
+    step++; el.textContent = Math.round(n * step / steps);
+    if (step >= steps) { el.textContent = n; clearInterval(iv); }
+  }, 800 / steps);
+}
+
+// ── ENTER KEY on login ───────────────────────────────
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') doLogin();
+  var ls = document.getElementById('login-screen');
+  if (e.key === 'Enter' && ls && ls.style.display !== 'none') doLogin();
+});
+
+// ── START ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(init, 600);
 });
 </script>
-
 </body>
 </html>
