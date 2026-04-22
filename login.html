@@ -209,7 +209,16 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
   </div>
 </div>
 
-    // ══════════════════════════════════════════════
+ 
+<script>
+// ──────────────────────────────────────────────────────
+//  CONFIG — same GAS URL as your other pages
+// ──────────────────────────────────────────────────────
+var GAS_URL     = 'https://script.google.com/macros/s/AKfycbyCF0PMyaQZVWWrmRRRUFocNhHnSHtSJE0UxifCRtVcM7LbWZ0HK0-_TwDBT0sqNR2P/exec';
+var PROFILE_URL = './index.html';   // your customer profile page
+var ADMIN_URL   = './admin.html';   // your admin page
+
+     // ══════════════════════════════════════════════
 //  SESSION CHECK — auto load logged-in profile
 // ══════════════════════════════════════════════
 
@@ -257,14 +266,6 @@ function logoutClient() {
 }
 
     
-<script>
-// ──────────────────────────────────────────────────────
-//  CONFIG — same GAS URL as your other pages
-// ──────────────────────────────────────────────────────
-var GAS_URL     = 'https://script.google.com/macros/s/AKfycbyCF0PMyaQZVWWrmRRRUFocNhHnSHtSJE0UxifCRtVcM7LbWZ0HK0-_TwDBT0sqNR2P/exec';
-var PROFILE_URL = './index.html';   // your customer profile page
-var ADMIN_URL   = './admin.html';   // your admin page
-
 // ──────────────────────────────────────────────────────
 //  TOAST
 // ──────────────────────────────────────────────────────
