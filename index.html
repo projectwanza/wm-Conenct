@@ -725,11 +725,12 @@ body::after {
 // ════════════════════════════════════════════════════════════════
 
 // ── CONFIG — EDIT THIS ──────────────────────────────────────────
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbzUywbncKVeklPtsAZJgGaz7jfTwjzj9vBbeSughgAd0EC39zmmlUi_oAoVGQyu96Az/exec';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbybZe8JX7iALGxL-b-Ysdd4FHuaboplYXc3SF6U3MwOF6VdC-PWz-0L79zuGH4Ogcsl/exec';
    
 // ────────────────────────────────────────────────────────────────
 
 var CLIENT_ID = (new URLSearchParams(location.search)).get('client_id') || '';
+   var MERCHANT_ID = (new URLSearchParams(location.search)).get('merchant_id') || '';
 var CLIENT    = null;
 var SETTINGS  = {};
 var SOCIAL    = [];
@@ -1084,8 +1085,15 @@ var _g = getGreeting();
     + payHtml
     + socHtml
     + adsHtml
-    + '<div class="merchant-sec au d6">'
-+ '<div class="merchant-card">'
+   + (MERCHANT_ID
+    ? '<div class="sec au d6"><div class="sec-card">'
+        + '<div class="sec-hd"><span class="sec-ic">🎫</span><span class="sec-tt">Merchant Access Active</span></div>'
+        + '<div style="padding:14px 18px;font-size:13px;color:var(--txt2);text-align:center;line-height:1.8">'
+        + '✅ Your exclusive review access is ready!<br>'
+        + '<code style="background:rgba(255,122,0,.10);padding:4px 12px;border-radius:8px;font-size:11px;color:var(--org1);display:inline-block;margin-top:6px">'
+        + esc(MERCHANT_ID) + '</code></div>'
+        + '</div></div>'
+    : '')
 + ...
     + '<div class="rate-sec au d6"><div class="rate-card" id="rp">'
     + '<h3>⭐ Rate Your Experience</h3><p>How was your visit? Tap a star!</p>'
@@ -1137,20 +1145,52 @@ function loadReviews() {
   document.getElementById('rv-wrap').style.display = 'block';
   document.getElementById('rv-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-  apiGet('getRandomReview', { client_id: CLIENT_ID })
-    .then(function(data) {
-      REVIEWS = Array.isArray(data) ? data : [];
-      if (!REVIEWS.length) { list.innerHTML = '<div class="empty">No review templates yet.</div>'; return; }
-      list.innerHTML = REVIEWS.map(function(rv, i) {
-        return '<div class="rv-card" id="rc' + i + '">'
-          + '<div class="rv-txt">' + esc(rv.review_text) + '</div>'
-          + '<button class="copy-btn" id="cb' + i + '" onclick="copyReview(' + i + ',\'' + esc(rv.review_id) + '\')">📋 Copy &amp; Review</button>'
-          + '</div>';
-      }).join('');
-    })
-    .catch(function() {
-      list.innerHTML = '<div class="empty">❌ Could not load reviews. Try again.</div>';
-    });
+  var promise;
+
+  // ── NEW: Use merchant-based system if merchant_id is in URL
+  if (MERCHANT_ID) {
+    promise = apiGet('getReviewsByMerchantId', { merchant_id: MERCHANT_ID })
+      .then(function(data) {
+        REVIEWS = Array.isArray(data.reviews) ? data.reviews : [];
+
+        // All reviews already used by this merchant
+        if (data.allUsed) {
+          list.innerHTML =
+            '<div class="empty" style="padding:24px">'
+            + '<div style="font-size:2.5rem;margin-bottom:10px">🎉</div>'
+            + '<div style="font-size:14px;font-weight:700;color:var(--txt)">All reviews used!</div>'
+            + '<div style="font-size:12px;color:var(--muted);margin-top:6px">You\'ve used all available review templates. Thank you!</div>'
+            + '</div>';
+          return;
+        }
+        _renderReviewCards(list);
+      });
+  } else {
+    // ── LEGACY: client_id based (backward compatible)
+    promise = apiGet('getRandomReview', { client_id: CLIENT_ID })
+      .then(function(data) {
+        REVIEWS = Array.isArray(data) ? data : [];
+        _renderReviewCards(list);
+      });
+  }
+
+  promise.catch(function(e) {
+    list.innerHTML = '<div class="empty">❌ Could not load reviews. Try again.<br><small>' + esc(String(e.message||'')) + '</small></div>';
+  });
+}
+
+// Helper to render review cards (used by both paths)
+function _renderReviewCards(list) {
+  if (!REVIEWS.length) {
+    list.innerHTML = '<div class="empty">No review templates available.</div>';
+    return;
+  }
+  list.innerHTML = REVIEWS.map(function(rv, i) {
+    return '<div class="rv-card" id="rc' + i + '">'
+      + '<div class="rv-txt">' + esc(rv.review_text) + '</div>'
+      + '<button class="copy-btn" id="cb' + i + '" onclick="copyReview(' + i + ',\'' + esc(rv.review_id) + '\')">📋 Copy &amp; Review</button>'
+      + '</div>';
+  }).join('');
 }
 
 // ── COPY ──────────────────────────────────────────────────────
@@ -1163,9 +1203,24 @@ function copyReview(idx, reviewId) {
     var btn = document.getElementById('cb' + idx);
     if (btn) { btn.textContent = '✅ Copied!'; btn.classList.add('done'); }
     toast('Copied! Redirecting to Google…', 'ok', 3500);
-    apiPost('markReviewUsed', { review_id: reviewId }).catch(function() {});
+
+    // ── Track usage: merchant system OR legacy system
+    if (MERCHANT_ID) {
+      // NEW: per-merchant tracking (each merchant uses each review only once)
+      apiPost('markReviewUsedByMerchant', {
+        merchant_id:        MERCHANT_ID,
+        review_id:          reviewId,
+        client_id:          CLIENT_ID,
+        used_by_client_id:  CLIENT_ID
+      }).catch(function() {});
+    } else {
+      // LEGACY: global used flag
+      apiPost('markReviewUsed', { review_id: reviewId }).catch(function() {});
+    }
+
     logAction('review_redirect', CLIENT && CLIENT.google_review_link || '');
     logAction('copy_review', reviewId);
+
     setTimeout(function() {
       if (CLIENT && CLIENT.google_review_link) window.open(CLIENT.google_review_link, '_blank');
     }, 1600);
@@ -1173,22 +1228,10 @@ function copyReview(idx, reviewId) {
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(rv.review_text).then(done).catch(function() { fbCopy(rv.review_text, done); });
-  } else { fbCopy(rv.review_text, done); }
+  } else {
+    fbCopy(rv.review_text, done);
+  }
 }
-
-function fbCopy(text, cb) {
-  try {
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
-    document.body.appendChild(ta);
-    ta.focus(); ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    if (cb) cb();
-  } catch(e) { toast('Please copy manually.', 'err'); }
-}
-
 // ── FEEDBACK ──────────────────────────────────────────────────
 function submitFeedback() {
   if (!throttle('fb', 5000)) { toast('Please wait before submitting again.', ''); return; }
