@@ -806,26 +806,42 @@ function apiPost(action, body, retries) {
 //  LOAD CLIENT — Uses single combined API call for speed
 // ════════════════════════════════════════════════════════════════
 async function loadClient() {
-  if (!GAS_URL) { showError('⚙️', 'Setup Required', 'GAS_URL not configured in index.html.'); return; }
-  if (!CLIENT_ID) { showError('🔍', 'Client Not Found', 'No client_id in URL. Please scan a valid QR code.'); return; }
+  console.log('🚀 loadClient() started');
+  console.log('📌 GAS_URL:', GAS_URL);
+  console.log('📌 CLIENT_ID:', CLIENT_ID);
+  console.log('📌 MERCHANT_ID:', MERCHANT_ID);
+
+  if (!GAS_URL) {
+    showError('⚙️', 'Setup Required', 'GAS_URL not configured in index.html.');
+    return;
+  }
+  if (!CLIENT_ID) {
+    showError('🔍', 'Client Not Found', 'No client_id in URL. Please scan a valid QR code.');
+    return;
+  }
 
   try {
-    // Single combined API call — much faster than 4 separate calls
+    console.log('📡 Calling getClientFull API...');
     var result = await apiGet('getClientFull', { client_id: CLIENT_ID });
+    console.log('✅ API response received:', result);
 
-    // Map all fields correctly
     CLIENT   = result.client   || {};
     SETTINGS = result.settings || {};
     SOCIAL   = Array.isArray(result.social)   ? result.social   : [];
     BANNERS  = Array.isArray(result.banners)  ? result.banners  : [];
     ADS      = Array.isArray(result.ads)      ? result.ads      : [];
 
-    // ✅ DEBUG: Log what we got (check browser console)
-    console.log('📦 CLIENT:', CLIENT);
-    console.log('⚙️ SETTINGS:', SETTINGS);
-    console.log('📌 Footer will show → Name:', SETTINGS.company_name, '| Phone:', SETTINGS.phone, '| Email:', SETTINGS.email);
+    console.log('🏢 CLIENT data:', CLIENT);
+    console.log('⚙️ SETTINGS data:', SETTINGS);
+    console.log('🔗 SOCIAL links count:', SOCIAL.length);
+    console.log('📢 ADS count:', ADS.length);
 
-    render(CLIENT, SETTINGS, SOCIAL);
+    if (!CLIENT || !CLIENT.name) {
+      console.warn('⚠️ Client data is empty or missing name');
+      showError('🔍', 'Client Not Found', 'Client data could not be loaded. Please check the QR code.');
+      return;
+    }
+
     render(CLIENT, SETTINGS, SOCIAL);
     renderBanners(BANNERS);
 
@@ -834,16 +850,22 @@ async function loadClient() {
     if (ls) ls.classList.add('out');
     if (pg) pg.style.display = 'block';
 
-    // Log visit asynchronously (non-blocking)
-    setTimeout(function() { logAction('visit', shareUrl()); }, 500);
+    console.log('✅ Page rendered successfully!');
+
+    setTimeout(function() {
+      logAction('visit', location.href);
+    }, 500);
 
   } catch (err) {
-    console.error('loadClient failed:', err);
-    showError('❌', 'Connection Error',
-      'Could not load profile. Check your internet connection.<br><small style="opacity:.55">' + esc(String(err.message || err)) + '</small>');
+    console.error('❌ loadClient() FAILED:', err);
+    console.error('Error message:', err.message);
+    showError(
+      '❌',
+      'Connection Error',
+      'Could not load profile. Check internet connection.<br><small style="opacity:.55">' + esc(String(err.message || err)) + '</small>'
+    );
   }
 }
-
 // ── BANNER RENDER ─────────────────────────────────────────────
 function renderBanners(banners) {
   if (!banners || !banners.length) return;
@@ -1116,6 +1138,7 @@ var _g = getGreeting();
     + '</nav>'
     + '<!-- DEBUG: settings loaded at ' + new Date().toLocaleTimeString() + ' -->'
     + '</footer>';
+   }
 
 // ── RATING ────────────────────────────────────────────────────
 function setRating(r) {
