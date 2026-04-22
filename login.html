@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0F52BA">
+<title>Wanza — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0A0F2C;--blue:#2563EB;--blue2:#3B82F6;--blue3:#93C5FD;
+  --amber:#F59E0B;--grn:#10B981;--red:#EF4444;
+  --bg:#070C1F;--card:#111B3A;--card2:#162040;
+  --glass:rgba(255,255,255,.04);
+  --txt:#F0F4FF;--txt2:#94A3B8;--txt3:#4B5884;
+  --bdr:rgba(255,255,255,.06);--bdr2:rgba(37,99,235,.25);
+  --g-blue:linear-gradient(135deg,#1D4ED8,#2563EB,#3B82F6);
+  --g-brand:linear-gradient(135deg,#1D4ED8,#4F46E5,#F59E0B);
+  --sh-blue:0 8px 32px rgba(37,99,235,.35);
+  --r1:10px;--r2:16px;--r3:22px;--pill:999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--txt);
+  min-height:100dvh;display:flex;align-items:center;justify-content:center;
+  padding:20px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(37,99,235,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(37,99,235,.03) 1px,transparent 1px);
+  background-size:40px 40px}
+body::after{content:'';position:fixed;z-index:0;pointer-events:none;
+  width:600px;height:300px;border-radius:50%;top:-150px;left:50%;transform:translateX(-50%);
+  background:radial-gradient(ellipse,rgba(37,99,235,.12),transparent 70%)}
+
+/* TOAST */
+#toast{position:fixed;z-index:9999;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(14px);
+  background:var(--card2);border:1px solid var(--bdr2);border-radius:var(--pill);
+  padding:11px 26px;font-size:13px;font-weight:600;
+  opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;
+  white-space:nowrap;max-width:calc(100vw - 32px);text-align:center;
+  box-shadow:0 8px 36px rgba(0,0,0,.5)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok  {border-color:rgba(16,185,129,.4);color:var(--grn)}
+#toast.err {border-color:rgba(239,68,68,.4);color:var(--red)}
+#toast.info{border-color:var(--bdr2);color:var(--blue2)}
+
+/* CARD */
+.login-card{position:relative;z-index:1;width:100%;max-width:420px;
+  background:linear-gradient(145deg,rgba(17,27,58,.98),rgba(13,21,48,.95));
+  border:1px solid var(--bdr);border-radius:28px;
+  padding:clamp(28px,6vw,44px);
+  box-shadow:0 4px 24px rgba(0,0,0,.4),0 0 60px rgba(37,99,235,.08)}
+
+/* LOGO */
+.logo-wrap{text-align:center;margin-bottom:30px}
+.logo-ico{width:64px;height:64px;border-radius:18px;
+  background:var(--g-brand);display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;margin:0 auto 14px;
+  box-shadow:var(--sh-blue),0 0 60px rgba(37,99,235,.2)}
+.logo-title{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;
+  background:var(--g-brand);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-sub{font-size:12px;color:var(--txt3);margin-top:5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:1.5px}
+
+/* TABS */
+.tabs{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--bdr);
+  border-radius:var(--pill);padding:4px;margin-bottom:24px;gap:4px}
+.tab{flex:1;height:38px;border:none;border-radius:var(--pill);cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;
+  color:var(--txt3);background:transparent;transition:all .25s ease}
+.tab.active{background:var(--g-blue);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35)}
+
+/* FORM */
+.form-group{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.lbl{font-size:11px;font-weight:700;color:var(--txt2);
+  text-transform:uppercase;letter-spacing:.8px}
+.inp{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);
+  border-radius:var(--r2);color:var(--txt);padding:13px 16px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;
+  transition:border-color .2s,box-shadow .2s,background .2s;width:100%}
+.inp:focus{border-color:rgba(37,99,235,.6);background:rgba(37,99,235,.05);
+  box-shadow:0 0 0 4px rgba(37,99,235,.10)}
+.inp::placeholder{color:var(--txt3)}
+.pw-wrap{position:relative}
+.pw-wrap .inp{padding-right:46px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--txt3);
+  font-size:1rem;padding:4px;line-height:1;transition:color .2s}
+.pw-eye:hover{color:var(--blue2)}
+    <!-- Logout button — add anywhere in profile page -->
+<button onclick="logoutClient()"
+  style="position:fixed;top:14px;right:14px;z-index:999;
+    background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);
+    color:#EF4444;border-radius:999px;padding:8px 16px;
+    font-size:12px;font-weight:700;cursor:pointer;
+    font-family:'Plus Jakarta Sans',sans-serif">
+  🚪 Logout
+</button>
+
+/* BUTTON */
+.btn-login{width:100%;height:52px;background:var(--g-blue);color:#fff;border:none;
+  border-radius:var(--pill);font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:15px;font-weight:700;cursor:pointer;
+  box-shadow:var(--sh-blue);transition:transform .22s,box-shadow .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
+.btn-login:hover{transform:translateY(-3px);box-shadow:0 12px 44px rgba(37,99,235,.5)}
+.btn-login:active{transform:scale(.97)}
+.btn-login:disabled{opacity:.45;cursor:default;transform:none}
+
+/* BOTTOM LINK */
+.bottom-txt{text-align:center;font-size:13px;color:var(--txt3);margin-top:20px}
+.bottom-txt a{color:var(--blue2);font-weight:700;text-decoration:none}
+.bottom-txt a:hover{text-decoration:underline}
+
+/* ERROR BOX */
+.err-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);
+  border-radius:var(--r2);padding:12px 16px;font-size:13px;color:var(--red);
+  margin-bottom:16px;line-height:1.5;display:none}
+.err-box.show{display:block}
+
+/* DIVIDER */
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.divider span{font-size:11px;color:var(--txt3);font-weight:600;white-space:nowrap}
+
+/* SPINNER */
+.spin{display:inline-block;width:16px;height:16px;
+  border:2px solid rgba(255,255,255,.2);border-top-color:#fff;
+  border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:400px){.login-card{padding:24px 18px}}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<div class="login-card">
+  <div class="logo-wrap">
+    <div class="logo-ico">⭐</div>
+    <div class="logo-title">Wanza</div>
+    <div class="logo-sub">Business Dashboard</div>
+  </div>
+
+  <!-- TABS: Login / Register link -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('login')">🔐 Login</button>
+    <button class="tab" onclick="showTab('register')">🚀 New Account</button>
+  </div>
+
+  <!-- ERROR BOX -->
+  <div class="err-box" id="err-box">❌ Invalid email/phone or password</div>
+
+  <!-- LOGIN FORM -->
+  <div id="login-form">
+    <div class="form-group">
+      <label class="lbl">Email or Phone Number</label>
+      <input class="inp" id="l-id" type="text"
+        placeholder="you@email.com or 9876543210"
+        autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label class="lbl">Password</label>
+      <div class="pw-wrap">
+        <input class="inp" id="l-pw" type="password"
+          placeholder="Enter your password"
+          autocomplete="current-password">
+        <button class="pw-eye" type="button" onclick="toggleEye('l-pw','eye-login')">
+          <span id="eye-login">👁️</span>
+        </button>
+      </div>
+    </div>
+    <button class="btn-login" id="login-btn" onclick="doLogin()">
+      🔐 Login to Dashboard
+    </button>
+  </div>
+
+  <!-- REGISTER LINK -->
+  <div id="register-form" style="display:none">
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:2rem;margin-bottom:12px">🚀</div>
+      <div style="font-size:15px;font-weight:700;color:var(--txt);margin-bottom:8px">
+        Create your free account
+      </div>
+      <div style="font-size:13px;color:var(--txt2);margin-bottom:20px;line-height:1.6">
+        Register your business in 2 minutes and get a professional digital profile.
+      </div>
+      <a href="./onboarding.html"
+        style="display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 28px;
+          background:linear-gradient(135deg,#1D4ED8,#2563EB);color:#fff;border-radius:999px;
+          font-size:14px;font-weight:700;text-decoration:none;
+          box-shadow:0 8px 28px rgba(37,99,235,.4)">
+        🚀 Create Free Account
+      </a>
+    </div>
+  </div>
+
+  <div class="divider"><span>OR</span></div>
+
+  <div class="bottom-txt">
+    Don't have an account?
+    <a href="./onboarding.html">Register Free →</a>
+  </div>
+  <div class="bottom-txt" style="margin-top:8px">
+    <a href="#" onclick="goToProfile()" style="color:var(--txt3);font-size:12px">
+      🌐 View a profile directly
+    </a>
+  </div>
+</div>
+
+    // ══════════════════════════════════════════════
+//  SESSION CHECK — auto load logged-in profile
+// ══════════════════════════════════════════════
+
+// PASTE THIS at top of your profile page script
+
+var LOGIN_PAGE = './login.html'; // path to your login.html
+
+function getLoginSession() {
+  try { var s=localStorage.getItem('wanza_login'); return s?JSON.parse(s):null; } catch(e){return null;} 
+}
+function clearLoginSession() {
+  try { localStorage.removeItem('wanza_login'); } catch(e) {}
+}
+
+// Check URL for client_id, then check session
+(function autoLoadProfile() {
+  var params   = new URLSearchParams(window.location.search);
+  var urlId    = params.get('client_id');
+  var sess     = getLoginSession();
+
+  if (urlId) {
+    // URL has client_id → use it directly (existing behavior unchanged)
+    return;
+  }
+
+  if (sess && sess.client_id && sess.loggedIn) {
+    // Logged in → redirect with their client_id
+    var newUrl = window.location.pathname + '?client_id=' + encodeURIComponent(sess.client_id);
+    window.history.replaceState({}, '', newUrl);
+    return; // page will now load with client_id in URL
+  }
+
+  // No client_id anywhere → redirect to login
+  // Uncomment line below if you want forced login:
+  // window.location.href = LOGIN_PAGE;
+})();
+
+// ──────────────────────────────────────────────
+//  LOGOUT FUNCTION (call this from a button)
+// ──────────────────────────────────────────────
+function logoutClient() {
+  clearLoginSession();
+  toast('Logged out successfully.', 'info', 2000);
+  setTimeout(function() { window.location.href = LOGIN_PAGE; }, 1000);
+}
+
+    
+<script>
+// ──────────────────────────────────────────────────────
+//  CONFIG — same GAS URL as your other pages
+// ──────────────────────────────────────────────────────
+var GAS_URL     = 'https://script.google.com/macros/s/AKfycbyCF0PMyaQZVWWrmRRRUFocNhHnSHtSJE0UxifCRtVcM7LbWZ0HK0-_TwDBT0sqNR2P/exec';
+var PROFILE_URL = './index.html';   // your customer profile page
+var ADMIN_URL   = './admin.html';   // your admin page
+
+// ──────────────────────────────────────────────────────
+//  TOAST
+// ──────────────────────────────────────────────────────
+var _tt;
+function toast(msg, type, dur) {
+  var el = document.getElementById('toast');
+  clearTimeout(_tt);
+  el.textContent = msg;
+  el.className   = 'show ' + (type||'');
+  _tt = setTimeout(function(){ el.className=''; }, dur||3000);
+}
+
+// ──────────────────────────────────────────────────────
+//  TAB SWITCH
+// ──────────────────────────────────────────────────────
+function showTab(tab) {
+  document.getElementById('login-form').style.display    = tab==='login'    ? 'block' : 'none';
+  document.getElementById('register-form').style.display = tab==='register' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach(function(t,i){
+    t.classList.toggle('active', (tab==='login' && i===0) || (tab==='register' && i===1));
+  });
+  document.getElementById('err-box').className = 'err-box';
+}
+
+// ──────────────────────────────────────────────────────
+//  PASSWORD TOGGLE
+// ──────────────────────────────────────────────────────
+function toggleEye(inputId, spanId) {
+  var inp  = document.getElementById(inputId);
+  var span = document.getElementById(spanId);
+  if (!inp) return;
+  inp.type   = inp.type==='password' ? 'text' : 'password';
+  span.textContent = inp.type==='text' ? '🙈' : '👁️';
+}
+
+// ──────────────────────────────────────────────────────
+//  SESSION HELPERS
+// ──────────────────────────────────────────────────────
+function saveLoginSession(data) {
+  try { localStorage.setItem('wanza_login', JSON.stringify(data)); } catch(e) {}
+}
+function getLoginSession() {
+  try { var s=localStorage.getItem('wanza_login'); return s?JSON.parse(s):null; } catch(e) { return null; } 
+}
+function clearLoginSession() {
+  try { localStorage.removeItem('wanza_login'); } catch(e) {}
+}
+
+// ──────────────────────────────────────────────────────
+//  CHECK — already logged in?
+// ──────────────────────────────────────────────────────
+(function checkAlreadyLoggedIn() {
+  var sess = getLoginSession();
+  if (sess && sess.client_id && sess.loggedIn) {
+    toast('Already logged in! Redirecting…', 'ok', 1500);
+    setTimeout(function() {
+      window.location.href = PROFILE_URL + '?client_id=' + encodeURIComponent(sess.client_id);
+    }, 1000);
+  }
+})();
+
+// ──────────────────────────────────────────────────────
+//  DO LOGIN
+// ──────────────────────────────────────────────────────
+function doLogin() {
+  var identifier = (document.getElementById('l-id').value || '').trim();
+  var password   = (document.getElementById('l-pw').value || '').trim();
+  var errBox     = document.getElementById('err-box');
+  var btn        = document.getElementById('login-btn');
+
+  errBox.className = 'err-box'; // hide error
+
+  if (!identifier) {
+    errBox.textContent = '❌ Please enter your email or phone number';
+    errBox.className   = 'err-box show'; return;
+  }
+  if (!password) {
+    errBox.textContent = '❌ Please enter your password';
+    errBox.className   = 'err-box show'; return;
+  }
+
+  // Loading state
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Logging in…';
+
+  fetch(GAS_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'clientLogin', identifier: identifier, password: password }),
+    redirect: 'follow'
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){
+    var d = JSON.parse(t);
+    btn.disabled = false;
+    btn.innerHTML = '🔐 Login to Dashboard';
+
+    if (d && d.success && d.data && d.data.authenticated) {
+      var userData = d.data;
+
+      // Save session
+      saveLoginSession({
+        loggedIn:  true,
+        client_id: userData.client_id,
+        name:      userData.name,
+        email:     userData.email,
+        phone:     userData.phone,
+        plan:      userData.plan || 'free',
+        loginTime: new Date().toISOString()
+      });
+
+      toast('✅ Login successful! Welcome back, ' + (userData.name||''), 'ok', 2500);
+
+      setTimeout(function() {
+        window.location.href = PROFILE_URL + '?client_id=' + encodeURIComponent(userData.client_id);
+      }, 1000);
+
+    } else {
+      errBox.textContent = '❌ ' + (d.error || 'Invalid email/phone or password');
+      errBox.className   = 'err-box show';
+      document.getElementById('l-pw').focus();
+    }
+  })
+  .catch(function(e) {
+    btn.disabled = false;
+    btn.innerHTML = '🔐 Login to Dashboard';
+    errBox.textContent = '❌ Connection failed. Check your internet and try again.';
+    errBox.className   = 'err-box show';
+  });
+}
+
+// ──────────────────────────────────────────────────────
+//  NAVIGATE TO PROFILE (without login)
+// ──────────────────────────────────────────────────────
+function goToProfile() {
+  var id = prompt('Enter your Client ID (e.g. CLT_xxxxx):');
+  if (id && id.trim()) {
+    window.location.href = PROFILE_URL + '?client_id=' + encodeURIComponent(id.trim());
+  }
+}
+
+// ──────────────────────────────────────────────────────
+//  ENTER KEY
+// ──────────────────────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+
+</body>
+</html>
