@@ -869,6 +869,29 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
   </div>
   <!-- ★ END ★ -->
 
+   <!-- ★ NEED HELP — Step 2 (same as Step 3) -->
+<div class="support-section" style="margin-top:8px">
+  <div class="support-label">Need Help?</div>
+  <div class="support-grid">
+    <a href="tel:+919999999999" class="support-btn support-btn-call" id="s2-call-btn">
+      <div class="support-btn-ico">📞</div>
+      <div class="support-btn-text">
+        <div class="support-btn-title">Call Us</div>
+        <div class="support-btn-sub" id="s2-phone-txt">Support team</div>
+      </div>
+    </a>
+    <a href="https://wa.me/919999999999" class="support-btn support-btn-wa"
+      id="s2-wa-btn" target="_blank" rel="noopener">
+      <div class="support-btn-ico">💬</div>
+      <div class="support-btn-text">
+        <div class="support-btn-title">WhatsApp</div>
+        <div class="support-btn-sub">Chat with us</div>
+      </div>
+    </a>
+  </div>
+</div>
+<!-- ★ END NEED HELP Step 2 -->
+   
   <div class="pay-strip" id="pay-strip">
     <button class="btn btn-pro" id="pay-btn" onclick="handlePayment()">
       🔥 Start for ₹1 — Activate Plan
@@ -1029,7 +1052,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 // ──────────────────────────────────────────────────────────────
 //  ⚙️ CONFIG  — change these two lines
 // ──────────────────────────────────────────────────────────────
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbzAK1facG3r9KuR1H9XOC0oO0j1_fxcfR0JMh9_zGA0b-ve2qZ9AyMSnLrzrWMqSFxj/exec';
+var GAS_URL = 'hhttps://script.google.com/macros/s/AKfycbyCF0PMyaQZVWWrmRRRUFocNhHnSHtSJE0UxifCRtVcM7LbWZ0HK0-_TwDBT0sqNR2P/exec';
 
 // ★ NEW: Support contact numbers — change to your own numbers
 var SUPPORT_PHONE     = '+918910475493';   // call button
@@ -1697,6 +1720,13 @@ function updateSupportButtons() {
   if (callBtn) callBtn.href = 'tel:'+SUPPORT_PHONE;
   if (waBtn)   waBtn.href   = 'https://wa.me/'+SUPPORT_WHATSAPP+'?text='+encodeURIComponent('Hi Wanza! I need help with my business profile. Client ID: '+(STATE.clientId||''));
   if (phTxt)   phTxt.textContent = SUPPORT_PHONE;
+   // ADD THIS — update Step 2 support buttons too
+  var s2Call = document.getElementById('s2-call-btn');
+  var s2Wa   = document.getElementById('s2-wa-btn');
+  var s2Ph   = document.getElementById('s2-phone-txt');
+  if (s2Call) s2Call.href = 'tel:' + SUPPORT_PHONE;
+  if (s2Wa)   s2Wa.href   = 'https://wa.me/' + SUPPORT_WHATSAPP + '?text=' + encodeURIComponent('Hi Wanza! Need help. Client ID: ' + (STATE.clientId||''));
+  if (s2Ph)   s2Ph.textContent = SUPPORT_PHONE;
 }
 
 // ──────────────────────────────────────────────────────────────
