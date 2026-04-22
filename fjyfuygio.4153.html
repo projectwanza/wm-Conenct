@@ -346,6 +346,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
     <button class="nav-btn"     onclick="nav('diag')"      id="nb-diag">🔧 Diagnostics</button>
      <button class="nav-btn"     onclick="nav('mapping')"   id="nb-mapping">🔗 URL Mappings</button>
      <button class="nav-btn" onclick="nav('merchants')" id="nb-merchants">🎫 Merchants</button>
+     <button class="nav-btn" onclick="nav('cmi')" id="nb-cmi">🔑 CMI Groups</button>
     <div class="sb-bottom">
       <div class="conn-pill cp-wait" id="conn-pill">⏳ Checking…</div>
       <button class="btn btn-ghost btn-sm" onclick="doLogout()" style="width:100%;justify-content:center;margin-top:6px">🚪 Logout</button>
@@ -425,7 +426,23 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
             <div class="fg fg-full"><label class="lbl">Google Review Link</label><input class="inp" id="c-gl" placeholder="https://g.page/r/…/review"></div>
             <!-- FIX: Payment Link field -->
             <div class="fg fg-full"><label class="lbl">💳 Payment Link (UPI / Razorpay / Custom)</label><input class="inp" id="c-pl" placeholder="https://razorpay.com/… or upi://pay?pa=..."></div>
-            <div class="fg fg-full"><label class="lbl">Description</label><textarea class="ta" id="c-ds" placeholder="Brief business description…"></textarea></div>
+            <div class="fg fg-full" id="cmi-field-wrap">
+  <label class="lbl">🔑 CMI — Client Main ID (optional)</label>
+  <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+    <input class="inp" id="c-cmi" placeholder="Leave blank to auto-generate CMI"
+      style="flex:1;font-family:monospace;font-size:12px;letter-spacing:.5px">
+    <button class="btn btn-ghost btn-sm" type="button" onclick="genNewCMI()">🎲 Generate</button>
+    <button class="btn btn-ghost btn-sm" type="button" onclick="pickExistingCMI()">🔗 Use Existing</button>
+  </div>
+  <small style="color:var(--txt2);font-size:11px;margin-top:5px;display:block">
+    CMI groups clients together. Same CMI = shared review pool.
+  </small>
+  <div id="cmi-group-preview" style="display:none;margin-top:8px;background:rgba(255,106,0,.06);
+    border:1.5px solid var(--bdr2);border-radius:var(--r2);padding:10px 12px;font-size:12px">
+    <span id="cmi-group-info"></span>
+  </div>
+</div>
+             <div class="fg fg-full"><label class="lbl">Description</label><textarea class="ta" id="c-ds" placeholder="Brief business description…"></textarea></div>
           </div>
         </div>
       </div>
@@ -889,6 +906,110 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
     </div>
   </div>
 </div>
+     <div class="panel" id="panel-cmi">
+  <div class="topbar">
+    <div class="tb-title">🔑 CMI — Client Main ID Groups</div>
+    <div class="tb-acts">
+      <button class="btn btn-pri btn-sm" onclick="openBulkAssignCMI()">🔗 Bulk Assign CMI</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadCMIPanel()">🔄</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><span class="card-tt">ℹ️ How CMI Works</span></div>
+    <div class="card-bd" style="font-size:13px;color:var(--txt2);line-height:1.9">
+      <strong style="color:var(--txt)">CMI = Client Main ID</strong><br>
+      Group multiple clients under one CMI. Reviews are shared across the group.<br><br>
+      <strong style="color:var(--txt)">Rule:</strong> Each review can be used only <strong>ONCE per CMI</strong>.<br>
+      <strong style="color:var(--txt)">Example:</strong> 3 branches of same restaurant → same CMI → shared reviews.
+    </div>
+  </div>
+  <div class="stats" style="margin-bottom:16px">
+    <div class="stat"><div class="stat-ico">🔑</div><div class="stat-n" id="cmi-total">–</div><div class="stat-l">CMI Groups</div></div>
+    <div class="stat"><div class="stat-ico">🏢</div><div class="stat-n" id="cmi-clients">–</div><div class="stat-l">Grouped Clients</div></div>
+    <div class="stat"><div class="stat-ico">⭐</div><div class="stat-n" id="cmi-used">–</div><div class="stat-l">Reviews Used</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">
+      <span class="card-tt">All CMI Groups</span>
+      <input class="inp" id="cmi-search" placeholder="🔍 Search CMI…" oninput="filterCMIList(this.value)"
+        style="width:200px;padding:6px 10px;font-size:12px;height:32px">
+    </div>
+    <div class="card-bd" id="cmi-list-wrap">
+      <div class="empty"><span class="spin"></span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd">
+      <span class="card-tt">📊 Review Usage by CMI</span>
+      <button class="btn btn-ghost btn-sm" onclick="loadCMITracking()">🔄 Load</button>
+    </div>
+    <div class="card-bd" style="padding:0">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>CMI</th><th>Review Text</th><th>Clients Affected</th><th>Used At</th></tr></thead>
+          <tbody id="cmi-tracking-tbody">
+            <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--txt2)">Click "Load" to see data</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="m-bulk-cmi">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-hd">
+      <span class="modal-tt">🔗 Bulk Assign CMI to Multiple Clients</span>
+      <button class="modal-x" onclick="closeModal('m-bulk-cmi')">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="fg" style="margin-bottom:14px">
+        <label class="lbl">CMI to Assign</label>
+        <div style="display:flex;gap:8px">
+          <input class="inp" id="bulk-cmi-value" placeholder="Leave blank to auto-generate"
+            style="flex:1;font-family:monospace;font-size:12px">
+          <button class="btn btn-ghost btn-sm" type="button" onclick="document.getElementById('bulk-cmi-value').value=genCMIValue()">🎲 New</button>
+        </div>
+      </div>
+      <div class="fg" style="margin-bottom:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label class="lbl" style="margin:0">Select Clients</label>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" type="button" onclick="bulkCMISelectAll(true)">✅ All</button>
+            <button class="btn btn-ghost btn-sm" type="button" onclick="bulkCMISelectAll(false)">☐ None</button>
+          </div>
+        </div>
+        <div id="bulk-cmi-cl-list" style="max-height:240px;overflow-y:auto;border:1.5px solid var(--bdr2);border-radius:var(--r2);background:#fff8f0;padding:8px">
+          <div class="empty" style="padding:12px"><span class="spin"></span></div>
+        </div>
+      </div>
+      <div id="bulk-cmi-summary" style="display:none;background:rgba(255,106,0,.06);border:1.5px solid var(--bdr2);border-radius:var(--r2);padding:10px 14px;font-size:13px;color:var(--txt2)"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('m-bulk-cmi')">Cancel</button>
+      <button class="btn btn-ok" onclick="submitBulkAssignCMI()">🔗 Assign CMI</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="m-pick-cmi">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-hd">
+      <span class="modal-tt">🔗 Pick an Existing CMI</span>
+      <button class="modal-x" onclick="closeModal('m-pick-cmi')">✕</button>
+    </div>
+    <div class="modal-bd">
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Select an existing CMI to group this client:</p>
+      <input class="inp" id="pick-cmi-search" placeholder="🔍 Search CMI or client name…" oninput="filterPickCMI(this.value)" style="margin-bottom:10px">
+      <div id="pick-cmi-list" style="max-height:280px;overflow-y:auto;border:1.5px solid var(--bdr2);border-radius:var(--r2);background:#fff8f0;padding:8px">
+        <div class="empty" style="padding:12px"><span class="spin"></span></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('m-pick-cmi')">Cancel</button>
+    </div>
+  </div>
+</div>
     <div class="modal-ov" id="m-mapping">
       <div class="modal" style="max-width:480px">
         <div class="modal-hd">
@@ -1128,7 +1249,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 // ── CONFIG ────────────────────────────────────────────────────
 var GAS_URL = (function(){
   try { return localStorage.getItem('wanza_gas_url') || ''; } catch(e){ return ''; }
-})() || 'https://script.google.com/macros/s/AKfycbzAK1facG3r9KuR1H9XOC0oO0j1_fxcfR0JMh9_zGA0b-ve2qZ9AyMSnLrzrWMqSFxj/exec';
+})() || 'https://script.google.com/macros/s/AKfycbxZF-xpo-W6MFJl4IWRn9R5NxEI7HoyYIE4Pha0Sk3nyVMIo1OeM8Kq9fH90iVzZWBY/exec';
 
 var CLIENT_URL = (function(){
   try { return localStorage.getItem('wanza_client_url') || ''; } catch(e){ return ''; }
@@ -2914,5 +3035,289 @@ function submitBulkReviews() {
     </div>
   </div>
 </div>
+<script>
+var _allCMIData = [];
+
+function genCMIValue() {
+  return 'CMI_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
+}
+function genNewCMI() {
+  var val = genCMIValue();
+  document.getElementById('c-cmi').value = val;
+  toast('New CMI generated! ✅', 'ok', 2000);
+  updateCMIGroupPreview(val);
+}
+function updateCMIGroupPreview(cmi) {
+  var preview = document.getElementById('cmi-group-preview');
+  var infoEl  = document.getElementById('cmi-group-info');
+  if (!cmi || !cmi.trim()) { preview.style.display = 'none'; return; }
+  var found = _allCMIData.find(function(g) { return g.cmi === cmi.trim(); });
+  if (found) {
+    preview.style.display = 'block';
+    infoEl.innerHTML = '🔗 This CMI already has <strong>' + found.count + ' client(s)</strong>: ' + found.client_names.join(', ');
+  } else {
+    preview.style.display = 'block';
+    infoEl.innerHTML = '✨ New CMI — this client will be first in this group.';
+  }
+}
+(function() {
+  var fi = document.getElementById('c-cmi');
+  if (fi) fi.addEventListener('input', function() { updateCMIGroupPreview(fi.value); });
+})();
+
+window.saveClient = function() {
+  var name = (document.getElementById('c-nm').value || '').trim();
+  if (!name) { toast('Business Name required!', 'err'); return; }
+  var logoUrl = (typeof _logoUploadUrl !== 'undefined' ? _logoUploadUrl : '') || (document.getElementById('c-lo').value || '').trim();
+  showLoad(EDIT_ID ? 'Updating client…' : 'Saving client…');
+  var payload = {
+    client: {
+      name:               name,
+      business_type:      (document.getElementById('c-ty').value || '').trim(),
+      phone:              (document.getElementById('c-ph').value || '').trim(),
+      whatsapp_number:    (document.getElementById('c-wa').value || '').trim(),
+      email:              (document.getElementById('c-em').value || '').trim(),
+      logo_url:           logoUrl,
+      address:            (document.getElementById('c-ad').value || '').trim(),
+      google_review_link: (document.getElementById('c-gl').value || '').trim(),
+      payment_link:       (document.getElementById('c-pl').value || '').trim(),
+      description:        (document.getElementById('c-ds').value || '').trim(),
+      cmi:                (document.getElementById('c-cmi').value || '').trim()
+    },
+    socialLinks: gatherSls(),
+    reviews:     gatherRvs(),
+    ads:         gatherAds()
+  };
+  var action = EDIT_ID
+    ? apiPost('updateClient', { client_id: EDIT_ID, payload: payload })
+    : apiPost('saveClient',   { payload: payload });
+  action
+    .then(function(result) {
+      hideLoad();
+      toast((EDIT_ID ? 'Client updated!' : 'Client saved!') + ' 🎉', 'ok', 4000);
+      if (typeof _logoUploadUrl !== 'undefined') _logoUploadUrl = '';
+      EDIT_ID = '';
+      nav('clients');
+    })
+    .catch(function(e) { hideLoad(); toast('Save failed: ' + e.message, 'err'); });
+};
+
+window.editClient = function(clientId) {
+  showLoad('Loading client…');
+  Promise.all([
+    api('getClient',      { client_id: clientId }),
+    api('getSocialLinks', { client_id: clientId }),
+    api('getReviews',     { client_id: clientId }),
+    api('getAllAds',      { client_id: clientId })
+  ]).then(function(r) {
+    hideLoad();
+    var c = r[0], sls = r[1], rvs = r[2], ads = r[3];
+    EDIT_ID = clientId;
+    if (typeof _logoUploadUrl !== 'undefined') _logoUploadUrl = '';
+    document.getElementById('edit-id').value = clientId;
+    document.getElementById('form-title').textContent = '✏️ Edit: ' + esc(c.name);
+    document.getElementById('save-btn').textContent = '💾 Update Client';
+    var fieldMap = {
+      'c-nm':'name','c-ty':'business_type','c-ph':'phone','c-wa':'whatsapp_number',
+      'c-em':'email','c-lo':'logo_url','c-ad':'address','c-gl':'google_review_link',
+      'c-pl':'payment_link','c-ds':'description','c-cmi':'cmi'
+    };
+    Object.entries(fieldMap).forEach(function(pair) {
+      var el = document.getElementById(pair[0]); if (el) el.value = c[pair[1]] || '';
+    });
+    if (c.cmi) updateCMIGroupPreview(c.cmi);
+    if (c.logo_url) {
+      var img = document.getElementById('logo-preview-img');
+      var ico = document.getElementById('logo-ico');
+      if (img) { img.src = c.logo_url; img.style.display = 'block'; }
+      if (ico) ico.style.display = 'none';
+    }
+    var slB = document.getElementById('sl-builder'); slB.innerHTML = ''; _slCount = 0;
+    (Array.isArray(sls) ? sls : []).forEach(function(s) {
+      addSlRow(); var i = _slCount - 1;
+      document.getElementById('sl-nm-' + i).value = s.platform_name || '';
+      document.getElementById('sl-ur-' + i).value = s.profile_url || '';
+      document.getElementById('sl-ic-' + i).value = s.platform_icon_url || '';
+      document.getElementById('sl-fc-' + i).value = s.followers_count || '';
+    });
+    if (!sls || !sls.length) addSlRow();
+    var rvB = document.getElementById('rv-builder'); rvB.innerHTML = ''; _rvCount = 0;
+    (Array.isArray(rvs) ? rvs : []).forEach(function(rv) {
+      addRvRow(); var i = _rvCount - 1;
+      var ta = document.getElementById('rv-tx-' + i); if (ta) ta.value = rv.review_text || '';
+    });
+    if (!rvs || !rvs.length) addRvRow();
+    var adB = document.getElementById('ad-builder'); adB.innerHTML = ''; _adCount_form = 0;
+    (Array.isArray(ads) ? ads : []).forEach(function(ad) { addAdRow(ad); });
+    nav('add');
+  }).catch(function(e) { hideLoad(); toast('Load failed: ' + e.message, 'err'); });
+};
+
+var _origReset = window.resetForm;
+window.resetForm = function() {
+  _origReset();
+  var cmiEl = document.getElementById('c-cmi'); if (cmiEl) cmiEl.value = '';
+  var prev  = document.getElementById('cmi-group-preview'); if (prev) prev.style.display = 'none';
+};
+
+function loadCMIPanel() {
+  var el = document.getElementById('cmi-list-wrap'); if (!el) return;
+  el.innerHTML = '<div class="empty"><span class="spin"></span> Loading…</div>';
+  apiGet('getAllCMIs', {})
+    .then(function(d) {
+      _allCMIData = Array.isArray(d) ? d : [];
+      renderCMIList(_allCMIData);
+      var totalClients = _allCMIData.reduce(function(s, g) { return s + g.count; }, 0);
+      animNum(document.getElementById('cmi-total'),   _allCMIData.length);
+      animNum(document.getElementById('cmi-clients'), totalClients);
+    })
+    .catch(function(e) { el.innerHTML = '<div class="empty"><div class="empty-ic">❌</div><div class="empty-tx">' + esc(e.message) + '</div></div>'; });
+  apiGet('getCMIReviewTracking', {})
+    .then(function(d) { animNum(document.getElementById('cmi-used'), Array.isArray(d) ? d.length : 0); })
+    .catch(function() {});
+}
+function renderCMIList(groups) {
+  var el = document.getElementById('cmi-list-wrap');
+  if (!groups.length) { el.innerHTML = '<div class="empty"><div class="empty-ic">🔑</div><div class="empty-tx">No CMI groups yet.</div></div>'; return; }
+  el.innerHTML = groups.map(function(g) {
+    return '<div class="banner-item" style="flex-wrap:wrap;gap:10px">'
+      + '<div style="font-size:1.4rem;flex-shrink:0">🔑</div>'
+      + '<div style="flex:1;min-width:180px"><strong style="font-family:monospace;font-size:13px;color:var(--org1)">' + esc(g.cmi) + '</strong>'
+      + '<div style="font-size:12px;color:var(--txt2);margin-top:3px"><span class="badge b-org" style="margin-right:6px">' + g.count + ' client' + (g.count!==1?'s':'') + '</span>' + g.client_names.map(function(n){return esc(n);}).join(', ') + '</div></div>'
+      + '<div style="display:flex;gap:6px;align-items:center">'
+      + '<button class="btn btn-ghost btn-sm" onclick="copyCMI(\'' + esc(g.cmi) + '\')">📋</button>'
+      + '<button class="btn btn-warn btn-sm" onclick="loadCMIReviews(\'' + esc(g.cmi) + '\')">⭐ Reviews</button>'
+      + '</div></div>';
+  }).join('');
+}
+function filterCMIList(query) {
+  if (!query || !query.trim()) { renderCMIList(_allCMIData); return; }
+  query = query.toLowerCase();
+  renderCMIList(_allCMIData.filter(function(g) {
+    return g.cmi.toLowerCase().indexOf(query) > -1 || g.client_names.join(' ').toLowerCase().indexOf(query) > -1;
+  }));
+}
+function copyCMI(cmi) {
+  if (navigator.clipboard) navigator.clipboard.writeText(cmi).then(function() { toast('CMI copied! ' + cmi, 'ok', 2500); });
+}
+function loadCMITracking(cmi) {
+  var tbody = document.getElementById('cmi-tracking-tbody'); if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px"><span class="spin"></span></td></tr>';
+  apiGet('getCMIReviewTracking', cmi ? { cmi: cmi } : {})
+    .then(function(d) {
+      var rows = Array.isArray(d) ? d : [];
+      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--txt2)">No reviews used yet via CMI.</td></tr>'; return; }
+      tbody.innerHTML = rows.map(function(t) {
+        var dt = t.used_at ? new Date(t.used_at).toLocaleString('en-IN') : '—';
+        var affected = (t.client_ids_affected || '').split(',').filter(Boolean).length;
+        return '<tr><td><code style="font-size:11px;color:var(--org1);background:rgba(255,106,0,.08);padding:2px 6px;border-radius:4px">' + esc(t.cmi) + '</code></td>'
+          + '<td style="font-size:12px">' + esc((t.review_text||'').substr(0,60)) + '…</td>'
+          + '<td style="text-align:center"><span class="badge b-org">' + affected + '</span></td>'
+          + '<td style="font-size:11px;color:var(--txt2)">' + esc(dt) + '</td></tr>';
+      }).join('');
+    })
+    .catch(function(e) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--red)">❌ ' + esc(e.message) + '</td></tr>'; });
+}
+function loadCMIReviews(cmi) {
+  showLoad('Loading CMI reviews…');
+  apiGet('getRandomReviewByCMI', { cmi: cmi })
+    .then(function(d) {
+      hideLoad();
+      alert('CMI: ' + cmi + '\nClients: ' + (d.client_ids ? d.client_ids.length : '?') + '\nTotal reviews: ' + d.total + '\nAvailable: ' + d.available + '\n' + (d.allUsed ? '⚠️ All used!' : '✅ Reviews available.'));
+    })
+    .catch(function(e) { hideLoad(); toast('Error: ' + e.message, 'err'); });
+}
+function openBulkAssignCMI() {
+  document.getElementById('bulk-cmi-value').value = '';
+  document.getElementById('bulk-cmi-summary').style.display = 'none';
+  var listEl = document.getElementById('bulk-cmi-cl-list');
+  listEl.innerHTML = '<div class="empty" style="padding:12px"><span class="spin"></span></div>';
+  var fill = function(clients) {
+    listEl.innerHTML = clients.map(function(c) {
+      var cmiTag = c.cmi ? '<span style="font-size:10px;color:var(--txt3);margin-left:4px;font-family:monospace">[' + esc(c.cmi) + ']</span>' : '';
+      return '<label style="display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:var(--r1);cursor:pointer;margin-bottom:2px">'
+        + '<input type="checkbox" class="bulk-cmi-cb" value="' + esc(c.client_id) + '" onchange="updateBulkCMISummary()" style="width:15px;height:15px;accent-color:var(--org1);flex-shrink:0">'
+        + '<div><div style="font-size:13px;font-weight:600">' + esc(c.name) + cmiTag + '</div>'
+        + (c.business_type ? '<div style="font-size:10px;color:var(--txt3)">' + esc(c.business_type) + '</div>' : '')
+        + '</div></label>';
+    }).join('');
+  };
+  if (ALL_CL && ALL_CL.length) fill(ALL_CL);
+  else apiGet('getAllClients', {}).then(function(d) { ALL_CL = d || []; fill(ALL_CL); }).catch(function(){});
+  openModal('m-bulk-cmi');
+}
+function bulkCMISelectAll(checked) {
+  document.querySelectorAll('.bulk-cmi-cb').forEach(function(cb) { cb.checked = checked; });
+  updateBulkCMISummary();
+}
+function updateBulkCMISummary() {
+  var sel   = document.querySelectorAll('.bulk-cmi-cb:checked').length;
+  var sumEl = document.getElementById('bulk-cmi-summary');
+  var cmiVal= (document.getElementById('bulk-cmi-value').value || '').trim();
+  if (sel > 0) {
+    sumEl.style.display = 'block';
+    sumEl.innerHTML = '📊 <strong>' + sel + ' clients</strong> → CMI: <strong style="color:var(--org1);font-family:monospace">' + esc(cmiVal || '(auto-generate)') + '</strong>';
+  } else { sumEl.style.display = 'none'; }
+}
+function submitBulkAssignCMI() {
+  var clientIds = [];
+  document.querySelectorAll('.bulk-cmi-cb:checked').forEach(function(cb) { clientIds.push(cb.value); });
+  if (!clientIds.length) { toast('Select at least one client!', 'err'); return; }
+  var cmi = (document.getElementById('bulk-cmi-value').value || '').trim();
+  showLoad('Assigning CMI…');
+  apiPost('bulkAssignCMI', { client_ids: clientIds, cmi: cmi || '' })
+    .then(function(result) {
+      hideLoad();
+      toast('CMI assigned! ' + result.cmi + ' → ' + clientIds.length + ' clients ✅', 'ok', 4000);
+      closeModal('m-bulk-cmi');
+      loadCMIPanel();
+      apiGet('getAllCMIs', {}).then(function(d) { _allCMIData = Array.isArray(d) ? d : []; }).catch(function(){});
+    })
+    .catch(function(e) { hideLoad(); toast('Failed: ' + e.message, 'err'); });
+}
+var _allCMIForPicker = [];
+function pickExistingCMI() {
+  document.getElementById('pick-cmi-search').value = '';
+  var listEl = document.getElementById('pick-cmi-list');
+  listEl.innerHTML = '<div class="empty" style="padding:12px"><span class="spin"></span></div>';
+  apiGet('getAllCMIs', {})
+    .then(function(d) {
+      _allCMIForPicker = _allCMIData = Array.isArray(d) ? d : [];
+      renderPickCMI(_allCMIForPicker);
+      openModal('m-pick-cmi');
+    })
+    .catch(function(e) { listEl.innerHTML = '<div class="empty" style="color:var(--red)">❌ ' + esc(e.message) + '</div>'; openModal('m-pick-cmi'); });
+}
+function renderPickCMI(groups) {
+  var listEl = document.getElementById('pick-cmi-list');
+  if (!groups.length) { listEl.innerHTML = '<div class="empty" style="padding:12px">No existing CMI groups found.</div>'; return; }
+  listEl.innerHTML = groups.map(function(g) {
+    return '<div class="banner-item" style="cursor:pointer;padding:10px 12px" onclick="selectPickedCMI(\'' + esc(g.cmi) + '\')">'
+      + '<div style="font-size:1.1rem">🔑</div><div style="flex:1">'
+      + '<div style="font-family:monospace;font-size:12px;color:var(--org1);font-weight:700">' + esc(g.cmi) + '</div>'
+      + '<div style="font-size:11px;color:var(--txt2);margin-top:2px">' + g.count + ' client' + (g.count!==1?'s':'') + ': ' + g.client_names.map(function(n){return esc(n);}).join(', ') + '</div></div>'
+      + '<span style="font-size:11px;color:var(--org1);font-weight:600">Select →</span></div>';
+  }).join('');
+}
+function filterPickCMI(query) {
+  if (!query || !query.trim()) { renderPickCMI(_allCMIForPicker); return; }
+  query = query.toLowerCase();
+  renderPickCMI(_allCMIForPicker.filter(function(g) {
+    return g.cmi.toLowerCase().indexOf(query) > -1 || g.client_names.join(' ').toLowerCase().indexOf(query) > -1;
+  }));
+}
+function selectPickedCMI(cmi) {
+  var el = document.getElementById('c-cmi');
+  if (el) { el.value = cmi; updateCMIGroupPreview(cmi); }
+  closeModal('m-pick-cmi');
+  toast('CMI selected: ' + cmi, 'ok', 2500);
+}
+var _origNav = window.nav;
+window.nav = function(id) {
+  _origNav(id);
+  if (id === 'cmi') loadCMIPanel();
+};
+</script>
+   
 </body>
 </html>
