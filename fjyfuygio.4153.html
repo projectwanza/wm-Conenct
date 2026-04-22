@@ -757,6 +757,137 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
     </div>
 
     <!-- Add/Edit Mapping Modal -->
+     <!-- ═══ MERCHANTS PANEL ══════════════════════════════════════════ -->
+<div class="panel" id="panel-merchants">
+  <div class="topbar">
+    <div class="tb-title">🎫 Merchant IDs</div>
+    <div class="tb-acts">
+      <button class="btn btn-pri btn-sm" onclick="openGenerateMerchants()">⚡ Generate IDs</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadMerchants()">🔄</button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats" style="margin-bottom:16px">
+    <div class="stat"><div class="stat-ico">🎫</div><div class="stat-n" id="ms-total">–</div><div class="stat-l">Total IDs</div></div>
+    <div class="stat"><div class="stat-ico">✅</div><div class="stat-n" id="ms-active">–</div><div class="stat-l">Active</div></div>
+    <div class="stat"><div class="stat-ico">📝</div><div class="stat-n" id="ms-used">–</div><div class="stat-l">Reviews Used</div></div>
+  </div>
+
+  <!-- Generate Form (hidden by default) -->
+  <div class="card" id="generate-merch-card" style="display:none;margin-bottom:16px">
+    <div class="card-hd"><span class="card-tt">⚡ Generate New Merchant IDs</span></div>
+    <div class="card-bd">
+      <div class="form-grid">
+        <div class="fg">
+          <label class="lbl">Client *</label>
+          <select class="sel" id="gm-client">
+            <option value="">— Select Client —</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="lbl">How Many? (1–200)</label>
+          <input class="inp" id="gm-count" type="number" min="1" max="200" value="10">
+        </div>
+        <div class="fg">
+          <label class="lbl">ID Prefix (max 6 chars)</label>
+          <input class="inp" id="gm-name" placeholder="MRC" maxlength="6">
+          <small style="color:var(--txt2);font-size:11px;margin-top:4px;display:block">
+            Example prefix "SHOP" → SHOP_A1B2C3
+          </small>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn btn-ok" onclick="submitGenerateMerchants()">⚡ Generate</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('generate-merch-card').style.display='none'">✕ Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Action Bar (visible when items selected) -->
+  <div id="merch-bulk-bar" style="display:none;background:rgba(255,106,0,.07);border:1.5px solid var(--bdr2);border-radius:var(--r2);padding:10px 14px;margin-bottom:12px;align-items:center;gap:10px;flex-wrap:wrap">
+    <span id="merch-sel-count" style="font-size:13px;font-weight:600;color:var(--org1)">0 selected</span>
+    <button class="btn btn-del btn-sm" onclick="bulkDeleteMerchantsAdmin()">🗑️ Delete Selected</button>
+    <button class="btn btn-ghost btn-sm" onclick="clearMerchantSelection()">✕ Clear Selection</button>
+  </div>
+
+  <!-- Filter Row -->
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <select class="sel" id="mf-client" onchange="filterMerchantTable()" style="flex:1;min-width:150px;font-size:12px;padding:7px 10px;height:36px">
+      <option value="">All Clients</option>
+    </select>
+    <select class="sel" id="mf-status" onchange="filterMerchantTable()" style="width:130px;font-size:12px;padding:7px 10px;height:36px">
+      <option value="">All Status</option>
+      <option value="active">✅ Active</option>
+      <option value="disabled">⛔ Disabled</option>
+    </select>
+    <input class="inp" id="mf-search" placeholder="🔍 Search ID or client…" oninput="filterMerchantTable()" style="flex:1;min-width:150px;height:36px;padding:7px 12px;font-size:12px">
+  </div>
+
+  <!-- Merchants Table -->
+  <div class="card">
+    <div class="card-hd">
+      <span class="card-tt">All Merchant IDs</span>
+      <label style="font-size:12px;color:var(--txt2);display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600">
+        <input type="checkbox" id="merch-sel-all" onchange="toggleAllMerchants(this.checked)"> Select All
+      </label>
+    </div>
+    <div class="card-bd" style="padding:0">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:36px">☑</th>
+              <th>Merchant ID</th>
+              <th>Client</th>
+              <th>Status</th>
+              <th>Reviews Used</th>
+              <th>Generated</th>
+              <th>Last Used</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="merch-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:28px;color:var(--txt2)">Click 🔄 to load merchants</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Usage Tracking -->
+  <div class="card" style="margin-top:4px">
+    <div class="card-hd">
+      <span class="card-tt">📊 Review Usage Tracking</span>
+      <button class="btn btn-ghost btn-sm" onclick="loadReviewTracking()">🔄 Load</button>
+    </div>
+    <div class="card-bd" style="padding:0">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Merchant ID</th><th>Client</th><th>Reviews Used</th><th>Last Activity</th></tr>
+          </thead>
+          <tbody id="rt-tbody">
+            <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--txt2)">Click "Load" to see tracking data</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Link Info -->
+  <div class="card" style="margin-top:4px">
+    <div class="card-hd"><span class="card-tt">🔗 How to Share Merchant Links</span></div>
+    <div class="card-bd" style="font-size:13px;color:var(--txt2);line-height:1.9">
+      Share a client profile with a merchant ID using this URL format:<br>
+      <div id="merch-link-example" style="background:#fff8f0;border:1.5px solid var(--bdr2);border-radius:var(--r1);padding:10px 14px;font-family:monospace;font-size:12px;color:var(--org1);word-break:break-all;margin:10px 0">
+        Loading…
+      </div>
+      <strong style="color:var(--txt)">Each merchant_id can use each review only once.</strong><br>
+      The same review can be used by multiple different merchant_ids.
+    </div>
+  </div>
+</div>
     <div class="modal-ov" id="m-mapping">
       <div class="modal" style="max-width:480px">
         <div class="modal-hd">
@@ -2202,6 +2333,233 @@ function initMappingSheetAdmin() {
   apiPost('initMapping', {})
     .then(function() { hideLoad(); toast('MAPPING sheet created! ✅', 'ok'); })
     .catch(function(e) { hideLoad(); toast('Error: ' + e.message, 'err'); });
+}
+
+   // ════════════════════════════════════════════════════════════════
+//  WANZA — MERCHANTS PANEL JS
+//  Paste just before </script> in admin.html
+// ════════════════════════════════════════════════════════════════
+
+var _allMerchants = [];
+var _selMerchants = new Set();
+
+function loadMerchants() {
+  var tbody = document.getElementById('merch-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px"><span class="spin"></span> Loading…</td></tr>';
+
+  // Show link example
+  var linkEx = document.getElementById('merch-link-example');
+  if (linkEx) linkEx.textContent = CLIENT_URL + '/index.html?client_id=CLT_XXX&merchant_id=MRC_XXXXXX';
+
+  apiGet('getMerchantStats', {})
+    .then(function(d) {
+      _allMerchants = Array.isArray(d) ? d : [];
+      _selMerchants = new Set();
+      _updateMerchantStats(_allMerchants);
+      _renderMerchantsTable(_allMerchants);
+      _fillMerchantFilters();
+    })
+    .catch(function(e) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--red)">❌ ' + esc(e.message) + '<br><small>Run initMerchantSheets() in Apps Script first.</small></td></tr>';
+    });
+}
+
+function _updateMerchantStats(data) {
+  var active = data.filter(function(m) { return (m.status || 'active') !== 'disabled'; }).length;
+  var total  = data.reduce(function(s, m) { return s + (parseInt(m.reviews_used) || 0); }, 0);
+  animNum(document.getElementById('ms-total'),  data.length);
+  animNum(document.getElementById('ms-active'), active);
+  animNum(document.getElementById('ms-used'),   total);
+}
+
+function _renderMerchantsTable(data) {
+  var tbody = document.getElementById('merch-tbody');
+  if (!tbody) return;
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:36px;color:var(--txt2)"><div style="font-size:2rem;margin-bottom:8px">🎫</div>No merchants yet. Click ⚡ Generate IDs.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(function(m) {
+    var isActive = (m.status || 'active') !== 'disabled';
+    var gen      = m.generated_at ? new Date(m.generated_at).toLocaleDateString('en-IN') : '—';
+    var last     = m.last_used    ? new Date(m.last_used).toLocaleDateString('en-IN')    : '—';
+    var usedBadge= parseInt(m.reviews_used) > 0 ? 'b-org' : 'b-blue';
+    var sel      = _selMerchants.has(m.merchant_id);
+
+    return '<tr id="mr-' + esc(m.merchant_id) + '">'
+      + '<td><input type="checkbox" class="merch-cb" value="' + esc(m.merchant_id) + '" '
+        + (sel ? 'checked' : '') + ' onchange="onMerchantCheck(this)"></td>'
+      + '<td><code style="font-size:11px;background:rgba(255,106,0,.08);padding:3px 8px;border-radius:6px;color:var(--org1);cursor:pointer" onclick="copyMerchantId(\'' + esc(m.merchant_id) + '\')">'
+        + esc(m.merchant_id) + '</code>'
+      + ' <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:10px" onclick="copyMerchantId(\'' + esc(m.merchant_id) + '\')">📋</button>'
+      + ' <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:10px" onclick="copyMerchantLink(\'' + esc(m.merchant_id) + '\',\'' + esc(m.client_id) + '\')">🔗</button></td>'
+      + '<td style="font-size:12px">' + esc(m.client_name || m.client_id || '—') + '</td>'
+      + '<td><span class="badge ' + (isActive ? 'b-grn' : 'b-red') + '">' + (isActive ? 'Active' : 'Off') + '</span></td>'
+      + '<td style="text-align:center"><span class="badge ' + usedBadge + '">' + (m.reviews_used || 0) + '</span></td>'
+      + '<td style="font-size:11px;color:var(--txt2)">' + gen + '</td>'
+      + '<td style="font-size:11px;color:var(--txt2)">' + last + '</td>'
+      + '<td><div style="display:flex;gap:4px">'
+      + '<button class="btn btn-del btn-sm" onclick="deleteMerchantAdmin(\'' + esc(m.merchant_id) + '\')">🗑️</button>'
+      + '</div></td>'
+      + '</tr>';
+  }).join('');
+}
+
+function _fillMerchantFilters() {
+  var cSel = document.getElementById('mf-client');
+  var gSel = document.getElementById('gm-client');
+  if (!cSel) return;
+
+  var buildOptions = function(sel, clients, keepFirst) {
+    while (sel.options.length > 1) sel.remove(1);
+    var seen = {};
+    clients.forEach(function(c) {
+      var id = c.client_id || c.client_id;
+      var nm = c.client_name || c.name || id;
+      if (!seen[id]) { seen[id] = true; sel.appendChild(new Option(nm, id)); }
+    });
+  };
+
+  var allClients = _allMerchants.concat(ALL_CL || []);
+  buildOptions(cSel, allClients);
+  if (gSel) buildOptions(gSel, ALL_CL || allClients);
+}
+
+function filterMerchantTable() {
+  var search  = (document.getElementById('mf-search').value  || '').toLowerCase();
+  var cFilter = (document.getElementById('mf-client').value  || '');
+  var sFilter = (document.getElementById('mf-status').value  || '');
+  var filtered = _allMerchants.filter(function(m) {
+    var ms = (search ? (m.merchant_id.toLowerCase().indexOf(search) > -1 || (m.client_name || '').toLowerCase().indexOf(search) > -1) : true);
+    var mc = (!cFilter || m.client_id === cFilter);
+    var mst= (!sFilter || (m.status || 'active') === sFilter);
+    return ms && mc && mst;
+  });
+  _renderMerchantsTable(filtered);
+}
+
+function onMerchantCheck(cb) {
+  if (cb.checked) _selMerchants.add(cb.value);
+  else            _selMerchants.delete(cb.value);
+  _updateBulkBar();
+}
+
+function toggleAllMerchants(checked) {
+  document.querySelectorAll('.merch-cb').forEach(function(cb) {
+    cb.checked = checked;
+    if (checked) _selMerchants.add(cb.value);
+    else         _selMerchants.delete(cb.value);
+  });
+  _updateBulkBar();
+}
+
+function _updateBulkBar() {
+  var bar = document.getElementById('merch-bulk-bar');
+  var cnt = document.getElementById('merch-sel-count');
+  if (!bar || !cnt) return;
+  var n = _selMerchants.size;
+  bar.style.display = n > 0 ? 'flex' : 'none';
+  cnt.textContent = n + ' selected';
+}
+
+function clearMerchantSelection() {
+  _selMerchants = new Set();
+  document.querySelectorAll('.merch-cb').forEach(function(cb) { cb.checked = false; });
+  var sa = document.getElementById('merch-sel-all'); if (sa) sa.checked = false;
+  _updateBulkBar();
+}
+
+function openGenerateMerchants() {
+  var card = document.getElementById('generate-merch-card');
+  if (!card) return;
+  card.style.display = (card.style.display === 'none' || !card.style.display) ? 'block' : 'none';
+  // Load client dropdown
+  var sel = document.getElementById('gm-client');
+  if (sel && sel.options.length <= 1) {
+    var fill = function(clients) {
+      while (sel.options.length > 1) sel.remove(1);
+      clients.forEach(function(c) { sel.appendChild(new Option(c.name, c.client_id)); });
+    };
+    if (ALL_CL && ALL_CL.length) fill(ALL_CL);
+    else apiGet('getAllClients', {}).then(function(d) { ALL_CL = d || []; fill(ALL_CL); }).catch(function() {});
+  }
+}
+
+function submitGenerateMerchants() {
+  var clientId = (document.getElementById('gm-client').value || '').trim();
+  var count    = parseInt(document.getElementById('gm-count').value) || 10;
+  var name     = (document.getElementById('gm-name').value || 'MRC').trim().toUpperCase();
+  if (!clientId) { toast('Select a client!', 'err'); return; }
+  if (count < 1 || count > 200) { toast('Count must be 1–200', 'err'); return; }
+
+  showLoad('Generating ' + count + ' Merchant IDs…');
+  apiPost('generateMerchants', { client_id: clientId, count: count, name: name, generated_by: 'admin' })
+    .then(function(d) {
+      hideLoad();
+      toast('Generated ' + d.count + ' Merchant IDs! ✅', 'ok', 4000);
+      document.getElementById('generate-merch-card').style.display = 'none';
+      loadMerchants();
+    })
+    .catch(function(e) { hideLoad(); toast('Failed: ' + e.message, 'err'); });
+}
+
+function deleteMerchantAdmin(merchantId) {
+  confirmDlg('Delete "' + merchantId + '"?\nAll review tracking for this ID will also be deleted.', function() {
+    apiPost('deleteMerchant', { merchant_id: merchantId })
+      .then(function() { toast('Deleted!', 'ok'); loadMerchants(); })
+      .catch(function(e) { toast('Failed: ' + e.message, 'err'); });
+  });
+}
+
+function bulkDeleteMerchantsAdmin() {
+  if (!_selMerchants.size) { toast('Select merchants first!', 'err'); return; }
+  confirmDlg('Delete ' + _selMerchants.size + ' Merchant IDs?\nAll their review tracking will also be deleted.', function() {
+    showLoad('Deleting…');
+    apiPost('bulkDeleteMerchants', { merchant_ids: Array.from(_selMerchants) })
+      .then(function(d) { hideLoad(); toast('Deleted ' + d.deleted + ' merchants!', 'ok'); loadMerchants(); })
+      .catch(function(e) { hideLoad(); toast('Failed: ' + e.message, 'err'); });
+  });
+}
+
+function copyMerchantId(id) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(id).then(function() { toast('Copied: ' + id, 'ok'); });
+  }
+}
+
+function copyMerchantLink(merchantId, clientId) {
+  var url = CLIENT_URL + '/index.html?client_id=' + encodeURIComponent(clientId) + '&merchant_id=' + encodeURIComponent(merchantId);
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() { toast('Profile link copied! 🔗', 'ok', 3500); });
+  }
+}
+
+function loadReviewTracking() {
+  var tbody = document.getElementById('rt-tbody');
+  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px"><span class="spin"></span></td></tr>';
+
+  apiGet('getMerchantUsageStats', {})
+    .then(function(d) {
+      var withUsage = (d || []).filter(function(m) { return parseInt(m.reviews_used) > 0; });
+      if (!withUsage.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--txt2)">No reviews have been used yet.</td></tr>';
+        return;
+      }
+      withUsage.sort(function(a, b) { return (parseInt(b.reviews_used) || 0) - (parseInt(a.reviews_used) || 0); });
+      tbody.innerHTML = withUsage.map(function(m) {
+        var last = m.last_used ? new Date(m.last_used).toLocaleString('en-IN') : '—';
+        return '<tr>'
+          + '<td><code style="font-size:11px;color:var(--org1)">' + esc(m.merchant_id) + '</code></td>'
+          + '<td style="font-size:12px">' + esc(m.client_name || '—') + '</td>'
+          + '<td style="text-align:center"><span class="badge b-org">' + (m.reviews_used || 0) + '</span></td>'
+          + '<td style="font-size:11px;color:var(--txt2)">' + esc(last) + '</td>'
+          + '</tr>';
+      }).join('');
+    })
+    .catch(function(e) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--red)">❌ ' + esc(e.message) + '</td></tr>';
+    });
 }
 </script>
 </body>
