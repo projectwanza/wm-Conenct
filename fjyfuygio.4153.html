@@ -343,6 +343,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
     <span class="sb-section">Config</span>
     <button class="nav-btn"     onclick="nav('settings')"  id="nb-settings">⚙️ Settings</button>
     <button class="nav-btn"     onclick="nav('diag')"      id="nb-diag">🔧 Diagnostics</button>
+     <button class="nav-btn"     onclick="nav('mapping')"   id="nb-mapping">🔗 URL Mappings</button>
     <div class="sb-bottom">
       <div class="conn-pill cp-wait" id="conn-pill">⏳ Checking…</div>
       <button class="btn btn-ghost btn-sm" onclick="doLogout()" style="width:100%;justify-content:center;margin-top:6px">🚪 Logout</button>
@@ -710,6 +711,102 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
       </div>
     </div>
 
+     <!-- ═══ URL MAPPING PANEL ════════════════════════════════════ -->
+    <div class="panel" id="panel-mapping">
+      <div class="topbar">
+        <div class="tb-title">🔗 Clean URL Mappings</div>
+        <div class="tb-acts">
+          <button class="btn btn-pri btn-sm" onclick="openAddMapping()">➕ Add Mapping</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadMappings()">🔄</button>
+        </div>
+      </div>
+
+      <!-- How It Works -->
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">ℹ️ How It Works</span></div>
+        <div class="card-bd" style="font-size:13px;color:var(--txt2);line-height:1.9">
+          Each mapping lets you share a short, clean link instead of a long URL.<br>
+          Example: <code style="background:rgba(255,106,0,.1);padding:2px 8px;border-radius:6px;color:var(--org1);font-size:12px">your-gas-url?code=a1</code>
+          → automatically redirects to the correct client profile.<br><br>
+          <strong style="color:var(--txt)">With Cloudflare (optional):</strong> you can make it even cleaner like <code style="background:rgba(255,106,0,.1);padding:2px 8px;border-radius:6px;color:var(--org1);font-size:12px">wanza.site/a1</code>
+        </div>
+      </div>
+
+      <!-- Your GAS URL display (copy-friendly) -->
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">🔗 Your Short Link Base URL</span></div>
+        <div class="card-bd">
+          <div id="mapping-base-url" style="background:#fff8f0;border:1.5px solid var(--bdr2);border-radius:var(--r1);
+            padding:12px 14px;font-family:monospace;font-size:12px;color:var(--txt2);word-break:break-all;
+            margin-bottom:12px">
+            Loading…
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="copyMappingBaseUrl()">📋 Copy Base URL</button>
+          <button class="btn btn-warn btn-sm" style="margin-left:8px" onclick="initMappingSheetAdmin()">🛠 Init Sheet</button>
+        </div>
+      </div>
+
+      <!-- Mapping List -->
+      <div class="card">
+        <div class="card-hd"><span class="card-tt">All Mappings</span></div>
+        <div class="card-bd" id="mapping-list-wrap">
+          <div class="empty"><div class="empty-ic">🔗</div><div class="empty-tx">Click 🔄 to load mappings</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/Edit Mapping Modal -->
+    <div class="modal-ov" id="m-mapping">
+      <div class="modal" style="max-width:480px">
+        <div class="modal-hd">
+          <span class="modal-tt" id="m-mapping-title">➕ Add Mapping</span>
+          <button class="modal-x" onclick="closeModal('m-mapping')">✕</button>
+        </div>
+        <div class="modal-bd">
+          <div class="fg" style="margin-bottom:14px">
+            <label class="lbl">Short Code *</label>
+            <input class="inp" id="mp-code" placeholder="a1, shop1, main-store…"
+              oninput="updateMappingPreview()"
+              style="font-family:monospace;font-size:14px;letter-spacing:1px">
+            <small style="color:var(--txt2);font-size:11px;margin-top:5px;display:block">
+              Use only letters, numbers, hyphens. Example: <strong>a1</strong>, <strong>ramesh-shop</strong>
+            </small>
+          </div>
+
+          <div class="fg" style="margin-bottom:14px">
+            <label class="lbl">Client *</label>
+            <select class="sel" id="mp-client" onchange="updateMappingPreview()">
+              <option value="">— Select Client —</option>
+            </select>
+          </div>
+
+          <div class="fg" style="margin-bottom:14px">
+            <label class="lbl">Label (optional note for yourself)</label>
+            <input class="inp" id="mp-label" placeholder="Shop 1, Main Branch…">
+          </div>
+
+          <div class="fg" style="margin-bottom:14px">
+            <label class="lbl">Status</label>
+            <select class="sel" id="mp-enabled">
+              <option value="true">✅ Active</option>
+              <option value="false">⛔ Disabled</option>
+            </select>
+          </div>
+
+          <!-- Live Preview -->
+          <div id="mp-preview" style="background:#fff8f0;border:1.5px solid var(--bdr2);
+            border-radius:var(--r2);padding:14px;margin-top:4px;display:none">
+            <div style="font-size:11px;color:var(--txt2);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.8px">Link Preview</div>
+            <div id="mp-preview-url" style="font-family:monospace;font-size:12px;color:var(--org1);word-break:break-all;font-weight:600"></div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="copyMappingPreviewUrl()">📋 Copy Link</button>
+          </div>
+        </div>
+        <div class="modal-ft">
+          <button class="btn btn-ghost btn-sm" onclick="closeModal('m-mapping')">Cancel</button>
+          <button class="btn btn-pri btn-sm" onclick="submitMapping()">💾 Save Mapping</button>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 </div><!-- #app -->
@@ -898,7 +995,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 // ── CONFIG ────────────────────────────────────────────────────
 var GAS_URL = (function(){
   try { return localStorage.getItem('wanza_gas_url') || ''; } catch(e){ return ''; }
-})() || 'https://script.google.com/macros/s/AKfycbwFUnOJ1TGuuxrHf_HCRDw0bOA_bfB2HSoeP4AFN41uDcWOeAsk2UN8U693EisNCC0G/exec';
+})() || 'https://script.google.com/macros/s/AKfycbzTx-iO-CbTAD4qdOi918STeTgwz7P0_E3rivj0iH1SkUVNtcg-NeoIYORlQUQzz53W/exec';
 
 var CLIENT_URL = (function(){
   try { return localStorage.getItem('wanza_client_url') || ''; } catch(e){ return ''; }
@@ -1935,6 +2032,175 @@ document.addEventListener('DOMContentLoaded',function(){
   try{ document.getElementById('l-gas').value=localStorage.getItem('wanza_gas_url')||''; }catch(e){}
   resetForm();
 });
+
+   // ════════════════════════════════════════════════════════════
+//  URL MAPPING MANAGER — Admin JS (Add-on)
+// ════════════════════════════════════════════════════════════
+
+function loadMappings() {
+  var el = document.getElementById('mapping-list-wrap');
+  if (!el) return;
+  el.innerHTML = '<div class="empty"><span class="spin"></span> Loading…</div>';
+
+  // Show base URL
+  var baseEl = document.getElementById('mapping-base-url');
+  if (baseEl) baseEl.textContent = GAS_URL + '?code=YOUR_CODE';
+
+  apiGet('getMapping', {})
+    .then(function(d) { renderMappings(Array.isArray(d) ? d : []); })
+    .catch(function(e) {
+      el.innerHTML = '<div class="empty"><div class="empty-ic">❌</div><div class="empty-tx">' + esc(e.message) + '</div></div>';
+    });
+}
+
+function renderMappings(maps) {
+  var el = document.getElementById('mapping-list-wrap');
+  if (!maps.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ic">🔗</div><div class="empty-tx">No mappings yet. Add one above!</div></div>';
+    return;
+  }
+  el.innerHTML = maps.map(function(m) {
+    var on = String(m.enabled || 'TRUE').toUpperCase() !== 'FALSE';
+    var shortLink = GAS_URL + '?code=' + encodeURIComponent(m.code);
+    var clientName = '';
+    var cl = ALL_CL.find(function(c) { return c.client_id === m.client_id; });
+    if (cl) clientName = cl.name;
+
+    return '<div class="banner-item" id="mpi-' + esc(m.code) + '">'
+      + '<div style="font-size:1.5rem;flex-shrink:0">🔗</div>'
+      + '<div class="banner-preview" style="flex:1;min-width:0">'
+      + '<strong style="font-family:monospace;font-size:15px;color:var(--org1)">?' + 'code=' + esc(m.code) + '</strong>'
+      + '<span style="display:block;font-size:12px;color:var(--txt2);margin-top:2px">'
+        + (m.label ? '📝 ' + esc(m.label) + ' &nbsp;|&nbsp; ' : '')
+        + '🏢 ' + esc(clientName || m.client_id)
+      + '</span>'
+      + '<span style="display:block;font-family:monospace;font-size:11px;color:var(--txt3);margin-top:4px;word-break:break-all">'
+        + esc(shortLink.length > 70 ? shortLink.substr(0, 70) + '…' : shortLink)
+      + '</span>'
+      + '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">'
+      + '<button class="btn btn-ghost btn-sm" onclick="copyMappingUrl(\'' + esc(shortLink) + '\')">📋 Copy Link</button>'
+      + '<button class="btn btn-ghost btn-sm" onclick="testMappingUrl(\'' + esc(shortLink) + '\')">🔍 Test</button>'
+      + '</div>'
+      + '</div>'
+      + '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
+      + '<label class="toggle-switch"><input type="checkbox" ' + (on ? 'checked' : '')
+        + ' onchange="doToggleMapping(\'' + esc(m.code) + '\',this.checked)"><span class="toggle-slider"></span></label>'
+      + '<span class="badge ' + (on ? 'b-grn' : 'b-red') + '">' + (on ? 'Active' : 'Off') + '</span>'
+      + '</div>'
+      + '<div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">'
+      + '<button class="btn btn-del btn-sm" onclick="doDeleteMapping(\'' + esc(m.code) + '\')">🗑️</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function openAddMapping() {
+  document.getElementById('m-mapping-title').textContent = '➕ Add Mapping';
+  document.getElementById('mp-code').value    = '';
+  document.getElementById('mp-label').value   = '';
+  document.getElementById('mp-enabled').value = 'true';
+  document.getElementById('mp-preview').style.display = 'none';
+
+  // Fill client dropdown
+  var sel = document.getElementById('mp-client');
+  sel.innerHTML = '<option value="">— Select Client —</option>';
+  var fill = function(clients) {
+    clients.forEach(function(c) {
+      var o = document.createElement('option');
+      o.value = c.client_id; o.textContent = c.name;
+      sel.appendChild(o);
+    });
+  };
+  if (ALL_CL.length) fill(ALL_CL);
+  else apiGet('getAllClients', {}).then(function(d) { ALL_CL = Array.isArray(d) ? d : []; fill(ALL_CL); }).catch(function(){});
+
+  openModal('m-mapping');
+}
+
+function updateMappingPreview() {
+  var code = (document.getElementById('mp-code').value || '').trim();
+  var prev = document.getElementById('mp-preview');
+  var prevUrl = document.getElementById('mp-preview-url');
+  if (code && GAS_URL) {
+    var link = GAS_URL + '?code=' + encodeURIComponent(code);
+    prevUrl.textContent = link;
+    prev.style.display = 'block';
+  } else {
+    prev.style.display = 'none';
+  }
+}
+
+function submitMapping() {
+  var code    = (document.getElementById('mp-code').value || '').trim().toLowerCase();
+  var client  = (document.getElementById('mp-client').value || '').trim();
+  var label   = (document.getElementById('mp-label').value || '').trim();
+  var enabled = document.getElementById('mp-enabled').value !== 'false';
+
+  if (!code)   { toast('Short code is required!', 'err'); return; }
+  if (!client) { toast('Please select a client!', 'err'); return; }
+
+  // Validate code format
+  if (!/^[a-z0-9\-_]+$/.test(code)) {
+    toast('Code can only have letters, numbers, hyphens, underscores.', 'err'); return;
+  }
+
+  showLoad('Saving mapping…');
+  apiPost('saveMapping', { code: code, client_id: client, label: label, enabled: enabled })
+    .then(function() {
+      hideLoad();
+      toast('Mapping saved! 🎉', 'ok');
+      closeModal('m-mapping');
+      loadMappings();
+    })
+    .catch(function(e) { hideLoad(); toast('Failed: ' + e.message, 'err'); });
+}
+
+function doToggleMapping(code, enabled) {
+  apiPost('toggleMapping', { code: code, enabled: enabled })
+    .then(function() { toast(enabled ? 'Mapping enabled!' : 'Mapping disabled.', 'ok'); loadMappings(); })
+    .catch(function(e) { toast('Toggle failed: ' + e.message, 'err'); loadMappings(); });
+}
+
+function doDeleteMapping(code) {
+  confirmDlg('Delete mapping "' + code + '"? This cannot be undone.', function() {
+    apiPost('deleteMapping', { code: code })
+      .then(function() { toast('Mapping deleted.', 'ok'); loadMappings(); })
+      .catch(function(e) { toast('Failed: ' + e.message, 'err'); });
+  });
+}
+
+function copyMappingUrl(url) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() { toast('Link copied! 📋', 'ok'); });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = url; ta.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta); toast('Link copied!', 'ok');
+  }
+}
+
+function copyMappingPreviewUrl() {
+  var url = (document.getElementById('mp-preview-url').textContent || '').trim();
+  if (url) copyMappingUrl(url);
+}
+
+function copyMappingBaseUrl() {
+  var url = GAS_URL + '?code=';
+  copyMappingUrl(url);
+  toast('Base URL copied! Add your code at the end.', 'ok', 3500);
+}
+
+function testMappingUrl(url) {
+  window.open(url, '_blank', 'noopener');
+}
+
+function initMappingSheetAdmin() {
+  showLoad('Initializing MAPPING sheet…');
+  apiPost('initMapping', {})
+    .then(function() { hideLoad(); toast('MAPPING sheet created! ✅', 'ok'); })
+    .catch(function(e) { hideLoad(); toast('Error: ' + e.message, 'err'); });
+}
 </script>
 </body>
 </html>
