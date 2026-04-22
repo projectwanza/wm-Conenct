@@ -336,6 +336,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
     <button class="nav-btn"     onclick="nav('add')"       id="nb-add">➕ Add Client</button>
     <span class="sb-section">Data</span>
     <button class="nav-btn"     onclick="nav('reviews')"   id="nb-reviews">⭐ Reviews</button>
+     <button class="nav-btn" onclick="openBulkRvModal()" id="nb-bulk">⚡ Bulk Reviews</button>
     <button class="nav-btn"     onclick="nav('analytics')" id="nb-analytics">📈 Analytics</button>
     <span class="sb-section">Marketing</span>
     <button class="nav-btn"     onclick="nav('banners')"   id="nb-banners">🔥 Offer Banners</button>
@@ -1127,7 +1128,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 // ── CONFIG ────────────────────────────────────────────────────
 var GAS_URL = (function(){
   try { return localStorage.getItem('wanza_gas_url') || ''; } catch(e){ return ''; }
-})() || 'https://script.google.com/macros/s/AKfycbybZe8JX7iALGxL-b-Ysdd4FHuaboplYXc3SF6U3MwOF6VdC-PWz-0L79zuGH4Ogcsl/exec';
+})() || 'https://script.google.com/macros/s/AKfycbzVRADvKW-fVplCQ-1mmeqMIuv9VoKgLoPElydx_bLi3sxlkDw2cr1yMRS-r1o_Ubz8/exec';
 
 var CLIENT_URL = (function(){
   try { return localStorage.getItem('wanza_client_url') || ''; } catch(e){ return ''; }
@@ -2627,6 +2628,291 @@ function loadReviewTracking() {
       tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--red)">❌ ' + esc(e.message) + '</td></tr>';
     });
 }
+   // ════════════════════════════════════════════════════════════════
+//  BULK REVIEW GENERATOR — Admin JS
+// ════════════════════════════════════════════════════════════════
+
+var _bulkClients     = [];   // all clients list
+var _bulkRvCount     = 0;    // review row counter
+
+// ── Open modal ───────────────────────────────────────────────
+function openBulkRvModal() {
+  _bulkRvCount = 0;
+  document.getElementById('bulk-rv-builder').innerHTML = '';
+  document.getElementById('bulk-summary').style.display = 'none';
+
+  // Add 2 default review rows
+  bulkAddRvRow();
+  bulkAddRvRow();
+
+  // Load clients
+  var listEl = document.getElementById('bulk-cl-list');
+  listEl.innerHTML = '<div class="empty" style="padding:16px"><span class="spin"></span> Loading…</div>';
+  document.getElementById('bulk-cl-search').value = '';
+
+  var fill = function(clients) {
+    _bulkClients = clients;
+    renderBulkClientList(clients);
+    updateBulkSelCount();
+  };
+
+  if (ALL_CL && ALL_CL.length) {
+    fill(ALL_CL);
+  } else {
+    apiGet('getAllClients', {})
+      .then(function(d) { ALL_CL = Array.isArray(d) ? d : []; fill(ALL_CL); })
+      .catch(function(e) {
+        listEl.innerHTML = '<div class="empty" style="color:var(--red)">❌ Load failed: ' + esc(e.message) + '</div>';
+      });
+  }
+
+  openModal('m-bulk-rv');
+}
+
+// ── Render client checkboxes ──────────────────────────────────
+function renderBulkClientList(clients) {
+  var el = document.getElementById('bulk-cl-list');
+  if (!clients || !clients.length) {
+    el.innerHTML = '<div class="empty" style="padding:16px">No clients found.</div>';
+    return;
+  }
+
+  el.innerHTML = clients.map(function(c) {
+    var logoHtml = c.logo_url
+      ? '<img src="' + esc(c.logo_url) + '" style="width:28px;height:28px;border-radius:7px;object-fit:cover;border:1px solid var(--bdr2);flex-shrink:0" onerror="this.style.display=\'none\'">'
+      : '<div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--org1),var(--org2));display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">🏢</div>';
+
+    return '<label style="display:flex;align-items:center;gap:10px;padding:8px 10px;'
+      + 'border-radius:var(--r1);cursor:pointer;transition:background .15s ease;margin-bottom:2px"'
+      + ' onmouseover="this.style.background=\'rgba(255,106,0,.06)\'"'
+      + ' onmouseout="this.style.background=\'transparent\'">'
+      + '<input type="checkbox" class="bulk-cl-cb" value="' + esc(c.client_id) + '"'
+      + ' onchange="updateBulkSelCount()" style="width:16px;height:16px;accent-color:var(--org1);cursor:pointer;flex-shrink:0">'
+      + logoHtml
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(c.name) + '</div>'
+      + (c.business_type ? '<div style="font-size:10px;color:var(--txt3)">' + esc(c.business_type) + '</div>' : '')
+      + '</div></label>';
+  }).join('');
+}
+
+// ── Filter clients by search ──────────────────────────────────
+function bulkFilterClients(query) {
+  if (!query || !query.trim()) {
+    renderBulkClientList(_bulkClients);
+    return;
+  }
+  query = query.toLowerCase();
+  var filtered = _bulkClients.filter(function(c) {
+    return (c.name || '').toLowerCase().indexOf(query) > -1
+      || (c.business_type || '').toLowerCase().indexOf(query) > -1;
+  });
+  renderBulkClientList(filtered);
+}
+
+// ── Select / Deselect all ─────────────────────────────────────
+function bulkSelectAll(checked) {
+  document.querySelectorAll('.bulk-cl-cb').forEach(function(cb) {
+    cb.checked = checked;
+  });
+  updateBulkSelCount();
+}
+
+// ── Update selection counter ──────────────────────────────────
+function updateBulkSelCount() {
+  var selected = document.querySelectorAll('.bulk-cl-cb:checked').length;
+  var countEl  = document.getElementById('bulk-sel-count');
+  if (countEl) {
+    countEl.textContent = selected + ' client' + (selected !== 1 ? 's' : '') + ' selected';
+    countEl.style.color = selected > 0 ? 'var(--org1)' : 'var(--txt3)';
+  }
+  updateBulkSummary();
+}
+
+// ── Add a review text row ─────────────────────────────────────
+function bulkAddRvRow() {
+  var i   = _bulkRvCount++;
+  var div = document.createElement('div');
+  div.id  = 'brv-' + i;
+  div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:flex-start';
+  div.innerHTML =
+    '<textarea class="ta" id="brv-tx-' + i + '" rows="2" style="flex:1;font-size:13px"'
+    + ' placeholder="Review template #' + (i + 1) + ' — yahan likho…"></textarea>'
+    + '<button class="sl-del" style="flex-shrink:0;margin-top:2px"'
+    + ' onclick="document.getElementById(\'brv-' + i + '\').remove();updateBulkSummary()">✕</button>';
+  document.getElementById('bulk-rv-builder').appendChild(div);
+}
+
+// ── Gather review texts ───────────────────────────────────────
+function gatherBulkReviews() {
+  var reviews = [];
+  document.querySelectorAll('#bulk-rv-builder [id^="brv-"]').forEach(function(row) {
+    var id   = row.id.replace('brv-', '');
+    var ta   = document.getElementById('brv-tx-' + id);
+    var text = ta ? (ta.value || '').trim() : '';
+    if (text) reviews.push(text);
+  });
+  return reviews;
+}
+
+// ── Live summary update ───────────────────────────────────────
+function updateBulkSummary() {
+  var selCount = document.querySelectorAll('.bulk-cl-cb:checked').length;
+  var rvCount  = gatherBulkReviews().length;
+  var sumEl    = document.getElementById('bulk-summary');
+
+  if (!sumEl) return;
+
+  if (selCount > 0 && rvCount > 0) {
+    sumEl.style.display = 'block';
+    sumEl.innerHTML =
+      '📊 <strong>' + selCount + ' clients</strong> × '
+      + '<strong>' + rvCount + ' reviews</strong> = '
+      + '<strong style="color:var(--org1)">' + (selCount * rvCount) + ' total entries</strong> generate hongi';
+  } else {
+    sumEl.style.display = 'none';
+  }
+}
+
+// ── Submit ────────────────────────────────────────────────────
+function submitBulkReviews() {
+  // 1. Gather selected client IDs
+  var clientIds = [];
+  document.querySelectorAll('.bulk-cl-cb:checked').forEach(function(cb) {
+    clientIds.push(cb.value);
+  });
+
+  // 2. Gather review texts
+  var reviews = gatherBulkReviews();
+
+  // 3. Validations
+  if (clientIds.length === 0) {
+    toast('Koi client select nahi kiya! Pehle clients choose karo.', 'err');
+    return;
+  }
+  if (reviews.length === 0) {
+    toast('Koi review template nahi likha! Kam se kam 1 review add karo.', 'err');
+    return;
+  }
+
+  // 4. Confirmation
+  var msg = clientIds.length + ' clients ke liye '
+    + reviews.length + ' reviews generate karo?\n'
+    + 'Total entries: ' + (clientIds.length * reviews.length);
+
+  confirmDlg(msg, function() {
+    var btn = document.getElementById('bulk-submit-btn');
+    btn.disabled    = true;
+    btn.textContent = '⏳ Generating…';
+    showLoad('Bulk reviews generate ho rahe hain…');
+
+    apiPost('bulkAddReviews', {
+      client_ids: clientIds,
+      reviews:    reviews
+    })
+    .then(function(result) {
+      hideLoad();
+      btn.disabled    = false;
+      btn.textContent = '⚡ Generate for Selected Clients';
+      closeModal('m-bulk-rv');
+
+      // Success message
+      var successMsg =
+        '✅ Done!\n'
+        + result.success_count + '/' + result.total_clients + ' clients ✓\n'
+        + result.total_reviews_added + ' reviews added';
+
+      if (result.error_count > 0) {
+        successMsg += '\n⚠️ ' + result.error_count + ' errors (details console mein dekho)';
+        console.warn('Bulk review errors:', result.errors);
+      }
+
+      toast(successMsg, 'ok', 5000);
+
+      // Refresh reviews panel if open
+      var selVal = document.getElementById('rv-sel');
+      if (selVal && selVal.value) loadRvs();
+    })
+    .catch(function(e) {
+      hideLoad();
+      btn.disabled    = false;
+      btn.textContent = '⚡ Generate for Selected Clients';
+      toast('Failed: ' + e.message, 'err');
+      console.error('Bulk review error:', e);
+    });
+  });
+}
+   
 </script>
+
+   <!-- ══ BULK REVIEW GENERATOR MODAL ══════════════════════════ -->
+<div class="modal-ov" id="m-bulk-rv">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-hd">
+      <span class="modal-tt">⚡ Bulk Review Generator</span>
+      <button class="modal-x" onclick="closeModal('m-bulk-rv')">✕</button>
+    </div>
+    <div class="modal-bd">
+
+      <!-- Step 1: Select Clients -->
+      <div style="margin-bottom:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <label class="lbl" style="margin:0">Step 1 — Clients Select Karo</label>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="bulkSelectAll(true)">✅ All</button>
+            <button class="btn btn-ghost btn-sm" onclick="bulkSelectAll(false)">☐ None</button>
+          </div>
+        </div>
+
+        <!-- Search filter -->
+        <input class="inp" id="bulk-cl-search"
+          placeholder="🔍 Client name search karo…"
+          oninput="bulkFilterClients(this.value)"
+          style="margin-bottom:10px;font-size:13px">
+
+        <!-- Client checkbox list -->
+        <div id="bulk-cl-list"
+          style="max-height:220px;overflow-y:auto;border:1.5px solid var(--bdr2);
+                 border-radius:var(--r2);background:#fff8f0;padding:8px">
+          <div class="empty" style="padding:16px">
+            <span class="spin"></span> Loading clients…
+          </div>
+        </div>
+
+        <!-- Selection count -->
+        <div id="bulk-sel-count"
+          style="font-size:12px;color:var(--org1);font-weight:600;margin-top:8px">
+          0 clients selected
+        </div>
+      </div>
+
+      <!-- Step 2: Add Reviews -->
+      <div style="margin-bottom:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label class="lbl" style="margin:0">Step 2 — Review Templates Likho</label>
+          <button class="btn btn-ghost btn-sm" onclick="bulkAddRvRow()">➕ Add Row</button>
+        </div>
+        <div id="bulk-rv-builder"></div>
+        <p style="font-size:11px;color:var(--txt2);margin-top:6px">
+          ℹ️ Ye same reviews <strong>sabhi selected clients</strong> ko milenge
+        </p>
+      </div>
+
+      <!-- Summary -->
+      <div id="bulk-summary"
+        style="background:rgba(255,106,0,.06);border:1.5px solid var(--bdr2);
+               border-radius:var(--r2);padding:12px 14px;font-size:13px;
+               color:var(--txt2);display:none">
+      </div>
+
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('m-bulk-rv')">Cancel</button>
+      <button class="btn btn-ok" id="bulk-submit-btn" onclick="submitBulkReviews()">
+        ⚡ Generate for Selected Clients
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
