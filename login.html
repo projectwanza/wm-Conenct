@@ -419,6 +419,36 @@ body::after{
   .support-grid{grid-template-columns:1fr}
   .tabs .tab-btn{padding:12px 12px;font-size:12px}
 }
+
+   /* ── CLIENT PANEL EXTENSIONS ─────────────────────────────────── */
+.sl-row-c{
+  display:grid;grid-template-columns:1fr 1fr auto;
+  gap:8px;align-items:end;
+  background:rgba(255,255,255,.04);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:12px;margin-bottom:10px
+}
+.sl-del-c{
+  width:36px;height:36px;border-radius:8px;
+  background:rgba(239,68,68,.1);color:var(--red);
+  border:1px solid rgba(239,68,68,.25);cursor:pointer;
+  font-size:.85rem;display:flex;align-items:center;justify-content:center
+}
+.ad-row-c{
+  background:rgba(255,255,255,.04);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:14px;margin-bottom:12px
+}
+.banner-preview-c{
+  border-radius:var(--r2);padding:14px 18px;
+  font-size:14px;font-weight:700;text-align:center;
+  margin:12px 0;min-height:48px;display:flex;
+  align-items:center;justify-content:center
+}
+.section-empty{
+  text-align:center;padding:28px 16px;color:var(--txt3);
+  font-size:13px;border:1px dashed var(--bdr);
+  border-radius:var(--r2);margin-bottom:12px
+}
+   
 </style>
 </head>
 <body>
@@ -545,7 +575,10 @@ body::after{
     <button class="tab-btn active" onclick="switchTab('overview')">📊 Overview</button>
     <button class="tab-btn" onclick="switchTab('edit')">✏️ Edit Profile</button>
     <button class="tab-btn" onclick="switchTab('history')">📋 History</button>
-    <button class="tab-btn" onclick="switchTab('more')">⚙️ More</button>
+    <button class="tab-btn" onclick="switchTab('social')">🌐 Social</button>
+<button class="tab-btn" onclick="switchTab('ads')">📢 Ads</button>
+<button class="tab-btn" onclick="switchTab('banner')">🔥 Banner</button>
+<button class="tab-btn" onclick="switchTab('more')">⚙️ More</button>
   </div>
 
   <!-- ── TAB: OVERVIEW ─────────────────────────────── -->
@@ -709,7 +742,159 @@ body::after{
       </div>
     </div>
   </div>
+<!-- ── TAB: SOCIAL MEDIA ────────────────────────────────────── -->
+<div class="tab-panel" id="tab-social">
 
+  <div class="notice" id="social-notice" style="display:none">
+    ⚠️ Unsaved changes हैं — Save करना मत भूलें
+  </div>
+
+  <div class="info-card">
+    <div class="form-sec-lbl">🌐 Social Media Links</div>
+    <p style="font-size:12px;color:var(--txt3);margin-bottom:14px;line-height:1.6">
+      अपने social media profiles add करें। Customers आपके profile पर इन्हें देख सकेंगे।
+    </p>
+
+    <!-- Preset platform buttons -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <button class="btn btn-ghost" style="height:36px;font-size:12px" onclick="addSocialRow('Facebook','https://facebook.com/')">📘 Facebook</button>
+      <button class="btn btn-ghost" style="height:36px;font-size:12px" onclick="addSocialRow('Instagram','https://instagram.com/')">📸 Instagram</button>
+      <button class="btn btn-ghost" style="height:36px;font-size:12px" onclick="addSocialRow('WhatsApp','https://wa.me/')">💬 WhatsApp</button>
+      <button class="btn btn-ghost" style="height:36px;font-size:12px" onclick="addSocialRow('Website','https://')">🌐 Website</button>
+      <button class="btn btn-ghost" style="height:36px;font-size:12px" onclick="addSocialRow('YouTube','https://youtube.com/')">▶️ YouTube</button>
+      <button class="btn btn-ghost" style="height:36px;font-size:12px" onclick="addSocialRow('','')">➕ Custom</button>
+    </div>
+
+    <div id="social-rows-wrap">
+      <div class="section-empty" id="social-empty-msg">
+        कोई social link नहीं है। ऊपर से platform choose करें।
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-wrap">
+    <button class="btn btn-primary" id="save-social-btn" onclick="saveSocialLinks()">
+      💾 Save Social Links
+    </button>
+  </div>
+
+</div>
+
+<!-- ── TAB: ADS MANAGEMENT ──────────────────────────────────── -->
+<div class="tab-panel" id="tab-ads">
+
+  <div class="info-card">
+    <div class="form-sec-lbl">📢 My Advertisements</div>
+    <p style="font-size:12px;color:var(--txt3);margin-bottom:14px;line-height:1.6">
+      Ads आपके profile page पर customers को दिखेंगे। Image URL paste करें।
+    </p>
+
+    <!-- Add new ad form -->
+    <div class="ad-row-c" id="new-ad-form">
+      <div style="font-size:11px;font-weight:800;color:var(--blue2);text-transform:uppercase;
+        letter-spacing:.8px;margin-bottom:12px">➕ New Ad Add करें</div>
+      <div class="form-grid">
+        <div class="fg">
+          <label class="lbl">Ad Title</label>
+          <input class="inp" id="new-ad-title" placeholder="Summer Sale, New Arrival…">
+        </div>
+        <div class="fg">
+          <label class="lbl">Image URL *</label>
+          <input class="inp" id="new-ad-media" placeholder="https://…/banner.jpg">
+        </div>
+        <div class="fg">
+          <label class="lbl">Click करने पर (URL/WhatsApp)</label>
+          <input class="inp" id="new-ad-link" placeholder="https://… or +91xxxxxxxxxx">
+        </div>
+        <div class="fg">
+          <label class="lbl">Action Type</label>
+          <select class="inp" id="new-ad-action" style="cursor:pointer">
+            <option value="link">🔗 Open Link</option>
+            <option value="whatsapp">💬 WhatsApp</option>
+            <option value="call">📞 Call</option>
+          </select>
+        </div>
+      </div>
+      <!-- Image preview -->
+      <div id="new-ad-preview-wrap" style="display:none;margin-top:10px">
+        <img id="new-ad-preview-img"
+          style="width:100%;max-height:140px;object-fit:cover;border-radius:var(--r2);
+            border:1px solid var(--bdr2)"
+          alt="Ad Preview">
+      </div>
+      <button class="btn btn-primary" style="margin-top:14px;height:44px"
+        onclick="submitNewAd()">
+        ➕ Add This Ad
+      </button>
+    </div>
+
+    <!-- Existing ads list -->
+    <div style="margin-top:18px">
+      <div class="form-sec-lbl">My Current Ads</div>
+      <div id="my-ads-list">
+        <div style="text-align:center;padding:20px;color:var(--txt3)">
+          <div class="ld-ring" style="display:inline-block;width:20px;height:20px;
+            border-width:2px;margin-bottom:8px"></div>
+          <div style="font-size:12px">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── TAB: BANNER MANAGEMENT ────────────────────────────────── -->
+<div class="tab-panel" id="tab-banner">
+
+  <div class="info-card">
+    <div class="form-sec-lbl">🔥 Offer Banner</div>
+    <p style="font-size:12px;color:var(--txt3);margin-bottom:14px;line-height:1.6">
+      Customers को एक highlighted offer message दिखाएं। यह आपके profile के top पर show होगा।
+    </p>
+
+    <!-- Live preview -->
+    <div class="banner-preview-c" id="banner-live-preview"
+      style="background:linear-gradient(135deg,#ff6a00,#ff9f00);color:#fff">
+      🔥 Banner preview यहाँ दिखेगा
+    </div>
+
+    <div class="form-grid">
+      <div class="fg" style="grid-column:1/-1">
+        <label class="lbl">Banner Message *</label>
+        <textarea class="ta" id="banner-msg" rows="3"
+          placeholder="🎉 Special offer! Get 20% off this week. Show this message at counter!"
+          oninput="updateBannerPreviewC()"></textarea>
+      </div>
+      <div class="fg">
+        <label class="lbl">Background Color</label>
+        <input class="inp" id="banner-bg" type="color" value="#ff6a00"
+          style="height:44px;padding:4px"
+          oninput="updateBannerPreviewC()">
+      </div>
+      <div class="fg">
+        <label class="lbl">Text Color</label>
+        <input class="inp" id="banner-tc" type="color" value="#ffffff"
+          style="height:44px;padding:4px"
+          oninput="updateBannerPreviewC()">
+      </div>
+      <div class="fg">
+        <label class="lbl">Status</label>
+        <select class="inp" id="banner-enabled" style="cursor:pointer">
+          <option value="TRUE">✅ Active (customers को दिखे)</option>
+          <option value="FALSE">⛔ Hidden (customers को न दिखे)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-wrap">
+    <button class="btn btn-primary" id="save-banner-btn" onclick="saveBanner()">
+      💾 Save Banner
+    </button>
+  </div>
+
+</div>
+   
   <!-- ── TAB: MORE ─────────────────────────────────── -->
   <div class="tab-panel" id="tab-more">
 
@@ -765,7 +950,7 @@ body::after{
 ═══════════════════════════════════════════════════ -->
 <script>
 // ── CONFIG — यहाँ अपना GAS URL डालें ────────────────
-var GAS_URL        = 'https://script.google.com/macros/s/AKfycby5OmvCYYFAtJHRKaMb-Uo0zpCJroa8EwPXcEnWobE-PeArB6BWDl5csTljq2UG8rvR/exec';
+var GAS_URL        = 'https://script.google.com/macros/s/AKfycbzuWGHIOoxpdB8ratERzSf2YHLf3tphnun4jdMXPHwJ12mHLvukAfmeTgRZ5gjUGeGr/exec';
 var PROFILE_BASE   = window.location.origin + '/index.html';
 var ONBOARD_PAGE   = './onboarding.html';
 var SUPPORT_PHONE  = '+918910475493';
@@ -1226,6 +1411,352 @@ function animNum(el, n) {
   }, 800 / steps);
 }
 
+   // ════════════════════════════════════════════════════════════════
+//  CLIENT PANEL EXTENSIONS: Social / Ads / Banner
+// ════════════════════════════════════════════════════════════════
+
+// ── Tab load hook ─────────────────────────────────────────────
+var _origSwitchTab = switchTab;
+switchTab = function(name) {
+  _origSwitchTab(name);
+  if (name === 'social') loadSocialTab();
+  if (name === 'ads')    loadAdsTab();
+  if (name === 'banner') loadBannerTab();
+};
+
+// ════════ SOCIAL MEDIA ════════════════════════════════════════
+
+var _socialRowCount = 0;
+
+function loadSocialTab() {
+  var wrap = document.getElementById('social-rows-wrap');
+  wrap.innerHTML = '<div style="text-align:center;padding:16px;color:var(--txt3)">'
+    + '<div class="ld-ring" style="display:inline-block;width:18px;height:18px;'
+    + 'border-width:2px;margin-bottom:6px"></div>'
+    + '<div style="font-size:12px">Loading…</div></div>';
+
+  apiGet('getClientSocial', { client_id: CLIENT_ID })
+    .then(function(links) {
+      _socialRowCount = 0;
+      wrap.innerHTML  = '';
+      var arr = Array.isArray(links) ? links : [];
+
+      if (!arr.length) {
+        wrap.innerHTML = '<div class="section-empty" id="social-empty-msg">'
+          + 'कोई social link नहीं है। ऊपर से platform choose करें।</div>';
+      } else {
+        arr.forEach(function(l) {
+          addSocialRow(l.platform_name, l.profile_url, l.followers_count);
+        });
+      }
+      hideSocialNotice();
+    })
+    .catch(function() {
+      wrap.innerHTML = '<div class="section-empty">Load failed. Refresh करें।</div>';
+    });
+}
+
+function addSocialRow(platform, url, followers) {
+  var emptyMsg = document.getElementById('social-empty-msg');
+  if (emptyMsg) emptyMsg.remove();
+
+  var i   = _socialRowCount++;
+  var div = document.createElement('div');
+  div.className = 'sl-row-c';
+  div.id = 'slc-' + i;
+  div.innerHTML =
+    '<div class="fg">'
+    + '<label class="lbl">Platform</label>'
+    + '<input class="inp" id="slc-nm-' + i + '" placeholder="Facebook, Instagram…"'
+    + ' value="' + esc_c(platform || '') + '" oninput="showSocialNotice()">'
+    + '</div>'
+    + '<div class="fg">'
+    + '<label class="lbl">Profile URL / Number</label>'
+    + '<input class="inp" id="slc-ur-' + i + '" placeholder="https://…"'
+    + ' value="' + esc_c(url || '') + '" oninput="showSocialNotice()">'
+    + '</div>'
+    + '<button class="sl-del-c" onclick="removeSocialRow(' + i + ')" title="Delete">✕</button>';
+  document.getElementById('social-rows-wrap').appendChild(div);
+}
+
+function removeSocialRow(i) {
+  var el = document.getElementById('slc-' + i);
+  if (el) el.remove();
+  if (!document.querySelectorAll('#social-rows-wrap .sl-row-c').length) {
+    var wrap = document.getElementById('social-rows-wrap');
+    wrap.innerHTML = '<div class="section-empty" id="social-empty-msg">'
+      + 'कोई social link नहीं है। ऊपर से platform choose करें।</div>';
+  }
+  showSocialNotice();
+}
+
+function showSocialNotice() {
+  var el = document.getElementById('social-notice');
+  if (el) el.style.display = 'flex';
+}
+function hideSocialNotice() {
+  var el = document.getElementById('social-notice');
+  if (el) el.style.display = 'none';
+}
+
+function saveSocialLinks() {
+  var rows   = document.querySelectorAll('#social-rows-wrap .sl-row-c');
+  var links  = [];
+  var hasErr = false;
+
+  rows.forEach(function(row) {
+    var i    = row.id.replace('slc-', '');
+    var nm   = (document.getElementById('slc-nm-' + i).value || '').trim();
+    var url  = (document.getElementById('slc-ur-' + i).value || '').trim();
+    if (!nm || !url) { hasErr = true; return; }
+    links.push({ platform_name: nm, profile_url: url, platform_icon_url: '', followers_count: 0 });
+  });
+
+  if (hasErr) {
+    toast('❌ सभी rows में Platform Name और URL दोनों भरें, या खाली row हटाएं।', 'err', 4000);
+    return;
+  }
+
+  var btn = document.getElementById('save-social-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving…';
+
+  apiPost('updateClientSocial', { client_id: CLIENT_ID, social_links: links })
+    .then(function() {
+      btn.disabled = false;
+      btn.textContent = '💾 Save Social Links';
+      hideSocialNotice();
+      toast('✅ Social links save हो गए!', 'ok', 3500);
+    })
+    .catch(function(e) {
+      btn.disabled = false;
+      btn.textContent = '💾 Save Social Links';
+      toast('❌ Save failed: ' + e.message, 'err', 4000);
+    });
+}
+
+// ════════ ADS ═════════════════════════════════════════════════
+
+function loadAdsTab() {
+  var el = document.getElementById('my-ads-list');
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--txt3)">'
+    + '<div class="ld-ring" style="display:inline-block;width:18px;height:18px;'
+    + 'border-width:2px;margin-bottom:6px"></div>'
+    + '<div style="font-size:12px">Loading…</div></div>';
+
+  apiGet('getClientAds', { client_id: CLIENT_ID })
+    .then(function(ads) { renderClientAds(Array.isArray(ads) ? ads : []); })
+    .catch(function(e) {
+      el.innerHTML = '<div class="section-empty">Load failed: ' + esc_c(e.message) + '</div>';
+    });
+
+  // Wire up image preview
+  var mediaInp = document.getElementById('new-ad-media');
+  if (mediaInp && !mediaInp._previewBound) {
+    mediaInp._previewBound = true;
+    mediaInp.addEventListener('input', function() {
+      var pw = document.getElementById('new-ad-preview-wrap');
+      var pi = document.getElementById('new-ad-preview-img');
+      var v  = this.value.trim();
+      if (v && v.startsWith('http')) {
+        pi.src = v; pw.style.display = 'block';
+      } else {
+        pw.style.display = 'none';
+      }
+    });
+  }
+}
+
+function renderClientAds(ads) {
+  var el = document.getElementById('my-ads-list');
+  if (!ads.length) {
+    el.innerHTML = '<div class="section-empty">अभी कोई ad नहीं है।</div>';
+    return;
+  }
+  el.innerHTML = ads.map(function(a) {
+    var thumb = a.media_url
+      ? '<img src="' + esc_c(a.media_url) + '"'
+        + ' style="width:100%;height:90px;object-fit:cover;border-radius:var(--r1);'
+        + 'border:1px solid var(--bdr2);margin-bottom:8px;display:block"'
+        + ' loading="lazy" onerror="this.style.display=\'none\'">'
+      : '';
+    var enabled = String(a.enabled).toUpperCase() === 'TRUE';
+    return '<div class="ad-row-c" id="adrow-' + esc_c(a.ad_id) + '">'
+      + thumb
+      + '<div style="font-size:13px;font-weight:700;margin-bottom:4px">'
+      + esc_c(a.title || '(No title)') + '</div>'
+      + '<div style="font-size:11px;color:var(--txt3);margin-bottom:8px;word-break:break-all">'
+      + esc_c((a.redirect_url || '').substr(0, 60)) + '</div>'
+      + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+      + '<span style="font-size:11px;padding:3px 10px;border-radius:999px;font-weight:700;'
+      + 'background:' + (enabled ? 'rgba(16,185,129,.15)' : 'rgba(239,68,68,.1)') + ';'
+      + 'color:' + (enabled ? 'var(--grn)' : 'var(--red)') + '">'
+      + (enabled ? '✅ Live' : '⛔ Off') + '</span>'
+      + '<button class="btn btn-ghost" style="height:32px;font-size:11px;padding:0 12px"'
+      + ' onclick="toggleClientAd(\'' + esc_c(a.ad_id) + '\',' + !enabled + ')">'
+      + (enabled ? 'Hide' : 'Show') + '</button>'
+      + '<button class="btn btn-danger" style="height:32px;font-size:11px;padding:0 12px"'
+      + ' onclick="deleteMyAd(\'' + esc_c(a.ad_id) + '\')">'
+      + '🗑️ Delete</button>'
+      + '</div></div>';
+  }).join('');
+}
+
+function submitNewAd() {
+  var title  = (document.getElementById('new-ad-title').value  || '').trim();
+  var media  = (document.getElementById('new-ad-media').value  || '').trim();
+  var link   = (document.getElementById('new-ad-link').value   || '').trim();
+  var action = (document.getElementById('new-ad-action').value || 'link');
+
+  if (!media) {
+    toast('❌ Image URL जरूरी है!', 'err', 3000);
+    document.getElementById('new-ad-media').focus();
+    return;
+  }
+  if (!media.startsWith('http')) {
+    toast('❌ Valid Image URL डालें (https:// से शुरू होना चाहिए)', 'err', 3000);
+    return;
+  }
+
+  var btn = document.querySelector('#new-ad-form .btn-primary');
+  btn.disabled = true;
+  btn.textContent = '⏳ Adding…';
+
+  apiPost('updateClientAd', {
+    client_id: CLIENT_ID,
+    ad_data: {
+      title:       title,
+      media_url:   media,
+      media_type:  'image',
+      redirect_url: link,
+      action_type: action,
+      enabled:     true,
+      sort_order:  99
+    }
+  })
+  .then(function() {
+    btn.disabled = false;
+    btn.textContent = '➕ Add This Ad';
+    // Clear form
+    document.getElementById('new-ad-title').value = '';
+    document.getElementById('new-ad-media').value = '';
+    document.getElementById('new-ad-link').value  = '';
+    document.getElementById('new-ad-preview-wrap').style.display = 'none';
+    toast('✅ Ad add हो गया!', 'ok', 3000);
+    loadAdsTab();
+  })
+  .catch(function(e) {
+    btn.disabled = false;
+    btn.textContent = '➕ Add This Ad';
+    toast('❌ Failed: ' + e.message, 'err', 4000);
+  });
+}
+
+function toggleClientAd(adId, enabledState) {
+  apiPost('updateClientAd', {
+    client_id: CLIENT_ID,
+    ad_id:     adId,
+    ad_data:   { enabled: enabledState ? 'TRUE' : 'FALSE' }
+  })
+  .then(function() {
+    toast(enabledState ? '✅ Ad live हो गया!' : 'Ad hide हो गया।', 'ok', 2500);
+    loadAdsTab();
+  })
+  .catch(function(e) { toast('❌ ' + e.message, 'err', 3000); });
+}
+
+function deleteMyAd(adId) {
+  if (!confirm('इस ad को delete करना है?')) return;
+  apiPost('deleteClientAd', { client_id: CLIENT_ID, ad_id: adId })
+    .then(function() {
+      toast('🗑️ Ad delete हो गया।', 'ok', 2500);
+      loadAdsTab();
+    })
+    .catch(function(e) { toast('❌ ' + e.message, 'err', 3000); });
+}
+
+// ════════ BANNER ══════════════════════════════════════════════
+
+function loadBannerTab() {
+  apiGet('getClientBanner', { client_id: CLIENT_ID })
+    .then(function(banner) {
+      if (banner && banner.message) {
+        setText('banner-msg-val', ''); // clear first
+        var msgEl = document.getElementById('banner-msg');
+        var bgEl  = document.getElementById('banner-bg');
+        var tcEl  = document.getElementById('banner-tc');
+        var enEl  = document.getElementById('banner-enabled');
+        if (msgEl) msgEl.value = banner.message || '';
+        if (bgEl)  bgEl.value  = banner.bg_color   || '#ff6a00';
+        if (tcEl)  tcEl.value  = banner.text_color  || '#ffffff';
+        if (enEl)  enEl.value  = String(banner.enabled).toUpperCase() === 'TRUE' ? 'TRUE' : 'FALSE';
+        updateBannerPreviewC();
+        toast('Banner load हो गया।', 'info', 2000);
+      }
+    })
+    .catch(function() {}); // silent — no banner yet is fine
+}
+
+function updateBannerPreviewC() {
+  var msg = (document.getElementById('banner-msg').value || '').trim() || '🔥 Banner preview यहाँ दिखेगा';
+  var bg  = document.getElementById('banner-bg').value || '#ff6a00';
+  var tc  = document.getElementById('banner-tc').value || '#ffffff';
+  var el  = document.getElementById('banner-live-preview');
+  if (el) {
+    el.style.background = 'linear-gradient(135deg,' + bg + ',' + bg + 'dd)';
+    el.style.color      = tc;
+    el.textContent      = msg;
+  }
+}
+
+function saveBanner() {
+  var msg     = (document.getElementById('banner-msg').value || '').trim();
+  var bg      = document.getElementById('banner-bg').value      || '#ff6a00';
+  var tc      = document.getElementById('banner-tc').value      || '#ffffff';
+  var enabled = document.getElementById('banner-enabled').value || 'TRUE';
+
+  if (!msg) {
+    toast('❌ Banner message खाली नहीं हो सकता!', 'err', 3000);
+    document.getElementById('banner-msg').focus();
+    return;
+  }
+
+  var btn = document.getElementById('save-banner-btn');
+  btn.disabled    = true;
+  btn.textContent = '⏳ Saving…';
+
+  apiPost('updateClientBanner', {
+    client_id:   CLIENT_ID,
+    banner_data: {
+      message:    msg,
+      bg_color:   bg,
+      text_color: tc,
+      enabled:    enabled === 'TRUE'
+    }
+  })
+  .then(function() {
+    btn.disabled    = false;
+    btn.textContent = '💾 Save Banner';
+    toast('✅ Banner save हो गया!', 'ok', 3500);
+    updateBannerPreviewC();
+  })
+  .catch(function(e) {
+    btn.disabled    = false;
+    btn.textContent = '💾 Save Banner';
+    toast('❌ Save failed: ' + e.message, 'err', 4000);
+  });
+}
+
+// ── Utility: safe HTML escape ─────────────────────────────────
+function esc_c(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+   
 // ── ENTER KEY on login ───────────────────────────────
 document.addEventListener('keydown', function(e) {
   var ls = document.getElementById('login-screen');
