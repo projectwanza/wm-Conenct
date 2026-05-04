@@ -1201,7 +1201,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 // ──────────────────────────────────────────────────────────────
 //  ⚙️ CONFIG  — change these two lines
 // ──────────────────────────────────────────────────────────────
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbzuWGHIOoxpdB8ratERzSf2YHLf3tphnun4jdMXPHwJ12mHLvukAfmeTgRZ5gjUGeGr/exec';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbwY9fW_ACgsXBXBq4De3KsBtm5yEF8Ddf7aJm8LTbDvY2OvbvSspE76fMTCARvxQTIT/exec';
 
 // ★ NEW: Support contact numbers — change to your own numbers
 var SUPPORT_PHONE     = '+918910475493';   // call button
@@ -1950,13 +1950,28 @@ function submitManualVerify() {
   var phone = (document.getElementById('mv-phone').value || '').trim();
   var email = (document.getElementById('mv-email').value || '').trim();
 
-  if (!phone) { toast('Please enter your phone number.', 'err'); document.getElementById('mv-phone').focus(); return; }
-  if (!email) { toast('Please enter your email address.', 'err'); document.getElementById('mv-email').focus(); return; }
+  // Basic validation
+  if (!phone && !email) {
+    toast('Please enter your phone number or email.', 'err');
+    return;
+  }
+  if (!phone) {
+    toast('Phone number is required.', 'err');
+    document.getElementById('mv-phone').focus();
+    return;
+  }
+  if (!email) {
+    toast('Email address is required.', 'err');
+    document.getElementById('mv-email').focus();
+    return;
+  }
 
   var btn    = document.getElementById('mv-submit-btn');
   var result = document.getElementById('mv-result');
-  btn.disabled = true;
-  btn.textContent = '⏳ Checking…';
+
+  // Show loading state
+  btn.disabled       = true;
+  btn.innerHTML      = '⏳ Verifying payment…';
   result.style.display = 'none';
 
   apiPost('verifyManualPayment', {
@@ -1965,43 +1980,81 @@ function submitManualVerify() {
     client_id: STATE.clientId || ''
   })
   .then(function(res) {
-    btn.disabled    = false;
-    btn.textContent = '🔍 Verify My Payment';
+    btn.disabled  = false;
+    btn.innerHTML = '🔍 Verify My Payment';
 
     if (res && res.status === 'success') {
+
+      // ── Success ────────────────────────────────────────────
       result.style.display    = 'block';
       result.style.background = 'rgba(16,185,129,.12)';
-      result.style.border     = '1px solid rgba(16,185,129,.30)';
+      result.style.border     = '1.5px solid rgba(16,185,129,.30)';
       result.style.color      = '#10B981';
-      result.innerHTML = '✅ Payment Verified!<br><span style="font-size:11px;font-weight:500;color:rgba(16,185,129,.75)">Your payment was found. Activating your plan now…</span>';
+      result.innerHTML =
+        '<div style="font-size:15px;margin-bottom:6px">✅ Payment Verified!</div>'
+        + '<div style="font-size:12px;font-weight:500;opacity:.8;line-height:1.6">'
+        + 'Payment ID: <code>' + (res.payment_id || 'N/A') + '</code><br>'
+        + 'Plan: <strong>' + (res.plan_id || 'pro').toUpperCase() + '</strong><br>'
+        + 'Activating your plan now…'
+        + '</div>';
+
       toast('✅ Payment verified! Activating plan…', 'ok', 4000);
 
-      var planToActivate = res.plan_id || STATE.selectedPlan || 'pro';
-      var payId = res.payment_id || ('MANUAL_' + Date.now());
+      // Update STATE and activate plan
+      var planToActivate = res.plan_id    || STATE.selectedPlan || 'pro';
+      var payId          = res.payment_id || ('MANUAL_' + Date.now());
+
       setTimeout(function() {
         STATE.selectedPlan  = planToActivate;
         STATE.paymentStatus = 'paid';
+        // savePlan calls goToStep(3) on success
         savePlan(planToActivate, payId, 'paid');
-      }, 1500);
+      }, 1800);
+
+    } else if (res && res.status === 'already_used') {
+
+      // ── Already used ───────────────────────────────────────
+      result.style.display    = 'block';
+      result.style.background = 'rgba(245,158,11,.08)';
+      result.style.border     = '1.5px solid rgba(245,158,11,.25)';
+      result.style.color      = '#F59E0B';
+      result.innerHTML =
+        '<div style="font-size:14px;margin-bottom:4px">⚠️ Payment Already Used</div>'
+        + '<div style="font-size:12px;font-weight:500;opacity:.8;line-height:1.6">'
+        + (res.message || 'This payment was already used to activate a plan.')
+        + '<br><br>If you think this is an error, please contact support.'
+        + '</div>';
+      toast('This payment was already used.', 'warn', 5000);
 
     } else {
+
+      // ── Not found ──────────────────────────────────────────
       result.style.display    = 'block';
       result.style.background = 'rgba(239,68,68,.08)';
-      result.style.border     = '1px solid rgba(239,68,68,.25)';
+      result.style.border     = '1.5px solid rgba(239,68,68,.25)';
       result.style.color      = '#EF4444';
-      result.innerHTML = '❌ Payment Not Found<br><span style="font-size:11px;font-weight:500;color:rgba(239,68,68,.70)">' + (res.message || 'No payment found. Check details and retry.') + '</span>';
+      result.innerHTML =
+        '<div style="font-size:14px;margin-bottom:4px">❌ Payment Not Found</div>'
+        + '<div style="font-size:12px;font-weight:500;opacity:.8;line-height:1.6">'
+        + (res.message || 'No successful payment found. Please check your details.')
+        + '<br><br>Common reasons:<br>'
+        + '• Different email/phone was used during payment<br>'
+        + '• Payment may still be processing (wait 5 min)<br>'
+        + '• Contact support with your payment screenshot'
+        + '</div>';
       toast('Payment not found. Check your details.', 'err', 5000);
     }
   })
   .catch(function(e) {
-    btn.disabled    = false;
-    btn.textContent = '🔍 Verify My Payment';
+    btn.disabled  = false;
+    btn.innerHTML = '🔍 Verify My Payment';
+
     result.style.display    = 'block';
     result.style.background = 'rgba(239,68,68,.08)';
-    result.style.border     = '1px solid rgba(239,68,68,.25)';
+    result.style.border     = '1.5px solid rgba(239,68,68,.25)';
     result.style.color      = '#EF4444';
-    result.textContent = '❌ Error: ' + (e.message || 'Connection failed. Try again.');
-    toast('Error: ' + (e.message || 'Try again'), 'err');
+    result.textContent = '❌ Connection error. Please try again. (' + (e.message || 'Unknown') + ')';
+    toast('Connection error. Try again.', 'err');
   });
 }
    
