@@ -1201,7 +1201,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 // ──────────────────────────────────────────────────────────────
 //  ⚙️ CONFIG  — change these two lines
 // ──────────────────────────────────────────────────────────────
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbwY9fW_ACgsXBXBq4De3KsBtm5yEF8Ddf7aJm8LTbDvY2OvbvSspE76fMTCARvxQTIT/exec';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbyTzBgvY7t1bhSpPSgL_RDcy1ynq-e6ZcWB2EwQAsi-Xp-RhWh9pvFN8CorvyIugmMe/exec';
 
 // ★ NEW: Support contact numbers — change to your own numbers
 var SUPPORT_PHONE     = '+918910475493';   // call button
@@ -1975,9 +1975,10 @@ function submitManualVerify() {
   result.style.display = 'none';
 
   apiPost('verifyManualPayment', {
-    phone:     phone,
-    email:     email,
-    client_id: STATE.clientId || ''
+    phone:         phone,
+    email:         email,
+    client_id:     STATE.clientId     || '',
+    selected_plan: STATE.selectedPlan || ''   // ★ send what user picked on screen
   })
   .then(function(res) {
     btn.disabled  = false;
@@ -1994,14 +1995,28 @@ function submitManualVerify() {
         '<div style="font-size:15px;margin-bottom:6px">✅ Payment Verified!</div>'
         + '<div style="font-size:12px;font-weight:500;opacity:.8;line-height:1.6">'
         + 'Payment ID: <code>' + (res.payment_id || 'N/A') + '</code><br>'
-        + 'Plan: <strong>' + (res.plan_id || 'pro').toUpperCase() + '</strong><br>'
+        + 'Plan: <strong>' + planToActivate.toUpperCase() + '</strong><br>'
         + 'Activating your plan now…'
         + '</div>';
 
       toast('✅ Payment verified! Activating plan…', 'ok', 4000);
 
       // Update STATE and activate plan
-      var planToActivate = res.plan_id    || STATE.selectedPlan || 'pro';
+      // ★ FIX: never hardcode 'pro' — use what came back from backend,
+      //        then what the user selected on screen, never a hardcoded fallback
+      var planToActivate = (res.plan_id && res.plan_id !== '') ? res.plan_id
+                         : (STATE.selectedPlan && STATE.selectedPlan !== '') ? STATE.selectedPlan
+                         : null;
+
+      if (!planToActivate) {
+        // This should never happen — show error rather than silently wrong-activate
+        result.innerHTML = '<div style="font-size:14px;margin-bottom:4px">⚠️ Plan detection failed</div>'
+          + '<div style="font-size:12px;font-weight:500;opacity:.8">Payment was verified but plan could not be determined. Please contact support with your Payment ID: ' + (res.payment_id || 'N/A') + '</div>';
+        toast('Plan unclear — contact support.', 'warn', 6000);
+        btn.disabled  = false;
+        btn.innerHTML = '🔍 Verify My Payment';
+        return;
+      }
       var payId          = res.payment_id || ('MANUAL_' + Date.now());
 
       setTimeout(function() {
