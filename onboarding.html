@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+   <!-- QR Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════
    WANZA ONBOARDING v2.2 — Enhanced
@@ -493,6 +495,93 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
   .support-grid{grid-template-columns:1fr}
   .pv-detail-grid{grid-template-columns:1fr}
 }
+   /* ── QR SCANNER STYLES ───────────────────────────────────── */
+.qr-input-wrap{position:relative;display:flex;align-items:center;gap:0}
+.qr-input-wrap .inp{padding-right:110px;flex:1}
+.qr-scan-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  background:linear-gradient(135deg,rgba(37,99,235,.20),rgba(79,70,229,.25));
+  border:1.5px solid rgba(37,99,235,.35);border-radius:var(--r1);
+  padding:6px 12px;cursor:pointer;color:var(--blue2);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;
+  display:flex;align-items:center;gap:5px;white-space:nowrap;
+  transition:background .2s,border-color .2s,transform .15s;z-index:2}
+.qr-scan-btn:hover{background:linear-gradient(135deg,rgba(37,99,235,.35),rgba(79,70,229,.40));
+  border-color:rgba(37,99,235,.6);transform:translateY(-50%) scale(1.04)}
+.qr-scan-btn:active{transform:translateY(-50%) scale(.97)}
+.qr-scan-ico{font-size:.9rem}
+.qr-scan-txt{font-size:11px}
+
+/* Overlay */
+.qr-overlay-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:1}
+#qr-overlay{position:fixed;inset:0;z-index:9000;
+  display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:500px){#qr-overlay{align-items:center}}
+
+/* Modal */
+.qr-modal{position:relative;z-index:2;width:100%;max-width:420px;
+  background:var(--card);border:1.5px solid var(--bdr2);
+  border-radius:var(--r3) var(--r3) 0 0;
+  box-shadow:0 -8px 60px rgba(37,99,235,.25),0 0 0 1px rgba(37,99,235,.10);
+  overflow:hidden;animation:qrSlideUp .35s cubic-bezier(.22,1,.36,1)}
+@media(min-width:500px){.qr-modal{border-radius:var(--r3)}}
+@keyframes qrSlideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+
+.qr-modal-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--bdr);background:rgba(37,99,235,.06)}
+.qr-modal-title{display:flex;align-items:center;gap:10px;
+  font-size:15px;font-weight:800;color:var(--txt);letter-spacing:-.2px}
+.qr-close-btn{width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,.07);border:1px solid var(--bdr);
+  color:var(--txt3);font-size:.85rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s,color .2s}
+.qr-close-btn:hover{background:rgba(239,68,68,.15);color:var(--red);border-color:rgba(239,68,68,.3)}
+
+.qr-modal-body{padding:20px}
+
+/* Viewfinder */
+.qr-viewfinder-wrap{position:relative;border-radius:var(--r2);overflow:hidden;
+  background:#000;margin-bottom:16px;aspect-ratio:1;max-height:280px}
+#qr-reader{width:100%;height:100%}
+/* Override html5-qrcode default styles */
+#qr-reader video{width:100%!important;height:100%!important;object-fit:cover}
+#qr-reader img{display:none!important}
+#qr-reader__scan_region{border:none!important}
+#qr-reader__scan_region > img{display:none!important}
+#qr-reader__dashboard{display:none!important}
+#qr-reader__status_span{display:none!important}
+
+/* Corner brackets */
+.qr-corner{position:absolute;width:22px;height:22px;z-index:3;pointer-events:none}
+.qr-tl{top:10px;left:10px;border-top:3px solid var(--blue2);border-left:3px solid var(--blue2);border-radius:4px 0 0 0}
+.qr-tr{top:10px;right:10px;border-top:3px solid var(--blue2);border-right:3px solid var(--blue2);border-radius:0 4px 0 0}
+.qr-bl{bottom:10px;left:10px;border-bottom:3px solid var(--blue2);border-left:3px solid var(--blue2);border-radius:0 0 0 4px}
+.qr-br{bottom:10px;right:10px;border-bottom:3px solid var(--blue2);border-right:3px solid var(--blue2);border-radius:0 0 4px 0}
+
+/* Scan line animation */
+.qr-scan-line{position:absolute;left:10px;right:10px;height:2px;z-index:3;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--blue2),var(--amber),var(--blue2),transparent);
+  border-radius:2px;animation:qrScanLine 2s ease-in-out infinite;opacity:.8}
+@keyframes qrScanLine{0%{top:10px;opacity:0}10%{opacity:.8}90%{opacity:.8}100%{top:calc(100% - 14px);opacity:0}}
+
+/* Hint & result */
+.qr-hint{font-size:13px;color:var(--txt2);text-align:center;
+  padding:10px 14px;background:rgba(37,99,235,.07);
+  border:1px solid rgba(37,99,235,.15);border-radius:var(--r2);font-weight:500;line-height:1.5}
+.qr-result-box{padding:12px 14px;background:rgba(16,185,129,.10);
+  border:1.5px solid rgba(16,185,129,.30);border-radius:var(--r2);text-align:center}
+.qr-result-label{font-size:13px;font-weight:800;color:var(--grn);margin-bottom:5px}
+.qr-result-val{font-size:11px;font-family:monospace;color:rgba(16,185,129,.75);
+  word-break:break-all;line-height:1.5;
+  background:rgba(16,185,129,.07);border-radius:6px;padding:6px 8px;margin-top:4px;
+  max-height:60px;overflow-y:auto}
+.qr-err-box{padding:12px 14px;background:rgba(239,68,68,.08);
+  border:1.5px solid rgba(239,68,68,.25);border-radius:var(--r2);
+  font-size:13px;color:var(--red);font-weight:600;text-align:center;line-height:1.55}
+.qr-modal-footer{padding:16px 20px;border-top:1px solid var(--bdr);
+  display:flex;gap:10px;background:rgba(0,0,0,.15)}
+/* END QR SCANNER STYLES */
 </style>
 </head>
 <body>
@@ -584,7 +673,13 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
       </div>
       <div class="fg">
         <label class="lbl">Payment Link <span style="color:var(--txt3);font-size:.85em;font-weight:500">(UPI / Razorpay)</span></label>
-        <input class="inp" id="c-pl" placeholder="upi://pay?pa=… or Razorpay link">
+        <div class="qr-input-wrap">
+          <input class="inp" id="c-pl" placeholder="upi://pay?pa=… or Razorpay link">
+          <button type="button" class="qr-scan-btn" onclick="openQRScanner()" title="Scan QR Code">
+            <span class="qr-scan-ico">📷</span>
+            <span class="qr-scan-txt">Scan QR</span>
+          </button>
+        </div>
       </div>
       <div class="fg">
         <label class="lbl">Description</label>
@@ -1041,7 +1136,46 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
     Your profile link is saved in your browser. Bookmark this page to return.
   </div>
 </div><!-- step-3 -->
-
+<!-- ═══════════════════════════════════════════════
+     QR SCANNER OVERLAY
+═══════════════════════════════════════════════ -->
+<div id="qr-overlay" style="display:none">
+  <div class="qr-overlay-bg" onclick="closeQRScanner()"></div>
+  <div class="qr-modal">
+    <div class="qr-modal-hdr">
+      <div class="qr-modal-title">
+        <span style="font-size:1.2rem">📷</span>
+        Scan Payment QR Code
+      </div>
+      <button class="qr-close-btn" onclick="closeQRScanner()" title="Close">✕</button>
+    </div>
+    <div class="qr-modal-body">
+      <div class="qr-viewfinder-wrap">
+        <div id="qr-reader"></div>
+        <div class="qr-corner qr-tl"></div>
+        <div class="qr-corner qr-tr"></div>
+        <div class="qr-corner qr-bl"></div>
+        <div class="qr-corner qr-br"></div>
+        <div class="qr-scan-line"></div>
+      </div>
+      <div class="qr-hint" id="qr-hint-txt">
+        📱 Point camera at a UPI or payment QR code
+      </div>
+      <div class="qr-result-box" id="qr-result-box" style="display:none">
+        <div class="qr-result-label">✅ QR Detected!</div>
+        <div class="qr-result-val" id="qr-result-val"></div>
+      </div>
+      <div class="qr-err-box" id="qr-err-box" style="display:none">
+        <div id="qr-err-txt"></div>
+      </div>
+    </div>
+    <div class="qr-modal-footer">
+      <button class="btn btn-ghost" style="height:44px;font-size:13px" onclick="closeQRScanner()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
 </div><!-- #pg -->
    
 <!-- ═══════════════════════════════════════════════════════
@@ -1888,6 +2022,159 @@ function init() {
 document.addEventListener('DOMContentLoaded', function(){ setTimeout(init,500); });
 document.addEventListener('keydown', function(e){
   if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA'&&STATE.currentStep===1) submitProfile();
+});
+   // ──────────────────────────────────────────────────────────────
+//  QR SCANNER — Payment Link field
+// ──────────────────────────────────────────────────────────────
+var _qrScanner      = null;   // html5QrCode instance
+var _qrScannerOpen  = false;
+var _qrScanSuccess  = false;
+
+function openQRScanner() {
+  // Check browser support
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showQrError('❌ Camera not supported in this browser.<br>Please paste the payment link manually.');
+    return;
+  }
+
+  // Check library loaded
+  if (typeof Html5Qrcode === 'undefined') {
+    showQrError('❌ QR scanner library failed to load.<br>Please refresh the page and try again.');
+    return;
+  }
+
+  // Show overlay
+  var overlay = document.getElementById('qr-overlay');
+  overlay.style.display = 'flex';
+  _qrScannerOpen  = true;
+  _qrScanSuccess  = false;
+
+  // Reset UI
+  document.getElementById('qr-hint-txt').style.display   = 'block';
+  document.getElementById('qr-result-box').style.display  = 'none';
+  document.getElementById('qr-err-box').style.display     = 'none';
+  document.getElementById('qr-hint-txt').textContent      = '📱 Point camera at a UPI or payment QR code';
+
+  // Prevent body scroll
+  document.body.style.overflow = 'hidden';
+
+  // Init scanner
+  try {
+    _qrScanner = new Html5Qrcode('qr-reader', { verbose: false });
+
+    var config = {
+      fps:           10,
+      qrbox:         { width: 220, height: 220 },
+      aspectRatio:   1.0,
+      disableFlip:   false
+    };
+
+    _qrScanner.start(
+      { facingMode: 'environment' },   // use rear camera on mobile
+      config,
+      onQRScanSuccess,
+      onQRScanError
+    ).catch(function(err) {
+      var msg = String(err || '');
+      if (msg.toLowerCase().indexOf('permission') >= 0 || msg.toLowerCase().indexOf('denied') >= 0) {
+        showQrError('📵 Camera permission denied.<br>Please allow camera access in your browser settings and try again.');
+      } else if (msg.toLowerCase().indexOf('notfound') >= 0 || msg.toLowerCase().indexOf('no camera') >= 0) {
+        showQrError('📷 No camera found on this device.<br>Please paste the payment link manually.');
+      } else {
+        showQrError('⚠️ Could not start camera.<br>Error: ' + msg + '<br><br>Please paste the link manually.');
+      }
+    });
+
+  } catch(e) {
+    showQrError('⚠️ Scanner error: ' + (e.message || 'Unknown error') + '<br>Please paste the link manually.');
+  }
+}
+
+function onQRScanSuccess(decodedText) {
+  if (_qrScanSuccess) return;   // fire only once
+  _qrScanSuccess = true;
+
+  // Stop scanner
+  if (_qrScanner) {
+    _qrScanner.stop().catch(function(){});
+  }
+
+  // Fill the payment link field
+  var payField = document.getElementById('c-pl');
+  if (payField) {
+    payField.value = decodedText;
+    // Trigger visual highlight
+    payField.style.borderColor = 'rgba(16,185,129,.7)';
+    payField.style.boxShadow   = '0 0 0 4px rgba(16,185,129,.12)';
+    setTimeout(function() {
+      payField.style.borderColor = '';
+      payField.style.boxShadow   = '';
+    }, 2500);
+  }
+
+  // Show result in overlay
+  document.getElementById('qr-hint-txt').style.display   = 'none';
+  document.getElementById('qr-err-box').style.display    = 'none';
+  document.getElementById('qr-result-box').style.display = 'block';
+  document.getElementById('qr-result-val').textContent   = decodedText;
+
+  toast('✅ QR scanned! Payment link filled.', 'ok', 3500);
+
+  // Auto-close after short delay so user sees the result
+  setTimeout(function() {
+    closeQRScanner();
+  }, 1800);
+}
+
+function onQRScanError(errorMsg) {
+  // This fires constantly while scanning (no QR in frame) — ignore it silently
+  // Only log actual errors, not "no QR found" messages
+}
+
+function showQrError(htmlMsg) {
+  // If overlay isn't open yet, open it just to show the error message
+  var overlay = document.getElementById('qr-overlay');
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  // Hide viewfinder area, show error
+  document.getElementById('qr-hint-txt').style.display   = 'none';
+  document.getElementById('qr-result-box').style.display = 'none';
+  document.getElementById('qr-err-box').style.display    = 'block';
+  document.getElementById('qr-err-txt').innerHTML        = htmlMsg;
+}
+
+function closeQRScanner() {
+  // Stop camera
+  if (_qrScanner) {
+    try {
+      _qrScanner.stop().then(function() {
+        _qrScanner.clear();
+        _qrScanner = null;
+      }).catch(function() {
+        _qrScanner = null;
+      });
+    } catch(e) {
+      _qrScanner = null;
+    }
+  }
+
+  // Hide overlay
+  var overlay = document.getElementById('qr-overlay');
+  if (overlay) overlay.style.display = 'none';
+
+  _qrScannerOpen = false;
+  _qrScanSuccess = false;
+
+  // Restore scroll
+  document.body.style.overflow = '';
+}
+
+// Close scanner on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && _qrScannerOpen) {
+    closeQRScanner();
+  }
 });
 </script>
 </body>
