@@ -806,6 +806,14 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
     </div>
   </div>
 
+  <!-- ★ CREATE ANOTHER PROFILE BUTTON — Step 2 -->
+  <div style="margin-top:14px">
+    <button class="btn btn-create-another" onclick="createAnotherProfile()"
+      style="height:46px;font-size:13px">
+      ➕ Create Another Business Profile
+    </button>
+  </div>
+
   <div class="profile-chip" id="profile-chip">
     <div class="chip-dot">🏢</div>
     <span id="chip-name">Your business</span> — profile saved ✓
@@ -847,11 +855,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
           <div class="pv-di-label">Payment ID</div>
           <div class="pv-di-value" id="pv-payid-val">—</div>
         </div>
-        <div class="pv-detail-item">
-          <div class="pv-di-label">Valid Until</div>
-          <div class="pv-di-value" id="pv-expiry-val">—</div>
-        </div>
-      </div>
+             </div>
 
       <button class="pv-refresh-btn" id="pv-refresh-btn" onclick="checkPaymentStatus()">
         <span class="pv-spin" id="pv-spin"></span>
