@@ -347,6 +347,8 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
      <button class="nav-btn"     onclick="nav('mapping')"   id="nb-mapping">🔗 URL Mappings</button>
      <button class="nav-btn" onclick="nav('merchants')" id="nb-merchants">🎫 Merchants</button>
      <button class="nav-btn" onclick="nav('cmi')" id="nb-cmi">🔑 CMI Groups</button>
+     <button class="nav-btn" onclick="nav('referrals')" id="nb-referrals">🎁 Referrals</button>
+<button class="nav-btn" onclick="nav('productivity')" id="nb-productivity">📊 Productivity</button>
     <div class="sb-bottom">
       <div class="conn-pill cp-wait" id="conn-pill">⏳ Checking…</div>
       <button class="btn btn-ghost btn-sm" onclick="doLogout()" style="width:100%;justify-content:center;margin-top:6px">🚪 Logout</button>
@@ -906,6 +908,108 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
     </div>
   </div>
 </div>
+     <!-- ═══ REFERRAL DASHBOARD ══════════════════════════════════════ -->
+<div class="panel" id="panel-referrals">
+  <div class="topbar">
+    <div class="tb-title">🎁 Referral Logs</div>
+    <div class="tb-acts">
+      <button class="btn btn-ghost btn-sm" onclick="loadReferralLogs()">🔄 Refresh</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats" style="margin-bottom:16px">
+    <div class="stat"><div class="stat-ico">🎁</div><div class="stat-n" id="ref-total">–</div><div class="stat-l">Total Referrals</div></div>
+    <div class="stat"><div class="stat-ico">✅</div><div class="stat-n" id="ref-success">–</div><div class="stat-l">Paid</div></div>
+    <div class="stat"><div class="stat-ico">⏳</div><div class="stat-n" id="ref-pending">–</div><div class="stat-l">Pending</div></div>
+    <div class="stat"><div class="stat-ico">🌟</div><div class="stat-n" id="ref-self">–</div><div class="stat-l">Self Signups</div></div>
+  </div>
+
+  <!-- Filters -->
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <select class="sel" id="ref-filter-plan" onchange="loadReferralLogs()" style="flex:1;min-width:120px;font-size:12px;padding:7px 10px;height:36px">
+      <option value="all">All Plans</option>
+      <option value="free">Free</option>
+      <option value="starter">Starter</option>
+      <option value="pro">Pro</option>
+      <option value="premium">Premium</option>
+    </select>
+    <select class="sel" id="ref-filter-status" onchange="loadReferralLogs()" style="flex:1;min-width:120px;font-size:12px;padding:7px 10px;height:36px">
+      <option value="all">All Status</option>
+      <option value="success">✅ Success</option>
+      <option value="pending">⏳ Pending</option>
+    </select>
+    <select class="sel" id="ref-filter-ref" onchange="loadReferralLogs()" style="flex:1;min-width:120px;font-size:12px;padding:7px 10px;height:36px">
+      <option value="all">All Types</option>
+      <option value="self">Self</option>
+      <option value="client">Client</option>
+      <option value="admin">Admin</option>
+      <option value="staff">Staff</option>
+    </select>
+    <input class="inp" id="ref-search" placeholder="🔍 Search name, phone…" oninput="filterReferralTable(this.value)"
+      style="flex:1;min-width:150px;height:36px;padding:7px 12px;font-size:12px">
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="card-hd"><span class="card-tt">All Referral Entries</span></div>
+    <div class="card-bd" style="padding:0">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th><th>Referrer</th><th>Referral Code</th>
+              <th>Client</th><th>Phone</th><th>Plan</th>
+              <th>Status</th><th>Payment ID</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="ref-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:28px;color:var(--txt2)">Click 🔄 to load</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PRODUCTIVITY DASHBOARD ══════════════════════════════════ -->
+<div class="panel" id="panel-productivity">
+  <div class="topbar">
+    <div class="tb-title">📊 Productivity</div>
+    <div class="tb-acts">
+      <button class="btn btn-ghost btn-sm" onclick="loadProductivity()">🔄 Refresh</button>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="stats" style="margin-bottom:16px">
+    <div class="stat"><div class="stat-ico">👥</div><div class="stat-n" id="prod-referrers">–</div><div class="stat-l">Referrers</div></div>
+    <div class="stat"><div class="stat-ico">🏆</div><div class="stat-n" id="prod-total-cl">–</div><div class="stat-l">Total Referred</div></div>
+    <div class="stat"><div class="stat-ico">💎</div><div class="stat-n" id="prod-pro-cl">–</div><div class="stat-l">Pro Clients</div></div>
+    <div class="stat"><div class="stat-ico">⭐</div><div class="stat-n" id="prod-prem-cl">–</div><div class="stat-l">Premium Clients</div></div>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="card-hd"><span class="card-tt">Referrer Performance</span></div>
+    <div class="card-bd" style="padding:0">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th><th>Referrer Name</th><th>Referral Code</th>
+              <th>Total</th><th>Free</th><th>Starter</th><th>Pro</th><th>Premium</th>
+              <th>Since</th>
+            </tr>
+          </thead>
+          <tbody id="prod-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:28px;color:var(--txt2)">Click 🔄 to load</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
      <div class="panel" id="panel-cmi">
   <div class="topbar">
     <div class="tb-title">🔑 CMI — Client Main ID Groups</div>
@@ -1249,7 +1353,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 // ── CONFIG ────────────────────────────────────────────────────
 var GAS_URL = (function(){
   try { return localStorage.getItem('wanza_gas_url') || ''; } catch(e){ return ''; }
-})() || 'https://script.google.com/macros/s/AKfycbzuWGHIOoxpdB8ratERzSf2YHLf3tphnun4jdMXPHwJ12mHLvukAfmeTgRZ5gjUGeGr/exec';
+})() || 'https://script.google.com/macros/s/AKfycbx8ESZllBH8oWMCDgRW7ZqRTUtuikOA9iIBdFklHKx2nye-ryYs39an3PoZu2Z4uLuF/exec';
 
 var CLIENT_URL = (function(){
   try { return localStorage.getItem('wanza_client_url') || ''; } catch(e){ return ''; }
@@ -3317,6 +3421,179 @@ window.nav = function(id) {
   _origNav(id);
   if (id === 'cmi') loadCMIPanel();
 };
+   // ════════════════════════════════════════════════════════════════
+//  REFERRAL & PRODUCTIVITY DASHBOARD — Admin JS
+// ════════════════════════════════════════════════════════════════
+
+var _allReferralLogs = [];
+
+// ── Load Referral Logs ────────────────────────────────────────────
+function loadReferralLogs() {
+  var tbody = document.getElementById('ref-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px"><span class="spin"></span> Loading…</td></tr>';
+
+  var plan   = (document.getElementById('ref-filter-plan')   || {}).value || 'all';
+  var status = (document.getElementById('ref-filter-status') || {}).value || 'all';
+  var ref    = (document.getElementById('ref-filter-ref')    || {}).value || 'all';
+
+  apiGet('getReferralLogs', { plan: plan, status: status, ref: ref })
+    .then(function(d) {
+      _allReferralLogs = Array.isArray(d) ? d : [];
+      _renderReferralTable(_allReferralLogs);
+      _updateReferralStats(_allReferralLogs);
+    })
+    .catch(function(e) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--red)">❌ ' + esc(e.message) + '</td></tr>';
+    });
+}
+
+function _updateReferralStats(rows) {
+  var total   = rows.length;
+  var success = rows.filter(function(r){ return String(r['status']||'').toLowerCase() === 'success'; }).length;
+  var pending = rows.filter(function(r){ return String(r['status']||'').toLowerCase() === 'pending'; }).length;
+  var self_   = rows.filter(function(r){ return String(r['Ref']||r['ref']||'').toLowerCase() === 'self'; }).length;
+  animNum(document.getElementById('ref-total'),   total);
+  animNum(document.getElementById('ref-success'), success);
+  animNum(document.getElementById('ref-pending'), pending);
+  animNum(document.getElementById('ref-self'),    self_);
+}
+
+function _renderReferralTable(rows) {
+  var tbody = document.getElementById('ref-tbody');
+  if (!rows || !rows.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--txt2)">No referral entries yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(function(r) {
+    var type      = String(r['Ref']              || r['ref']              || '—');
+    var refName   = String(r['Name']             || r['name']             || '—');
+    var refCode   = String(r['Referral id']      || r['referral id']      || '—');
+    var clName    = String(r['Client Name']      || r['client name']      || '—');
+    var clPhone   = String(r['Client Number']    || r['client number']    || '—');
+    var plan      = String(r['Plan Name']        || r['plan name']        || '—');
+    var status    = String(r['status']           || '—');
+    var payId     = String(r['payment_id']       || '—');
+    var createdAt = r['created_at'] ? new Date(r['created_at']).toLocaleDateString('en-IN') : '—';
+
+    var typeBadge   = type    === 'self'    ? 'b-blue'
+                    : type    === 'client'  ? 'b-grn'
+                    : type    === 'admin'   ? 'b-org'
+                    :                        'b-red';
+    var statusBadge = status  === 'success' ? 'b-grn'
+                    : status  === 'pending' ? 'b-org'
+                    :                        'b-red';
+    var planBadge   = plan    === 'pro'     ? 'b-blue'
+                    : plan    === 'premium' ? 'b-org'
+                    : plan    === 'starter' ? 'b-grn'
+                    :                        'b-red';
+
+    return '<tr>'
+      + '<td><span class="badge ' + typeBadge + '">' + esc(type) + '</span></td>'
+      + '<td style="font-weight:600;font-size:12px">' + esc(refName) + '</td>'
+      + '<td><code style="font-size:11px;background:rgba(255,106,0,.1);padding:2px 6px;border-radius:4px;color:var(--org1)">' + esc(refCode) + '</code></td>'
+      + '<td style="font-size:12px;font-weight:600">' + esc(clName) + '</td>'
+      + '<td style="font-size:12px;color:var(--txt2)">' + esc(clPhone) + '</td>'
+      + '<td><span class="badge ' + planBadge + '">' + esc(plan) + '</span></td>'
+      + '<td><span class="badge ' + statusBadge + '">' + esc(status) + '</span></td>'
+      + '<td style="font-size:11px;font-family:monospace;color:var(--txt2)">' + esc(payId.length > 20 ? payId.slice(0,16)+'…' : payId) + '</td>'
+      + '<td style="font-size:11px;color:var(--txt2)">' + esc(createdAt) + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+function filterReferralTable(query) {
+  if (!query || !query.trim()) { _renderReferralTable(_allReferralLogs); return; }
+  query = query.toLowerCase();
+  var filtered = _allReferralLogs.filter(function(r) {
+    return (String(r['Client Name']   || '').toLowerCase().indexOf(query) > -1)
+        || (String(r['Client Number'] || '').toLowerCase().indexOf(query) > -1)
+        || (String(r['Name']          || '').toLowerCase().indexOf(query) > -1)
+        || (String(r['Referral id']   || '').toLowerCase().indexOf(query) > -1);
+  });
+  _renderReferralTable(filtered);
+}
+
+// ── Load Productivity ─────────────────────────────────────────────
+function loadProductivity() {
+  var tbody = document.getElementById('prod-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px"><span class="spin"></span> Loading…</td></tr>';
+
+  apiGet('getProductivity', {})
+    .then(function(d) {
+      var rows = Array.isArray(d) ? d : [];
+      _renderProductivityTable(rows);
+      _updateProductivityStats(rows);
+    })
+    .catch(function(e) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--red)">❌ ' + esc(e.message) + '</td></tr>';
+    });
+}
+
+function _updateProductivityStats(rows) {
+  var referrers = rows.length;
+  var totalCl   = rows.reduce(function(s, r){ return s + (parseInt(r['Total Client']          || r['total client']          || 0)); }, 0);
+  var proCl     = rows.reduce(function(s, r){ return s + (parseInt(r['Total Pro plan Client'] || r['total pro plan client'] || 0)); }, 0);
+  var premCl    = rows.reduce(function(s, r){ return s + (parseInt(r['Total Premium plan Client'] || r['total premium plan client'] || 0)); }, 0);
+  animNum(document.getElementById('prod-referrers'), referrers);
+  animNum(document.getElementById('prod-total-cl'),  totalCl);
+  animNum(document.getElementById('prod-pro-cl'),    proCl);
+  animNum(document.getElementById('prod-prem-cl'),   premCl);
+}
+
+function _renderProductivityTable(rows) {
+  var tbody = document.getElementById('prod-tbody');
+  if (!rows || !rows.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--txt2)">No productivity data yet.</td></tr>';
+    return;
+  }
+
+  // Sort by Total Client DESC
+  rows = rows.slice().sort(function(a, b) {
+    return (parseInt(b['Total Client'] || 0)) - (parseInt(a['Total Client'] || 0));
+  });
+
+  tbody.innerHTML = rows.map(function(r) {
+    var type      = String(r['Ref']         || r['ref']         || '—');
+    var name      = String(r['Name']        || r['name']        || '—');
+    var refCode   = String(r['Referral id'] || r['referral id'] || '—');
+    var total     = parseInt(r['Total Client']              || r['total client']              || 0);
+    var free_     = parseInt(r['Total Free plan Client']    || r['total free plan client']    || 0);
+    var starter   = parseInt(r['Total Starter plan Client'] || r['total starter plan client'] || 0);
+    var pro       = parseInt(r['Total Pro plan Client']     || r['total pro plan client']     || 0);
+    var premium   = parseInt(r['Total Premium plan Client'] || r['total premium plan client'] || 0);
+    var createdAt = r['created_at'] ? new Date(r['created_at']).toLocaleDateString('en-IN') : '—';
+
+    var typeBadge = type === 'self' ? 'b-blue'
+                  : type === 'client' ? 'b-grn'
+                  : type === 'admin' ? 'b-org'
+                  : 'b-red';
+
+    return '<tr>'
+      + '<td><span class="badge ' + typeBadge + '">' + esc(type) + '</span></td>'
+      + '<td style="font-weight:600;font-size:13px">' + esc(name) + '</td>'
+      + '<td><code style="font-size:11px;background:rgba(255,106,0,.1);padding:2px 6px;border-radius:4px;color:var(--org1)">' + esc(refCode) + '</code></td>'
+      + '<td style="text-align:center"><span class="badge b-org">' + total + '</span></td>'
+      + '<td style="text-align:center;color:var(--txt2);font-size:12px">' + free_   + '</td>'
+      + '<td style="text-align:center;color:var(--txt2);font-size:12px">' + starter + '</td>'
+      + '<td style="text-align:center"><span class="badge b-blue">' + pro     + '</span></td>'
+      + '<td style="text-align:center"><span class="badge b-org">'  + premium + '</span></td>'
+      + '<td style="font-size:11px;color:var(--txt2)">' + esc(createdAt) + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+// ── Hook nav() to auto-load new panels ───────────────────────────
+(function() {
+  var _origNavRef = window.nav;
+  window.nav = function(id) {
+    _origNavRef(id);
+    if (id === 'referrals')   loadReferralLogs();
+    if (id === 'productivity') loadProductivity();
+  };
+})();
 </script>
    
 </body>
