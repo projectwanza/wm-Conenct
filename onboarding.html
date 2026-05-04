@@ -1527,7 +1527,7 @@ function submitProfile() {
   btn.disabled=true; btn.textContent='⏳ Creating profile…';
   setProgress(33);
 
-  apiPost('saveClient', {
+  apiPost('saveClientWithReferral', {
     payload: {
       client: {
         name:               name,
@@ -1542,36 +1542,42 @@ function submitProfile() {
         logo_url:           logoUrl,
         password:           pw
       },
-      socialLinks: [], reviews: []
+      socialLinks: [], reviews: [],
+      referral_code: STATE.referralCode || '',
+      plan_id:       '',
+      device:        /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
     }
   })
   .then(function(result) {
     var clientId = result.client_id || genId();
-    STATE.clientId    = clientId;
-    STATE.profileName = name;
+    STATE.clientId            = clientId;
+    STATE.profileName         = name;
+    STATE.myReferralCode      = result.client_referral_code || '';
 
-    // ★ NEW: Save referral code if entered
     if (STATE.referralCode) {
-      apiPost('saveReferral', {
-        client_id:     clientId,
-        client_name:   name,
-        referral_code: STATE.referralCode,
-        owner_name:    STATE.referralOwner,
-        plan_id:       ''
-      }).catch(function(){}); // silent — don't block onboarding
+      apiPost('updateReferralAfterPayment', {
+        client_id:  clientId,
+        plan_name:  '',
+        payment_id: '',
+        device:     /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+      }).catch(function(){});
     }
 
-    saveSession({ clientId:clientId, profileName:name, plan:'free', created:new Date().toISOString(), profileUrl:buildProfileUrl(clientId) });
-    btn.disabled=false; btn.textContent='🚀 Create My Business Profile';
+    saveSession({
+      clientId: clientId, profileName: name, plan: 'free',
+      created: new Date().toISOString(),
+      profileUrl: buildProfileUrl(clientId),
+      myReferralCode: result.client_referral_code || ''
+    });
+    btn.disabled = false; btn.textContent = '🚀 Create My Business Profile';
     goToStep(2);
     toast('Profile created! 🎉','ok',4000);
   })
   .catch(function(e) {
-    btn.disabled=false; btn.textContent='🚀 Create My Business Profile';
+    btn.disabled = false; btn.textContent = '🚀 Create My Business Profile';
     setProgress(0);
     toast('Could not save profile: '+(e.message||'Check connection.'),'err');
   });
-}
 
 // ──────────────────────────────────────────────────────────────
 //  PLAN RENDER
@@ -1742,6 +1748,13 @@ function savePlan(planId, paymentId, paymentStatus) {
     sess.plan=planId; sess.paymentId=paymentId; sess.paymentStatus=paymentStatus;
     saveSession(sess);
     STATE.selectedPlan=planId; STATE.paymentStatus=paymentStatus;
+     // Update referral log with payment details
+    apiPost('updateReferralAfterPayment', {
+      client_id:  STATE.clientId,
+      plan_name:  planId,
+      payment_id: paymentId || '',
+      device:     /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+    }).catch(function(){});
 
     // ★ NEW: Save referral with final plan
     if (STATE.referralCode) {
