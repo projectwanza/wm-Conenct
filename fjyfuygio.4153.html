@@ -1184,8 +1184,11 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
   <div class="topbar">
     <div class="tb-title">🔑 Activation Codes</div>
     <div class="tb-acts">
-      <button class="btn btn-ghost btn-sm" onclick="loadActivationPanel()">🔄 Refresh</button>
-    </div>
+  <button class="btn btn-warn btn-sm" id="auto-scan-btn" onclick="triggerManualScan()">
+    🔍 Auto-Scan & Generate
+  </button>
+  <button class="btn btn-ghost btn-sm" onclick="loadActivationPanel()">🔄 Refresh</button>
+</div>
   </div>
 
   <!-- Info Card -->
@@ -1247,17 +1250,17 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
     <div class="card-bd" style="padding:0">
       <div class="tbl-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Payment ID</th>
-              <th>Email / Contact</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Activation Code</th>
-              <th>Code Used</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+         <thead>
+  <tr>
+    <th>Payment ID</th>
+    <th>Email / Contact</th>
+    <th>Amount</th>
+    <th>Status</th>
+    <th>Activation Code</th>
+    <th>Used?</th>
+    <th>Actions</th>
+  </tr>
+</thead>
           <tbody id="act-tbody">
             <tr><td colspan="7" style="text-align:center;padding:28px;color:var(--txt2)">
               Click 🔄 to load payment rows
@@ -1511,7 +1514,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 // ── CONFIG ────────────────────────────────────────────────────
 var GAS_URL = (function(){
   try { return localStorage.getItem('wanza_gas_url') || ''; } catch(e){ return ''; }
-})() || 'https://script.google.com/macros/s/AKfycbx8ESZllBH8oWMCDgRW7ZqRTUtuikOA9iIBdFklHKx2nye-ryYs39an3PoZu2Z4uLuF/exec';
+})() || 'https://script.google.com/macros/s/AKfycbwoxYVS02uXoqg4b7mISFqfHIFdeHkvaD0m7dC-9CTdqDUDQ8p3H9s0KVKslPQSetZH/exec';
 
 var CLIENT_URL = (function(){
   try { return localStorage.getItem('wanza_client_url') || ''; } catch(e){ return ''; }
@@ -3231,10 +3234,9 @@ function submitBulkReviews() {
 
 var _allPaymentRows = [];
 
-// ── Load Activation Panel ────────────────────────────────────────
 function loadActivationPanel() {
   var tbody = document.getElementById('act-tbody');
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px">'
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px">'
     + '<span class="spin"></span> Loading…</td></tr>';
 
   // Fill client dropdown
@@ -3252,14 +3254,23 @@ function loadActivationPanel() {
     }).catch(function(){});
   }
 
-  apiGet('getAllPaymentRows', {})
+  // ★ USE ENHANCED API that includes code_status
+  apiGet('getAllPaymentRowsEnhanced', {})
     .then(function(d) {
       _allPaymentRows = Array.isArray(d) ? d : [];
       _renderActTable(_allPaymentRows);
     })
     .catch(function(e) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--red)">'
-        + '❌ ' + esc(e.message) + '<br><small>Payment sheet exist karti hai?</small></td></tr>';
+      // Fallback to basic API
+      apiGet('getAllPaymentRows', {})
+        .then(function(d2) {
+          _allPaymentRows = Array.isArray(d2) ? d2 : [];
+          _renderActTable(_allPaymentRows);
+        })
+        .catch(function(e2) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--red)">'
+            + '❌ ' + esc(e2.message) + '</td></tr>';
+        });
     });
 }
 
@@ -3267,21 +3278,21 @@ function loadActivationPanel() {
 function _renderActTable(rows) {
   var tbody = document.getElementById('act-tbody');
   if (!rows || !rows.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:36px;color:var(--txt2)">'
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:36px;color:var(--txt2)">'
       + 'No payment rows found.</td></tr>';
     return;
   }
 
   tbody.innerHTML = '';
   rows.forEach(function(row, idx) {
-    // Support flexible column names
     var payId    = row['Payment ID'] || row['payment_id'] || row['Razorpay Payment ID'] || '—';
-    var email    = row['Email']   || row['email']   || '—';
-    var contact  = row['Contact'] || row['contact'] || row['Phone'] || '';
-    var amount   = row['Amount']  || row['amount']  || '—';
+    var email    = row['Email']    || row['email']    || '—';
+    var contact  = row['Contact']  || row['contact']  || '';
+    var amount   = row['Amount']   || row['amount']   || '—';
     var status   = String(row['Status'] || row['status'] || '').toLowerCase();
     var actCode  = row['Plan Activation Code'] || row['Activation Code'] || '';
     var codeUsed = String(row['Code Used'] || row['code_used'] || '').toUpperCase();
+    var codeStatus = row['_code_status'] || (actCode ? (codeUsed === 'YES' ? 'used' : 'generated') : 'missing');
 
     var statusBadge = status === 'captured'
       ? '<span class="badge b-grn">captured</span>'
@@ -3289,12 +3300,17 @@ function _renderActTable(rows) {
       ? '<span class="badge b-red">' + esc(status) + '</span>'
       : '<span class="badge" style="background:rgba(0,0,0,.06)">—</span>';
 
-    var codeBadge = actCode
-      ? '<span class="act-code-cell">' + esc(actCode) + '</span>'
+    // ★ NEW: Smart code display based on status
+    var codeBadge = '';
+    if (actCode) {
+      codeBadge = '<span class="act-code-cell">' + esc(actCode) + '</span>'
         + ' <button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:10px"'
-        + ' onclick="copyActCode(\'' + esc(actCode) + '\')" title="Copy code">📋</button>'
-      : '<span style="color:var(--txt3);font-size:12px">Not assigned</span>';
+        + ' onclick="copyActCode(\'' + esc(actCode) + '\')" title="Copy code">📋</button>';
+    } else {
+      codeBadge = '<span style="color:var(--txt3);font-size:11px;font-style:italic">Not generated yet</span>';
+    }
 
+    // ★ NEW: Smart used badge
     var usedBadge = codeUsed === 'YES' || codeUsed === 'USED' || codeUsed === 'TRUE'
       ? '<span class="act-badge act-badge-used">✅ Used</span>'
       : actCode
@@ -3305,20 +3321,41 @@ function _renderActTable(rows) {
       return v && v !== '—' && v.trim();
     }).join(' / ');
 
+    // ★ NEW: Smart action buttons
+    var actionBtns = '';
+    if (codeStatus === 'used') {
+      // Already used — no action
+      actionBtns = '<span style="font-size:11px;color:var(--grn);font-weight:600">✅ Done</span>';
+    } else if (codeStatus === 'generated' && actCode) {
+      // Has code but not used — show Regenerate
+      actionBtns = '<button class="btn btn-ghost btn-sm" style="font-size:11px;height:30px;border-color:rgba(255,106,0,.3);color:var(--org1)"'
+        + ' onclick="regenCode(' + idx + ')" title="Generate new code (replaces current)">'
+        + '🔄 Regen</button>';
+    } else if (status === 'captured') {
+      // Captured but no code — show Generate (should be rare with auto-system)
+      actionBtns = '<button class="btn btn-pri btn-sm" style="font-size:11px;height:30px"'
+        + ' onclick="genCodeForRow(' + idx + ')">⚡ Generate</button>';
+    } else {
+      // Not captured — disabled
+      actionBtns = '<span style="font-size:11px;color:var(--txt3)">—</span>';
+    }
+
+    // ★ NEW: Code status indicator icon
+    var codeStatusIco = codeStatus === 'used'           ? '✅'
+                      : codeStatus === 'generated'      ? '🔑'
+                      : codeStatus === 'missing'        ? '⚠️'
+                      : '—';
+
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td><code style="font-size:11px;color:var(--org1)">' + esc(String(payId).substr(0,20)) + '</code></td>'
-      + '<td style="font-size:12px;color:var(--txt2);max-width:150px;overflow:hidden;text-overflow:ellipsis">'
+      + '<td style="font-size:12px;color:var(--txt2);max-width:130px;overflow:hidden;text-overflow:ellipsis">'
         + esc(displayContact || '—') + '</td>'
       + '<td style="font-size:13px;font-weight:600">₹' + esc(String(amount)) + '</td>'
       + '<td>' + statusBadge + '</td>'
-      + '<td>' + codeBadge + '</td>'
+      + '<td>' + codeStatusIco + ' ' + codeBadge + '</td>'
       + '<td>' + usedBadge + '</td>'
-      + '<td><div style="display:flex;gap:5px;flex-wrap:wrap">'
-        + '<button class="btn btn-pri btn-sm" style="font-size:11px;height:30px"'
-          + ' data-row="' + idx + '" onclick="genCodeForRow(' + idx + ')">'
-          + (actCode ? '🔄 Regen' : '⚡ Generate') + '</button>'
-        + '</div></td>';
+      + '<td>' + actionBtns + '</td>';
 
     tbody.appendChild(tr);
   });
@@ -3365,6 +3402,55 @@ function genCodeForRow(rowIdx) {
     .catch(function(e) {
       hideLoad();
       toast('Failed: ' + e.message, 'err');
+    });
+}
+   // ★ NEW: Regenerate code (only if not used)
+function regenCode(rowIdx) {
+  var row   = _allPaymentRows[rowIdx];
+  if (!row) return;
+  var payId = row['Payment ID'] || row['payment_id'] || row['Razorpay Payment ID'] || '';
+  if (!payId) { toast('Payment ID not found.', 'err'); return; }
+
+  var existCode = row['Plan Activation Code'] || row['Activation Code'] || '';
+  if (!existCode) { genCodeForRow(rowIdx); return; } // No code → generate normally
+
+  confirmDlg('Regenerate code for payment ' + payId.substr(0,15) + '…?\n\n⚠️ Old code: ' + existCode + ' will be REPLACED.\nOnly do this if customer has NOT used it yet.', function() {
+    showLoad('Regenerating activation code…');
+    apiPost('regenerateCode', { payment_id: payId })
+      .then(function(d) {
+        hideLoad();
+        toast('New code: ' + d.code + ' 🎉', 'ok', 6000);
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(d.code).then(function() {
+            toast('Code copied! 📋 ' + d.code, 'ok', 6000);
+          });
+        }
+        loadActivationPanel();
+      })
+      .catch(function(e) {
+        hideLoad();
+        toast('Failed: ' + e.message, 'err');
+      });
+  });
+}
+
+// ★ NEW: Trigger manual scan from admin panel
+function triggerManualScan() {
+  var btn = document.getElementById('auto-scan-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Scanning…'; }
+  showLoad('Scanning all payment rows…');
+
+  apiGet('scanAutoGenerateCodes', {})
+    .then(function(d) {
+      hideLoad();
+      if (btn) { btn.disabled = false; btn.textContent = '🔍 Auto-Scan & Generate'; }
+      toast('✅ Scan done! Generated: ' + (d.processed||0) + ' | Skipped: ' + (d.skipped||0), 'ok', 5000);
+      loadActivationPanel();
+    })
+    .catch(function(e) {
+      hideLoad();
+      if (btn) { btn.disabled = false; btn.textContent = '🔍 Auto-Scan & Generate'; }
+      toast('Scan failed: ' + e.message, 'err');
     });
 }
 
