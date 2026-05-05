@@ -876,13 +876,14 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 
   <div style="height:16px"></div>
 <!-- ═══ ACTIVATION CODE SECTION ═══════════════════════════════ -->
+<!-- ═══ ACTIVATION CODE SECTION ═══════════════════════════════ -->
 <div class="act-code-section" id="act-code-section">
 
   <div class="act-code-header">
     <div class="act-code-ico">🔑</div>
     <div>
       <div class="act-code-title">Activate Your Plan</div>
-      <div class="act-code-sub">Admin se mila activation code enter karo</div>
+      <div class="act-code-sub">Enter your activation code to instantly unlock your subscription</div>
     </div>
   </div>
 
@@ -892,7 +893,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
     <input
       class="act-code-inp"
       id="act-code-inp"
-      placeholder="WNZ-XXXX-XXXX"
+      placeholder="Enter your activation code (e.g., WNZ-AB12-CD34)"
       maxlength="12"
       autocomplete="off"
       spellcheck="false"
@@ -900,23 +901,22 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
       onkeydown="if(event.key==='Enter') submitActCode()"
     >
     <button class="btn-act-code" id="act-code-btn" onclick="submitActCode()">
-      ✅ Activate
+      Activate Plan
     </button>
   </div>
 
   <div style="font-size:11px;color:var(--txt3);line-height:1.6;text-align:center">
-    💡 Razorpay se refund mila? Admin se activation code maango.<br>
-    Code format: <code style="color:var(--blue3)">WNZ-XXXX-XXXX</code>
+    💡 Your plan will be activated immediately after successful verification.
   </div>
 
-  <div class="act-divider">ya</div>
+  <div class="act-divider">or</div>
 
-  <!-- Keep existing methods below -->
   <div style="font-size:12px;color:var(--txt3);text-align:center;margin-bottom:2px">
-    Agar code nahi hai to neeche payment verify karo ya seedha pay karo ↓
+    Don't have a code? Verify your payment below or choose a plan to get started.
   </div>
 
 </div>
+
 <!-- ═══ END ACTIVATION CODE SECTION ═══════════════════════════ -->
   <!-- ★ NEW: PAYMENT STATUS VERIFICATION WIDGET ★ -->
   <div class="pv-card" id="pv-card">
@@ -1036,17 +1036,19 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
     <table>
       <thead>
         <tr>
-          <th class="f">Feature</th><th>Free</th><th>Start</th><th class="pro">Pro</th><th>Prem</th>
+          <th class="f">Feature</th><th>Free</th><th>Starter</th><th class="pro">Pro ⭐</th><th>Premium</th>
         </tr>
       </thead>
       <tbody>
         <tr><td class="f">Digital Profile</td><td class="ck">✓</td><td class="ck">✓</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
-        <tr><td class="f">QR Code</td><td class="cr">✗</td><td class="ck">✓</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
-        <tr><td class="f">Review Redirect</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
-        <tr><td class="f">Offer Banners</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
-        <tr><td class="f">Pay Now Button</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
-        <tr><td class="f">Analytics</td><td class="cr">✗</td><td>Basic</td><td class="pro">Advanced</td><td>Full</td></tr>
+        <tr><td class="f">UPI Payment Button</td><td class="ck">✓</td><td class="ck">✓</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+        <tr><td class="f">AI Review Generation</td><td>Limited</td><td>Standard</td><td class="pro">Advanced</td><td>Unlimited</td></tr>
+        <tr><td class="f">Negative Review Control</td><td>Limited</td><td class="ck">✓</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+        <tr><td class="f">Auto Review Redirect</td><td>Limited</td><td class="ck">✓</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+        <tr><td class="f">Offers & Banners</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
+        <tr><td class="f">Analytics</td><td>Basic</td><td>Basic</td><td class="pro">Advanced</td><td>Full</td></tr>
         <tr><td class="f">Custom Branding</td><td class="cr">✗</td><td class="cr">✗</td><td class="cr">✗</td><td class="ck">✓</td></tr>
+        <tr><td class="f">Priority Support</td><td class="cr">✗</td><td class="cr">✗</td><td class="pro ck">✓</td><td class="ck">✓</td></tr>
       </tbody>
     </table>
   </div>
@@ -1313,37 +1315,61 @@ var ADMIN_URL   = window.location.origin + '/admin';
 var PLANS = [
   {
     id:'free', name:'FREE', css:'free', display:0, original:0, monthly:0, popular:false,
+    tagline:'Get started at no cost',
     features:[
-      {text:'Digital Business Profile',yes:true},{text:'QR Code Generation',yes:false},
-      {text:'WhatsApp / Call Button',yes:false},{text:'3 Social Media Links',yes:true},
-      {text:'Review Templates',yes:false},{text:'Analytics Dashboard',yes:false}
+      {text:'Digital Business Profile',yes:true},
+      {text:'WhatsApp, Call & Email Buttons',yes:true},
+      {text:'UPI Payment Button',yes:true},
+      {text:'3 Social Media Links',yes:true},
+      {text:'Limited AI Review Generation',yes:true},
+      {text:'Limited Negative Review Control',yes:true},
+      {text:'Limited Auto Review Redirect',yes:true},
+      {text:'Basic Support',yes:true}
     ]
   },
   {
     id:'starter', name:'STARTER', css:'starter', display:1, original:199, monthly:49,
     payLink:'https://rzp.io/rzp/0MDV5xa2', popular:false,
+    tagline:'Perfect for growing businesses',
     features:[
-      {text:'Digital Profile + QR Code',yes:true},{text:'WhatsApp & Call Button',yes:true},
-      {text:'10 Social Media Links',yes:true},{text:'5 Review Templates',yes:true},
-      {text:'Basic Analytics',yes:true},{text:'Offer Banners',yes:false}
+      {text:'Everything in Free',yes:true},
+      {text:'6 Social Media Links',yes:true},
+      {text:'AI Review Generation (Standard)',yes:true},
+      {text:'Negative Review Control',yes:true},
+      {text:'Basic Analytics',yes:true},
+      {text:'Auto Review Redirect',yes:true},
+      {text:'WhatsApp / Call / Email Support',yes:true},
+      {text:'24×7 Support',yes:true}
     ]
   },
   {
     id:'pro', name:'PRO', css:'pro', display:1, original:499, monthly:149,
     payLink:'https://rzp.io/rzp/Xryd2Nj', popular:true,
+    tagline:'For businesses serious about growth',
     features:[
-      {text:'Everything in Starter',yes:true},{text:'Unlimited Social Links',yes:true},
-      {text:'25 Review Templates',yes:true},{text:'Auto Review Redirect',yes:true},
-      {text:'Offers Banners + Ads Carousel',yes:true},{text:'Pay Now Button (UPI)',yes:true}
+      {text:'Everything in Starter',yes:true},
+      {text:'10 Social Media Links',yes:true},
+      {text:'Advanced AI Review System',yes:true},
+      {text:'Full Negative Review Control',yes:true},
+      {text:'Offers & Banner Support',yes:true},
+      {text:'Ads Carousel (Limited)',yes:true},
+      {text:'Advanced Analytics',yes:true},
+      {text:'Upcoming Features Access',yes:true},
+      {text:'Priority Support',yes:true}
     ]
   },
   {
     id:'premium', name:'PREMIUM', css:'premium', display:1, original:799, monthly:299,
     payLink:'https://rzp.io/rzp/ep5E53M', popular:false,
+    tagline:'The complete business growth suite',
     features:[
-      {text:'Everything in Pro',yes:true},{text:'Unlimited Review Templates',yes:true},
-      {text:'Custom Branding',yes:true},{text:'Full Analytics + Export',yes:true},
-      {text:'Dedicated Account Manager',yes:true},{text:'Multiple Profiles',yes:true}
+      {text:'Everything in Pro',yes:true},
+      {text:'Custom Branding',yes:true},
+      {text:'Full Analytics Dashboard',yes:true},
+      {text:'Ads Carousel (Full)',yes:true},
+      {text:'Unlimited Features Access',yes:true},
+      {text:'Dedicated Priority Support',yes:true},
+      {text:'All Future Updates Included',yes:true}
     ]
   }
 ];
@@ -1687,14 +1713,33 @@ function renderPlans() {
       return '<li><span class="feat-ico '+(f.yes?'yes':'no')+'">'+(f.yes?'✓':'✗')+'</span><span>'+esc(f.text)+'</span></li>';
     }).join('');
     var priceBlock = p.display===0
-      ? '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">0</span></div><div style="height:22px"></div>'
-      : '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">1</span></div><div class="plan-monthly-txt">Then ₹'+p.monthly+'/month</div>';
+      ? '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">0</span></div><div class="plan-monthly-txt">Free forever — no credit card needed</div>'
+      : '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">1</span></div><div class="plan-monthly-txt">Then ₹'+p.monthly+'/month · Cancel anytime</div>';
+    var ctaLabel = p.display===0 ? 'Get Started Free' : (p.id==='pro' ? 'Upgrade to Pro →' : 'Get Started →');
+    var ctaStyle = p.id==='pro'
+      ? 'margin-top:14px;width:100%;height:42px;background:var(--g-pro);border:none;border-radius:var(--pill);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:\'Plus Jakarta Sans\',sans-serif;letter-spacing:.2px'
+      : p.id==='free'
+        ? 'margin-top:14px;width:100%;height:42px;background:transparent;border:1.5px solid var(--bdr);border-radius:var(--pill);color:var(--txt2);font-size:13px;font-weight:700;cursor:pointer;font-family:\'Plus Jakarta Sans\',sans-serif'
+        : 'margin-top:14px;width:100%;height:42px;background:var(--g-blue);border:none;border-radius:var(--pill);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:\'Plus Jakarta Sans\',sans-serif;letter-spacing:.2px';
     return '<div class="plan-card '+p.css+(isSelected?' selected':'')+'" onclick="selectPlan(\''+p.id+'\')" id="plan-'+p.id+'">'
-      +(p.popular?'<div class="plan-popular">🔥 Most Popular</div>':'')
-      +'<div class="plan-header"><div><div class="plan-name">'+esc(p.name)+'</div>'+priceBlock+'</div>'
+      +(p.popular?'<div class="plan-popular">⭐ Most Popular</div>':'')
+      +'<div class="plan-header"><div><div class="plan-name">'+esc(p.name)+'</div>'
+      +'<div style="font-size:12px;color:var(--txt3);margin-bottom:8px;font-weight:500">'+esc(p.tagline||'')+'</div>'
+      +priceBlock+'</div>'
       +'<div class="plan-select-indicator"></div></div>'
-      +'<div class="plan-divider"></div><ul class="plan-features">'+feats+'</ul></div>';
+      +'<div class="plan-divider"></div><ul class="plan-features">'+feats+'</ul>'
+      +'<button style="'+ctaStyle+'" onclick="event.stopPropagation();selectPlan(\''+p.id+'\');handlePayment()">'+ctaLabel+'</button>'
+      +'</div>';
   }).join('');
+  // Trust line below plans grid
+  var trustEl = document.getElementById('plans-trust-line');
+  if (!trustEl) {
+    var trust = document.createElement('div');
+    trust.id = 'plans-trust-line';
+    trust.style.cssText = 'text-align:center;font-size:12px;color:var(--txt3);font-weight:600;padding:14px 0 4px;display:flex;align-items:center;justify-content:center;gap:6px';
+    trust.innerHTML = '<span style="color:var(--grn)">✓</span> Trusted by 500+ growing businesses · Secure payments via Razorpay';
+    grid.parentNode.insertBefore(trust, grid.nextSibling);
+  }
   updatePayBtn();
 }
 
