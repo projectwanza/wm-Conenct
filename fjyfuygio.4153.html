@@ -7,6 +7,18 @@
 <title>Wanza Admin Panel</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+   /* ── ACTIVATION CODE ADMIN STYLES ─────────────────────────── */
+.act-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
+.act-badge-ok  {background:rgba(0,201,126,.1);color:var(--grn)}
+.act-badge-none{background:rgba(255,106,0,.08);color:var(--org1)}
+.act-badge-used{background:rgba(79,142,247,.1);color:var(--blue)}
+.act-code-cell{
+  font-family:monospace;font-size:12px;letter-spacing:.5px;
+  background:rgba(255,106,0,.08);color:var(--org1);
+  padding:3px 10px;border-radius:6px;
+  border:1px solid rgba(255,106,0,.2);white-space:nowrap}
 <style>
 /* ═══════════════════════════════════════════════
    WANZA ADMIN v7 — Premium Orange Theme
@@ -348,6 +360,8 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
      <button class="nav-btn" onclick="nav('merchants')" id="nb-merchants">🎫 Merchants</button>
      <button class="nav-btn" onclick="nav('cmi')" id="nb-cmi">🔑 CMI Groups</button>
      <button class="nav-btn" onclick="nav('referrals')" id="nb-referrals">🎁 Referrals</button>
+     <button class="nav-btn" onclick="nav('activation')" id="nb-activation">🔑 Activation Codes</button>
+<button class="nav-btn" onclick="nav('actlogs')" id="nb-actlogs">📋 Activity Logs</button>
 <button class="nav-btn" onclick="nav('productivity')" id="nb-productivity">📊 Productivity</button>
     <div class="sb-bottom">
       <div class="conn-pill cp-wait" id="conn-pill">⏳ Checking…</div>
@@ -1165,6 +1179,150 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
         </div>
       </div>
     </div>
+     <!-- ═══ ACTIVATION CODES PANEL ══════════════════════════════════ -->
+<div class="panel" id="panel-activation">
+  <div class="topbar">
+    <div class="tb-title">🔑 Activation Codes</div>
+    <div class="tb-acts">
+      <button class="btn btn-ghost btn-sm" onclick="loadActivationPanel()">🔄 Refresh</button>
+    </div>
+  </div>
+
+  <!-- Info Card -->
+  <div class="card">
+    <div class="card-hd"><span class="card-tt">ℹ️ How It Works</span></div>
+    <div class="card-bd" style="font-size:13px;color:var(--txt2);line-height:1.9">
+      <strong style="color:var(--txt)">Problem:</strong> Razorpay subscription ₹5 auto-refund hota hai → Phone/email match nahi karta.<br>
+      <strong style="color:var(--txt)">Solution:</strong> Payment row mein <code style="color:var(--org1)">Plan Activation Code</code> assign karo → Customer wo code enter karke plan activate kare.<br><br>
+      <strong style="color:var(--txt)">Steps:</strong> Payment confirm hone ke baad → "Generate Code" button dabaao → Code customer ko WhatsApp/SMS karo.
+    </div>
+  </div>
+
+  <!-- Quick Activate by Client ID -->
+  <div class="card">
+    <div class="card-hd"><span class="card-tt">⚡ Quick Admin Activate</span></div>
+    <div class="card-bd">
+      <div class="form-grid">
+        <div class="fg">
+          <label class="lbl">Client ID *</label>
+          <select class="sel" id="qa-client">
+            <option value="">— Select Client —</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="lbl">Payment ID *</label>
+          <input class="inp" id="qa-payid" placeholder="pay_XXXXXXXX or CODE_WNZ-XXXX">
+        </div>
+        <div class="fg">
+          <label class="lbl">Plan Override (optional)</label>
+          <select class="sel" id="qa-plan">
+            <option value="">Auto-detect</option>
+            <option value="starter">Starter</option>
+            <option value="pro">Pro</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-ok" onclick="doAdminActivate()"
+        style="margin-top:16px;height:48px;padding:0 28px">
+        ⚡ Activate Plan Now
+      </button>
+      <div id="qa-result" style="display:none;margin-top:12px;padding:12px 14px;
+        border-radius:var(--r2);font-size:13px;font-weight:700"></div>
+    </div>
+  </div>
+
+  <!-- Payment Rows Table -->
+  <div class="card">
+    <div class="card-hd">
+      <span class="card-tt">💳 Payment Rows</span>
+      <div style="display:flex;gap:8px">
+        <input class="inp" id="act-search"
+          placeholder="🔍 Search payment ID, email…"
+          oninput="filterActTable(this.value)"
+          style="width:200px;height:34px;padding:6px 12px;font-size:12px">
+        <button class="btn btn-ghost btn-sm" onclick="loadActivationPanel()">🔄</button>
+      </div>
+    </div>
+    <div class="card-bd" style="padding:0">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Payment ID</th>
+              <th>Email / Contact</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Activation Code</th>
+              <th>Code Used</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="act-tbody">
+            <tr><td colspan="7" style="text-align:center;padding:28px;color:var(--txt2)">
+              Click 🔄 to load payment rows
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ACTIVITY LOGS PANEL ══════════════════════════════════════ -->
+<div class="panel" id="panel-actlogs">
+  <div class="topbar">
+    <div class="tb-title">📋 Activity Logs</div>
+    <div class="tb-acts">
+      <select class="sel" id="al-type-filter" onchange="loadActivityLogs()"
+        style="height:34px;font-size:12px;padding:6px 10px">
+        <option value="">All Actions</option>
+        <option value="CODE_USED">CODE_USED</option>
+        <option value="CODE_GENERATED">CODE_GENERATED</option>
+        <option value="ADMIN_ACTIVATED">ADMIN_ACTIVATED</option>
+        <option value="CODE_FAILED">CODE_FAILED</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="loadActivityLogs()">🔄</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats" style="margin-bottom:16px">
+    <div class="stat"><div class="stat-ico">🔑</div>
+      <div class="stat-n" id="al-total">–</div>
+      <div class="stat-l">Total Actions</div></div>
+    <div class="stat"><div class="stat-ico">✅</div>
+      <div class="stat-n" id="al-activated">–</div>
+      <div class="stat-l">Plans Activated</div></div>
+    <div class="stat"><div class="stat-ico">❌</div>
+      <div class="stat-n" id="al-failed">–</div>
+      <div class="stat-l">Failed Attempts</div></div>
+    <div class="stat"><div class="stat-ico">⚡</div>
+      <div class="stat-n" id="al-admin">–</div>
+      <div class="stat-l">Admin Activations</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><span class="card-tt">All Activity</span></div>
+    <div class="card-bd" style="padding:0">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th><th>Action</th><th>Code</th>
+              <th>Client ID</th><th>Plan</th><th>By</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="al-tbody">
+            <tr><td colspan="7" style="text-align:center;padding:28px;color:var(--txt2)">
+              Click 🔄 to load logs
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
   </main>
 </div>
 </div><!-- #app -->
@@ -3067,7 +3225,276 @@ function submitBulkReviews() {
     });
   });
 }
-   
+   // ================================================================
+//  ACTIVATION CODES & ACTIVITY LOGS — Admin JS
+// ================================================================
+
+var _allPaymentRows = [];
+
+// ── Load Activation Panel ────────────────────────────────────────
+function loadActivationPanel() {
+  var tbody = document.getElementById('act-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px">'
+    + '<span class="spin"></span> Loading…</td></tr>';
+
+  // Fill client dropdown
+  var sel = document.getElementById('qa-client');
+  if (sel && sel.options.length <= 1) {
+    var fillFn = function(clients) {
+      while (sel.options.length > 1) sel.remove(1);
+      clients.forEach(function(c) {
+        sel.appendChild(new Option(c.name + ' — ' + c.client_id, c.client_id));
+      });
+    };
+    if (ALL_CL && ALL_CL.length) fillFn(ALL_CL);
+    else apiGet('getAllClients', {}).then(function(d) {
+      ALL_CL = d || []; fillFn(ALL_CL);
+    }).catch(function(){});
+  }
+
+  apiGet('getAllPaymentRows', {})
+    .then(function(d) {
+      _allPaymentRows = Array.isArray(d) ? d : [];
+      _renderActTable(_allPaymentRows);
+    })
+    .catch(function(e) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--red)">'
+        + '❌ ' + esc(e.message) + '<br><small>Payment sheet exist karti hai?</small></td></tr>';
+    });
+}
+
+// ── Render Payment Rows Table ────────────────────────────────────
+function _renderActTable(rows) {
+  var tbody = document.getElementById('act-tbody');
+  if (!rows || !rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:36px;color:var(--txt2)">'
+      + 'No payment rows found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '';
+  rows.forEach(function(row, idx) {
+    // Support flexible column names
+    var payId    = row['Payment ID'] || row['payment_id'] || row['Razorpay Payment ID'] || '—';
+    var email    = row['Email']   || row['email']   || '—';
+    var contact  = row['Contact'] || row['contact'] || row['Phone'] || '';
+    var amount   = row['Amount']  || row['amount']  || '—';
+    var status   = String(row['Status'] || row['status'] || '').toLowerCase();
+    var actCode  = row['Plan Activation Code'] || row['Activation Code'] || '';
+    var codeUsed = String(row['Code Used'] || row['code_used'] || '').toUpperCase();
+
+    var statusBadge = status === 'captured'
+      ? '<span class="badge b-grn">captured</span>'
+      : status
+      ? '<span class="badge b-red">' + esc(status) + '</span>'
+      : '<span class="badge" style="background:rgba(0,0,0,.06)">—</span>';
+
+    var codeBadge = actCode
+      ? '<span class="act-code-cell">' + esc(actCode) + '</span>'
+        + ' <button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:10px"'
+        + ' onclick="copyActCode(\'' + esc(actCode) + '\')" title="Copy code">📋</button>'
+      : '<span style="color:var(--txt3);font-size:12px">Not assigned</span>';
+
+    var usedBadge = codeUsed === 'YES' || codeUsed === 'USED' || codeUsed === 'TRUE'
+      ? '<span class="act-badge act-badge-used">✅ Used</span>'
+      : actCode
+      ? '<span class="act-badge act-badge-none">⏳ Unused</span>'
+      : '—';
+
+    var displayContact = [email, contact].filter(function(v) {
+      return v && v !== '—' && v.trim();
+    }).join(' / ');
+
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><code style="font-size:11px;color:var(--org1)">' + esc(String(payId).substr(0,20)) + '</code></td>'
+      + '<td style="font-size:12px;color:var(--txt2);max-width:150px;overflow:hidden;text-overflow:ellipsis">'
+        + esc(displayContact || '—') + '</td>'
+      + '<td style="font-size:13px;font-weight:600">₹' + esc(String(amount)) + '</td>'
+      + '<td>' + statusBadge + '</td>'
+      + '<td>' + codeBadge + '</td>'
+      + '<td>' + usedBadge + '</td>'
+      + '<td><div style="display:flex;gap:5px;flex-wrap:wrap">'
+        + '<button class="btn btn-pri btn-sm" style="font-size:11px;height:30px"'
+          + ' data-row="' + idx + '" onclick="genCodeForRow(' + idx + ')">'
+          + (actCode ? '🔄 Regen' : '⚡ Generate') + '</button>'
+        + '</div></td>';
+
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Filter table ─────────────────────────────────────────────────
+function filterActTable(query) {
+  if (!query || !query.trim()) { _renderActTable(_allPaymentRows); return; }
+  query = query.toLowerCase();
+  var filtered = _allPaymentRows.filter(function(row) {
+    var vals = Object.values(row).map(function(v){ return String(v).toLowerCase(); }).join(' ');
+    return vals.indexOf(query) > -1;
+  });
+  _renderActTable(filtered);
+}
+
+// ── Generate Code for a row ──────────────────────────────────────
+function genCodeForRow(rowIdx) {
+  var row   = _allPaymentRows[rowIdx];
+  if (!row) return;
+  var payId = row['Payment ID'] || row['payment_id'] || row['Razorpay Payment ID'] || '';
+  if (!payId) { toast('Payment ID column not found in this row.', 'err'); return; }
+
+  showLoad('Generating activation code…');
+
+  apiPost('adminGenerateAndAssignCode', { payment_id: payId })
+    .then(function(d) {
+      hideLoad();
+      var msg = d.already_existed
+        ? 'Code already existed: ' + d.code
+        : 'Code generated! 🎉\n' + d.code;
+      toast(msg, 'ok', 5000);
+
+      // Copy to clipboard automatically
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(d.code).then(function() {
+          toast('Code copied to clipboard! 📋 ' + d.code, 'ok', 6000);
+        });
+      }
+
+      // Refresh table
+      loadActivationPanel();
+    })
+    .catch(function(e) {
+      hideLoad();
+      toast('Failed: ' + e.message, 'err');
+    });
+}
+
+// ── Copy activation code ─────────────────────────────────────────
+function copyActCode(code) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(function() {
+      toast('Copied: ' + code, 'ok', 3000);
+    });
+  }
+}
+
+// ── Admin: Quick Activate Plan ───────────────────────────────────
+function doAdminActivate() {
+  var clientId = (document.getElementById('qa-client').value || '').trim();
+  var payId    = (document.getElementById('qa-payid').value  || '').trim();
+  var plan     = (document.getElementById('qa-plan').value   || '').trim();
+  var resEl    = document.getElementById('qa-result');
+
+  resEl.style.display = 'none';
+
+  if (!clientId) { toast('Client select karo!', 'err'); return; }
+  if (!payId)    { toast('Payment ID enter karo!', 'err'); return; }
+
+  showLoad('Activating plan…');
+
+  apiPost('adminActivatePlan', {
+    client_id:  clientId,
+    payment_id: payId,
+    plan_id:    plan || undefined
+  })
+  .then(function(d) {
+    hideLoad();
+    resEl.style.cssText =
+      'display:block;background:rgba(0,201,126,.1);'
+      + 'border:1.5px solid rgba(0,201,126,.3);'
+      + 'border-radius:10px;padding:12px 14px;'
+      + 'font-size:13px;font-weight:700;color:var(--grn)';
+    resEl.innerHTML =
+      '✅ Plan Activated!<br>'
+      + '<span style="font-weight:500;font-size:12px">'
+      + 'Client: ' + esc(clientId) + ' | Plan: ' + esc((d.plan_id||'').toUpperCase())
+      + '</span>';
+    toast('Plan activated! ✅', 'ok', 4000);
+  })
+  .catch(function(e) {
+    hideLoad();
+    resEl.style.cssText =
+      'display:block;background:rgba(255,71,87,.08);'
+      + 'border:1.5px solid rgba(255,71,87,.25);'
+      + 'border-radius:10px;padding:12px 14px;'
+      + 'font-size:13px;font-weight:700;color:var(--red)';
+    resEl.textContent = '❌ Failed: ' + e.message;
+    toast('Failed: ' + e.message, 'err');
+  });
+}
+
+// ── Load Activity Logs ───────────────────────────────────────────
+function loadActivityLogs() {
+  var tbody = document.getElementById('al-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px">'
+    + '<span class="spin"></span> Loading…</td></tr>';
+
+  var actionType = (document.getElementById('al-type-filter').value || '');
+  var params     = actionType ? { action_type: actionType } : {};
+
+  apiGet('getActivityLogs', params)
+    .then(function(d) {
+      var rows = Array.isArray(d) ? d : [];
+
+      // Stats
+      animNum(document.getElementById('al-total'),    rows.length);
+      animNum(document.getElementById('al-activated'),
+        rows.filter(function(r){ return r.action_type==='CODE_USED'||r.action_type==='ADMIN_ACTIVATED'; }).length);
+      animNum(document.getElementById('al-failed'),
+        rows.filter(function(r){ return r.action_type==='CODE_FAILED'; }).length);
+      animNum(document.getElementById('al-admin'),
+        rows.filter(function(r){ return r.action_type==='ADMIN_ACTIVATED'; }).length);
+
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:36px;color:var(--txt2)">'
+          + 'No activity logs yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(function(r) {
+        var dt   = r.timestamp ? new Date(r.timestamp).toLocaleString('en-IN') : '—';
+        var aType = r.action_type || '—';
+        var aBadge = aType === 'CODE_USED'
+          ? '<span class="badge b-grn">' + esc(aType) + '</span>'
+          : aType === 'ADMIN_ACTIVATED'
+          ? '<span class="badge b-blue">' + esc(aType) + '</span>'
+          : aType === 'CODE_GENERATED'
+          ? '<span class="badge b-org">' + esc(aType) + '</span>'
+          : '<span class="badge b-red">' + esc(aType) + '</span>';
+
+        var sBadge = r.status === 'success'
+          ? '<span class="badge b-grn">✅</span>'
+          : '<span class="badge b-red">❌</span>';
+
+        return '<tr>'
+          + '<td style="font-size:11px;color:var(--txt2);white-space:nowrap">' + esc(dt) + '</td>'
+          + '<td>' + aBadge + '</td>'
+          + '<td>' + (r.activation_code
+              ? '<code style="font-size:11px;color:var(--org1)">' + esc(r.activation_code) + '</code>'
+              : '—') + '</td>'
+          + '<td style="font-size:11px;font-family:monospace;color:var(--txt2)">'
+              + esc((r.client_id||'—').substr(0,20)) + '</td>'
+          + '<td><span class="badge b-org">' + esc(r.plan_id||'—') + '</span></td>'
+          + '<td style="font-size:11px;color:var(--txt2)">'
+              + esc(r.activated_by_value||r.activated_by||'—') + '</td>'
+          + '<td>' + sBadge + '</td>'
+          + '</tr>';
+      }).join('');
+    })
+    .catch(function(e) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--red)">'
+        + '❌ ' + esc(e.message) + '</td></tr>';
+    });
+}
+
+// ── Hook nav() for new panels ────────────────────────────────────
+(function(){
+  var _origNavAct = window.nav;
+  window.nav = function(id) {
+    _origNavAct(id);
+    if (id === 'activation') loadActivationPanel();
+    if (id === 'actlogs')    loadActivityLogs();
+  };
+})();
 </script>
 
    <!-- ══ BULK REVIEW GENERATOR MODAL ══════════════════════════ -->
