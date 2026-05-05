@@ -1757,7 +1757,7 @@ function updatePayBtn() {
   var btn  = document.getElementById('pay-btn');
   if (!plan || !btn) return;
   if (plan.id==='free')        { btn.textContent='✅ Activate Free Plan'; btn.className='btn btn-primary'; }
-  else if (plan.id==='pro')    { btn.textContent='🔥 Start Pro for ₹1 — Activate Now'; btn.className='btn btn-pro'; }
+  else if (plan.id==='pro')    { btn.textContent='🔥 Start Pro for ₹5 — Activate Now'; btn.className='btn btn-pro'; }
   else                         { btn.textContent='⚡ Start '+plan.name+' for ₹1'; btn.className='btn btn-amber'; }
 }
 
