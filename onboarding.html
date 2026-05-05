@@ -10,6 +10,60 @@
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
    <!-- QR Scanner Library -->
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+/* ── ACTIVATION CODE SYSTEM ─────────────────────────────────── */
+.act-code-section{
+  margin:0 var(--pad) 16px;
+  background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(37,99,235,.06));
+  border:1.5px solid rgba(16,185,129,.30);
+  border-radius:var(--r3);padding:22px;
+  box-shadow:0 0 30px rgba(16,185,129,.08)}
+
+.act-code-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.act-code-ico{width:44px;height:44px;border-radius:12px;
+  background:rgba(16,185,129,.15);border:2px solid rgba(16,185,129,.3);
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.act-code-title{font-size:15px;font-weight:800;color:var(--grn)}
+.act-code-sub{font-size:12px;color:rgba(16,185,129,.7);margin-top:2px}
+
+.act-code-input-wrap{display:flex;gap:8px;align-items:stretch;margin-bottom:10px}
+.act-code-inp{flex:1;background:rgba(255,255,255,.05);
+  border:2px solid rgba(16,185,129,.3);border-radius:var(--r2);
+  color:var(--txt);padding:14px 18px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;
+  font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  outline:none;transition:border-color .2s,box-shadow .2s}
+.act-code-inp:focus{border-color:rgba(16,185,129,.7);
+  box-shadow:0 0 0 4px rgba(16,185,129,.12)}
+.act-code-inp::placeholder{letter-spacing:1px;font-size:13px;
+  font-weight:500;text-transform:none;color:var(--txt3)}
+
+.btn-act-code{height:54px;padding:0 22px;
+  background:linear-gradient(135deg,#059669,#10B981);
+  border:none;border-radius:var(--r2);color:#fff;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;
+  font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 4px 20px rgba(16,185,129,.35)}
+.btn-act-code:hover{transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(16,185,129,.5)}
+.btn-act-code:active{transform:scale(.97)}
+.btn-act-code:disabled{opacity:.5;cursor:default;transform:none}
+
+.act-code-result{padding:12px 16px;border-radius:var(--r2);
+  font-size:13px;font-weight:700;line-height:1.5;
+  display:none;margin-bottom:10px;text-align:center}
+.act-code-result.success{background:rgba(16,185,129,.12);
+  border:1.5px solid rgba(16,185,129,.30);color:var(--grn)}
+.act-code-result.error{background:rgba(239,68,68,.08);
+  border:1.5px solid rgba(239,68,68,.25);color:var(--red)}
+.act-code-result.warn{background:rgba(245,158,11,.08);
+  border:1.5px solid rgba(245,158,11,.25);color:var(--amber)}
+
+.act-divider{display:flex;align-items:center;gap:12px;
+  font-size:11px;color:var(--txt3);font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;margin:14px 0}
+.act-divider::before,.act-divider::after{content:'';
+  flex:1;height:1px;background:var(--bdr)}
 <style>
 /* ═══════════════════════════════════════════════════════
    WANZA ONBOARDING v2.2 — Enhanced
@@ -820,7 +874,49 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
   </div>
 
   <div style="height:16px"></div>
+<!-- ═══ ACTIVATION CODE SECTION ═══════════════════════════════ -->
+<div class="act-code-section" id="act-code-section">
 
+  <div class="act-code-header">
+    <div class="act-code-ico">🔑</div>
+    <div>
+      <div class="act-code-title">Activate Your Plan</div>
+      <div class="act-code-sub">Admin se mila activation code enter karo</div>
+    </div>
+  </div>
+
+  <div class="act-code-result" id="act-result"></div>
+
+  <div class="act-code-input-wrap">
+    <input
+      class="act-code-inp"
+      id="act-code-inp"
+      placeholder="WNZ-XXXX-XXXX"
+      maxlength="12"
+      autocomplete="off"
+      spellcheck="false"
+      oninput="onActCodeInput(this.value)"
+      onkeydown="if(event.key==='Enter') submitActCode()"
+    >
+    <button class="btn-act-code" id="act-code-btn" onclick="submitActCode()">
+      ✅ Activate
+    </button>
+  </div>
+
+  <div style="font-size:11px;color:var(--txt3);line-height:1.6;text-align:center">
+    💡 Razorpay se refund mila? Admin se activation code maango.<br>
+    Code format: <code style="color:var(--blue3)">WNZ-XXXX-XXXX</code>
+  </div>
+
+  <div class="act-divider">ya</div>
+
+  <!-- Keep existing methods below -->
+  <div style="font-size:12px;color:var(--txt3);text-align:center;margin-bottom:2px">
+    Agar code nahi hai to neeche payment verify karo ya seedha pay karo ↓
+  </div>
+
+</div>
+<!-- ═══ END ACTIVATION CODE SECTION ═══════════════════════════ -->
   <!-- ★ NEW: PAYMENT STATUS VERIFICATION WIDGET ★ -->
   <div class="pv-card" id="pv-card">
     <div class="pv-hd" onclick="togglePvCard()">
@@ -2085,7 +2181,131 @@ function submitManualVerify() {
     toast('Connection error. Try again.', 'err');
   });
 }
-   
+   // ──────────────────────────────────────────────────────────────
+//  ★ ACTIVATION CODE SYSTEM — Frontend JS
+// ──────────────────────────────────────────────────────────────
+
+// Auto-format input: uppercase + auto-hyphen
+function onActCodeInput(val) {
+  var inp   = document.getElementById('act-code-inp');
+  var clean = val.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+  var formatted = '';
+  for (var i = 0; i < clean.length && i < 10; i++) {
+    if (i === 3 || i === 7) formatted += '-';
+    formatted += clean[i];
+  }
+  inp.value = formatted;
+
+  // Reset result
+  var res = document.getElementById('act-result');
+  res.style.display = 'none';
+  res.className = 'act-code-result';
+}
+
+function submitActCode() {
+  var code = (document.getElementById('act-code-inp').value || '').trim().toUpperCase();
+  var res  = document.getElementById('act-result');
+  var btn  = document.getElementById('act-code-btn');
+
+  if (!code) {
+    res.className     = 'act-code-result error';
+    res.textContent   = '❌ Activation code enter karo';
+    res.style.display = 'block';
+    return;
+  }
+
+  if (code.length < 10) {
+    res.className     = 'act-code-result error';
+    res.textContent   = '❌ Valid code format: WNZ-XXXX-XXXX';
+    res.style.display = 'block';
+    return;
+  }
+
+  if (!STATE.clientId) {
+    res.className     = 'act-code-result warn';
+    res.textContent   = '⚠️ Pehle Step 1 mein profile create karo';
+    res.style.display = 'block';
+    return;
+  }
+
+  // Loading state
+  btn.disabled    = true;
+  btn.textContent = '⏳ Verifying…';
+  res.style.display = 'none';
+
+  // Get user's identifier for logging
+  var userIdentifier = (document.getElementById('c-ph')
+    ? document.getElementById('c-ph').value
+    : '') || STATE.clientId;
+
+  apiPost('verifyActivationCode', {
+    code:               code,
+    client_id:          STATE.clientId,
+    activated_by_value: userIdentifier
+  })
+  .then(function(d) {
+    btn.disabled    = false;
+    btn.textContent = '✅ Activate';
+
+    if (d && d.status === 'success') {
+      // 🎉 SUCCESS
+      res.className     = 'act-code-result success';
+      res.innerHTML     =
+        '<div style="font-size:18px;margin-bottom:6px">🎉 Plan Activated!</div>'
+        + '<div style="font-size:13px;opacity:.85">'
+        + (d.plan_id || 'Pro').toUpperCase() + ' plan activate ho gaya!<br>'
+        + (d.payment_id ? 'Payment ID: ' + d.payment_id : '')
+        + '</div>';
+      res.style.display = 'block';
+
+      // Update state and go to step 3
+      STATE.selectedPlan  = d.plan_id   || 'pro';
+      STATE.paymentStatus = 'paid';
+      toast('🎉 Plan activated! Redirecting…', 'ok', 3000);
+
+      setTimeout(function() {
+        savePlan(
+          d.plan_id   || 'pro',
+          d.payment_id || ('CODE_' + code),
+          'paid'
+        );
+      }, 1500);
+
+    } else if (d && d.status === 'already_used') {
+      res.className     = 'act-code-result warn';
+      res.innerHTML     =
+        '<div>⚠️ <strong>Code Already Used</strong></div>'
+        + '<div style="font-size:12px;margin-top:4px;opacity:.8">'
+        + (d.message || 'Ye code already use ho chuka hai.')
+        + '</div>';
+      res.style.display = 'block';
+      toast('Code already used.', 'warn');
+
+    } else if (d && d.status === 'invalid') {
+      res.className     = 'act-code-result error';
+      res.innerHTML     =
+        '<div>❌ <strong>Invalid Code</strong></div>'
+        + '<div style="font-size:12px;margin-top:4px;opacity:.8">'
+        + (d.message || 'Code sahi nahi hai. Admin se confirm karo.')
+        + '</div>';
+      res.style.display = 'block';
+      toast('Invalid activation code.', 'err');
+
+    } else {
+      res.className     = 'act-code-result error';
+      res.textContent   = '❌ ' + (d && d.message ? d.message : 'Error. Dobara try karo.');
+      res.style.display = 'block';
+    }
+  })
+  .catch(function(e) {
+    btn.disabled    = false;
+    btn.textContent = '✅ Activate';
+    res.className     = 'act-code-result error';
+    res.textContent   = '❌ Connection error: ' + (e.message || 'Unknown');
+    res.style.display = 'block';
+    toast('Connection error. Try again.', 'err');
+  });
+}
 // ──────────────────────────────────────────────────────────────
 //  INIT
 // ──────────────────────────────────────────────────────────────
