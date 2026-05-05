@@ -1060,7 +1060,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
       <div class="sad-title">Oohoo… payment not completed 😔</div>
       <div class="sad-sub">You were <strong>so close</strong> to unlocking all the amazing features.<br>
         Your competitors are already using Pro to get more reviews &amp; grow faster.</div>
-      <div class="sad-highlight">👉 Just ₹1 — less than a chai! Start your plan now.</div>
+      <div class="sad-highlight">👉 Just ₹5 — less than a chai! Start your plan now.</div>
     </div>
   </div>
 
@@ -1712,9 +1712,9 @@ function renderPlans() {
     var feats = p.features.map(function(f) {
       return '<li><span class="feat-ico '+(f.yes?'yes':'no')+'">'+(f.yes?'✓':'✗')+'</span><span>'+esc(f.text)+'</span></li>';
     }).join('');
-    var priceBlock = p.display===0
-      ? '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">0</span></div><div class="plan-monthly-txt">Free forever — no credit card needed</div>'
-      : '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">1</span></div><div class="plan-monthly-txt">Then ₹'+p.monthly+'/month · Cancel anytime</div>';
+   var priceBlock = p.display===0
+  ? '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">0</span></div><div class="plan-monthly-txt">Free forever — no credit card needed</div>'
+  : '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">5</span></div><div class="plan-monthly-txt">Then ₹'+p.monthly+'/month · Cancel anytime</div>';
     var ctaLabel = p.display===0 ? 'Get Started Free' : (p.id==='pro' ? 'Upgrade to Pro →' : 'Get Started →');
     var ctaStyle = p.id==='pro'
       ? 'margin-top:14px;width:100%;height:42px;background:var(--g-pro);border:none;border-radius:var(--pill);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:\'Plus Jakarta Sans\',sans-serif;letter-spacing:.2px'
@@ -1758,7 +1758,7 @@ function updatePayBtn() {
   if (!plan || !btn) return;
   if (plan.id==='free')        { btn.textContent='✅ Activate Free Plan'; btn.className='btn btn-primary'; }
   else if (plan.id==='pro')    { btn.textContent='🔥 Start Pro for ₹5 — Activate Now'; btn.className='btn btn-pro'; }
-  else                         { btn.textContent='⚡ Start '+plan.name+' for ₹1'; btn.className='btn btn-amber'; }
+  else                         { btn.textContent='⚡ Start '+plan.name+' for ₹5'; btn.className='btn btn-amber'; }
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -1854,7 +1854,7 @@ function showPaymentFailedScreen(clientId, planId) {
   var plan = PLANS.find(function(p){ return p.id===planId; }) || {};
   sadEl.innerHTML = '<div style="font-size:2rem;flex-shrink:0">😔</div><div style="flex:1">'
     +'<div class="sad-title">Payment Complete Nahi Hua</div>'
-    +'<div class="sad-sub" style="margin-bottom:12px">Koi charge nahi kiya gaya.<br>Sirf <strong>₹1</strong> mein '+(plan.name||planId.toUpperCase())+' plan activate karo!</div>'
+    +'<div class="sad-sub" style="margin-bottom:12px">Koi charge nahi kiya gaya.<br>Sirf <strong>₹5</strong> mein '+(plan.name||planId.toUpperCase())+' plan activate karo!</div>'
     +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
     +'<button class="btn btn-amber btn-sm" onclick="retryPayment(\''+planId+'\')" style="height:40px;font-size:13px;width:auto;padding:0 20px;animation:none">🔄 Dobara Try Karo</button>'
     +'<button class="btn btn-ghost btn-sm" onclick="skipToFree()" style="height:40px;font-size:13px;width:auto;padding:0 16px">Free Plan Se Continue</button>'
