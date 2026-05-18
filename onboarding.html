@@ -652,6 +652,39 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
   box-shadow:0 6px 24px rgba(37,99,235,.20)}
 .btn-create-another:active{transform:scale(.96)!important}
 /* END CREATE ANOTHER BUTTON */
+
+      /* ADD THIS — Razorpay Subscription Button Container Styling */
+#rzp-btn-wrap-starter,
+#rzp-btn-wrap-pro,
+#rzp-btn-wrap-premium {
+  margin-top: 14px;
+  width: 100%;
+}
+
+/* Make Razorpay button full width inside cards */
+#rzp-btn-starter form,
+#rzp-btn-pro form,
+#rzp-btn-premium form {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+/* Loading placeholder while Razorpay button loads */
+.rzp-loading-placeholder {
+  width: 100%;
+  height: 42px;
+  background: rgba(37,99,235,.08);
+  border: 1.5px dashed rgba(37,99,235,.3);
+  border-radius: var(--pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--blue2);
+  font-weight: 600;
+}
+/* END Razorpay Styling */
 </style>
 </head>
 <body>
@@ -1105,12 +1138,15 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 </div>
 <!-- ★ END NEED HELP Step 2 -->
    
+  <!-- REPLACE THIS — Updated pay strip for subscription flow -->
   <div class="pay-strip" id="pay-strip">
     <button class="btn btn-pro" id="pay-btn" onclick="handlePayment()">
-      🔥 Start for ₹1 — Activate Plan
+      🔥 Subscribe Now — Scroll to Plan
     </button>
-      </div>
-</div><!-- step-2 -->
+    <div style="text-align:center;font-size:11px;color:var(--txt3);margin-top:-4px">
+      Plan card mein blue button click karke subscribe karo
+    </div>
+  </div><!-- step-2 -->
 
 
 <!-- ═══════════════════════════════════════════════
@@ -1312,10 +1348,12 @@ var ADMIN_URL   = window.location.origin + '/admin';
 // ──────────────────────────────────────────────────────────────
 //  PLANS DATA  (same as original)
 // ──────────────────────────────────────────────────────────────
+// REPLACE THIS — New PLANS array with Razorpay Subscription Button IDs
 var PLANS = [
   {
     id:'free', name:'FREE', css:'free', display:0, original:0, monthly:0, popular:false,
     tagline:'Get started at no cost',
+    subscriptionButtonId: '',   // Free plan — no payment needed
     features:[
       {text:'Digital Business Profile',yes:true},
       {text:'WhatsApp, Call & Email Buttons',yes:true},
@@ -1329,7 +1367,8 @@ var PLANS = [
   },
   {
     id:'starter', name:'STARTER', css:'starter', display:5, original:199, monthly:49,
-    payLink:'https://rzp.io/rzp/0MDV5xa2', popular:false,
+    subscriptionButtonId: 'pl_Sqi01yHdae6h9X',  // Starter Razorpay Button ID
+    popular:false,
     tagline:'Perfect for growing businesses',
     features:[
       {text:'Everything in Free',yes:true},
@@ -1344,7 +1383,8 @@ var PLANS = [
   },
   {
     id:'pro', name:'PRO', css:'pro', display:5, original:499, monthly:149,
-    payLink:'https://rzp.io/rzp/Xryd2Nj', popular:true,
+    subscriptionButtonId: 'pl_SmAhXuwpSsPEdc',   // Pro Razorpay Button ID
+    popular:true,
     tagline:'For businesses serious about growth',
     features:[
       {text:'Everything in Starter',yes:true},
@@ -1360,7 +1400,8 @@ var PLANS = [
   },
   {
     id:'premium', name:'PREMIUM', css:'premium', display:5, original:799, monthly:299,
-    payLink:'https://rzp.io/rzp/ep5E53M', popular:false,
+    subscriptionButtonId: 'pl_Sqi2o4vYBzEx5D',   // Premium Razorpay Button ID
+    popular:false,
     tagline:'The complete business growth suite',
     features:[
       {text:'Everything in Pro',yes:true},
@@ -1705,42 +1746,202 @@ function submitProfile() {
 // ──────────────────────────────────────────────────────────────
 //  PLAN RENDER
 // ──────────────────────────────────────────────────────────────
+// REPLACE THIS — New renderPlans with Razorpay Subscription Buttons embedded
 function renderPlans() {
   var grid = document.getElementById('plans-grid');
+
   grid.innerHTML = PLANS.map(function(p) {
     var isSelected = (STATE.selectedPlan === p.id);
+
+    // Features list HTML
     var feats = p.features.map(function(f) {
-      return '<li><span class="feat-ico '+(f.yes?'yes':'no')+'">'+(f.yes?'✓':'✗')+'</span><span>'+esc(f.text)+'</span></li>';
+      return '<li><span class="feat-ico '+(f.yes?'yes':'no')+'">'
+        +(f.yes?'✓':'✗')+'</span><span>'+esc(f.text)+'</span></li>';
     }).join('');
-   var priceBlock = p.display===0
-  ? '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">0</span></div><div class="plan-monthly-txt">Free forever — no credit card needed</div>'
-  : '<div class="plan-price-row"><span class="plan-currency">₹</span><span class="plan-amount">5</span></div><div class="plan-monthly-txt">Then ₹'+p.monthly+'/month · Cancel anytime</div>';
-    var ctaLabel = p.display===0 ? 'Get Started Free' : (p.id==='pro' ? 'Upgrade to Pro →' : 'Get Started →');
-    var ctaStyle = p.id==='pro'
-      ? 'margin-top:14px;width:100%;height:42px;background:var(--g-pro);border:none;border-radius:var(--pill);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:\'Plus Jakarta Sans\',sans-serif;letter-spacing:.2px'
-      : p.id==='free'
-        ? 'margin-top:14px;width:100%;height:42px;background:transparent;border:1.5px solid var(--bdr);border-radius:var(--pill);color:var(--txt2);font-size:13px;font-weight:700;cursor:pointer;font-family:\'Plus Jakarta Sans\',sans-serif'
-        : 'margin-top:14px;width:100%;height:42px;background:var(--g-blue);border:none;border-radius:var(--pill);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:\'Plus Jakarta Sans\',sans-serif;letter-spacing:.2px';
-    return '<div class="plan-card '+p.css+(isSelected?' selected':'')+'" onclick="selectPlan(\''+p.id+'\')" id="plan-'+p.id+'">'
-      +(p.popular?'<div class="plan-popular">⭐ Most Popular</div>':'')
-      +'<div class="plan-header"><div><div class="plan-name">'+esc(p.name)+'</div>'
-      +'<div style="font-size:12px;color:var(--txt3);margin-bottom:8px;font-weight:500">'+esc(p.tagline||'')+'</div>'
-      +priceBlock+'</div>'
-      +'<div class="plan-select-indicator"></div></div>'
-      +'<div class="plan-divider"></div><ul class="plan-features">'+feats+'</ul>'
-      +'<button style="'+ctaStyle+'" onclick="event.stopPropagation();selectPlan(\''+p.id+'\');handlePayment()">'+ctaLabel+'</button>'
+
+    // Price block
+    var priceBlock = p.display === 0
+      ? '<div class="plan-price-row"><span class="plan-currency">₹</span>'
+        +'<span class="plan-amount">0</span></div>'
+        +'<div class="plan-monthly-txt">Free forever — no credit card needed</div>'
+      : '<div class="plan-price-row"><span class="plan-currency">₹</span>'
+        +'<span class="plan-amount">299</span></div>'
+        +'<div class="plan-monthly-txt">Per month · Cancel anytime · Starts today</div>';
+
+    // CTA button block — Free plan gets normal button, paid plans get Razorpay widget
+    var ctaBlock = '';
+
+    if (p.id === 'free') {
+      // Free plan — simple button, no Razorpay needed
+      ctaBlock = '<button '
+        +'style="margin-top:14px;width:100%;height:42px;background:transparent;'
+        +'border:1.5px solid var(--bdr);border-radius:var(--pill);color:var(--txt2);'
+        +'font-size:13px;font-weight:700;cursor:pointer;'
+        +'font-family:\'Plus Jakarta Sans\',sans-serif" '
+        +'onclick="event.stopPropagation();selectPlan(\'free\');handlePayment()">'
+        +'✅ Get Started Free'
+        +'</button>';
+    } else {
+      // Paid plans — Razorpay Subscription Button + store plan on click
+      ctaBlock = '<div id="rzp-btn-wrap-'+p.id+'" '
+        +'style="margin-top:14px;min-height:48px;display:flex;align-items:center;justify-content:center">'
+        +'<div id="rzp-btn-'+p.id+'" style="width:100%"></div>'
+        +'</div>';
+    }
+
+    return '<div class="plan-card '+p.css+(isSelected?' selected':'')+'" '
+      +'onclick="selectPlan(\''+p.id+'\')" id="plan-'+p.id+'">'
+      +(p.popular ? '<div class="plan-popular">⭐ Most Popular</div>' : '')
+      +'<div class="plan-header">'
+      +'<div>'
+      +'<div class="plan-name">'+esc(p.name)+'</div>'
+      +'<div style="font-size:12px;color:var(--txt3);margin-bottom:8px;font-weight:500">'
+      +esc(p.tagline||'')+'</div>'
+      +priceBlock
+      +'</div>'
+      +'<div class="plan-select-indicator"></div>'
+      +'</div>'
+      +'<div class="plan-divider"></div>'
+      +'<ul class="plan-features">'+feats+'</ul>'
+      +ctaBlock
       +'</div>';
   }).join('');
-  // Trust line below plans grid
+
+  // Trust line
   var trustEl = document.getElementById('plans-trust-line');
   if (!trustEl) {
     var trust = document.createElement('div');
     trust.id = 'plans-trust-line';
-    trust.style.cssText = 'text-align:center;font-size:12px;color:var(--txt3);font-weight:600;padding:14px 0 4px;display:flex;align-items:center;justify-content:center;gap:6px';
-    trust.innerHTML = '<span style="color:var(--grn)">✓</span> Trusted by 500+ growing businesses · Secure payments via Razorpay';
+    trust.style.cssText = 'text-align:center;font-size:12px;color:var(--txt3);'
+      +'font-weight:600;padding:14px 0 4px;display:flex;align-items:center;'
+      +'justify-content:center;gap:6px';
+    trust.innerHTML = '<span style="color:var(--grn)">✓</span> '
+      +'Trusted by 500+ growing businesses · Secure payments via Razorpay';
     grid.parentNode.insertBefore(trust, grid.nextSibling);
   }
+
+  // Load Razorpay subscription buttons into each paid plan card
+  _injectRazorpayButtons();
+
   updatePayBtn();
+}
+
+// ADD THIS — Inject Razorpay Subscription Buttons into plan cards
+function _injectRazorpayButtons() {
+  PLANS.forEach(function(p) {
+    if (!p.subscriptionButtonId) return; // skip free plan
+    var container = document.getElementById('rzp-btn-'+p.id);
+    if (!container) return;
+
+    // Clear previous content (avoid duplicates on re-render)
+    container.innerHTML = '';
+
+    // Create wrapper form (Razorpay requires form tag)
+    var form = document.createElement('form');
+    form.style.cssText = 'width:100%;display:flex;justify-content:center';
+
+    // Create script tag for Razorpay button
+    var script = document.createElement('script');
+    script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+    script.setAttribute('data-subscription_button_id', p.subscriptionButtonId);
+    script.setAttribute('data-button_theme', 'brand-color');
+    script.async = true;
+
+    // Before payment — save which plan was selected
+    script.onload = (function(planId) {
+      return function() {
+        selectPlan(planId);
+        // Store in session so after redirect we know which plan
+        try {
+          var pending = JSON.parse(localStorage.getItem('wanza_pending_payment') || '{}');
+          pending.planId    = planId;
+          pending.clientId  = STATE.clientId;
+          pending.profileName = STATE.profileName;
+          localStorage.setItem('wanza_pending_payment', JSON.stringify(pending));
+        } catch(e) {}
+      };
+    })(p.id);
+
+    form.appendChild(script);
+    container.appendChild(form);
+
+    // On container click — also save plan selection
+    container.addEventListener('click', (function(planId) {
+      return function() {
+        selectPlan(planId);
+        logPayment('click', planId, '', '');
+        // Save pending payment info before redirect
+        try {
+          var pending = {
+            clientId:    STATE.clientId,
+            profileName: STATE.profileName,
+            planId:      planId,
+            timestamp:   Date.now()
+          };
+          localStorage.setItem('wanza_pending_payment', JSON.stringify(pending));
+        } catch(e) {}
+      };
+    })(p.id));
+  });
+}
+
+// ADD THIS — Inject Razorpay Subscription Buttons into plan cards
+function _injectRazorpayButtons() {
+  PLANS.forEach(function(p) {
+    if (!p.subscriptionButtonId) return; // skip free plan
+    var container = document.getElementById('rzp-btn-'+p.id);
+    if (!container) return;
+
+    // Clear previous content (avoid duplicates on re-render)
+    container.innerHTML = '';
+
+    // Create wrapper form (Razorpay requires form tag)
+    var form = document.createElement('form');
+    form.style.cssText = 'width:100%;display:flex;justify-content:center';
+
+    // Create script tag for Razorpay button
+    var script = document.createElement('script');
+    script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+    script.setAttribute('data-subscription_button_id', p.subscriptionButtonId);
+    script.setAttribute('data-button_theme', 'brand-color');
+    script.async = true;
+
+    // Before payment — save which plan was selected
+    script.onload = (function(planId) {
+      return function() {
+        selectPlan(planId);
+        // Store in session so after redirect we know which plan
+        try {
+          var pending = JSON.parse(localStorage.getItem('wanza_pending_payment') || '{}');
+          pending.planId    = planId;
+          pending.clientId  = STATE.clientId;
+          pending.profileName = STATE.profileName;
+          localStorage.setItem('wanza_pending_payment', JSON.stringify(pending));
+        } catch(e) {}
+      };
+    })(p.id);
+
+    form.appendChild(script);
+    container.appendChild(form);
+
+    // On container click — also save plan selection
+    container.addEventListener('click', (function(planId) {
+      return function() {
+        selectPlan(planId);
+        logPayment('click', planId, '', '');
+        // Save pending payment info before redirect
+        try {
+          var pending = {
+            clientId:    STATE.clientId,
+            profileName: STATE.profileName,
+            planId:      planId,
+            timestamp:   Date.now()
+          };
+          localStorage.setItem('wanza_pending_payment', JSON.stringify(pending));
+        } catch(e) {}
+      };
+    })(p.id));
+  });
 }
 
 function selectPlan(planId) {
@@ -1764,11 +1965,31 @@ function updatePayBtn() {
 // ──────────────────────────────────────────────────────────────
 //  HANDLE PAYMENT
 // ──────────────────────────────────────────────────────────────
+// REPLACE THIS — handlePayment updated for subscription buttons
 function handlePayment() {
   var plan = PLANS.find(function(p){ return p.id===STATE.selectedPlan; });
   if (!plan) return;
+
+  // Free plan — direct activate karo, no payment needed
   if (plan.id==='free') { savePlan('free','','free'); return; }
-  if (!plan.payLink) { toast('⚠️ Payment link not configured. Contact support.','err',5000); return; }
+
+  // Paid plans — Razorpay subscription button already embedded in card
+  // Pay strip button click pe — scroll to the plan card and highlight it
+  if (!plan.subscriptionButtonId) {
+    toast('⚠️ Payment button not configured. Contact support.','err',5000);
+    return;
+  }
+
+  // Scroll to the plan card so user can see and click the Razorpay button
+  var planCard = document.getElementById('plan-'+plan.id);
+  if (planCard) {
+    planCard.scrollIntoView({ behavior:'smooth', block:'center' });
+    // Visual highlight
+    planCard.style.boxShadow = '0 0 0 3px rgba(245,158,11,.8), 0 16px 48px rgba(0,0,0,.5)';
+    setTimeout(function(){ planCard.style.boxShadow = ''; }, 2500);
+  }
+
+  toast('👆 Plan card mein blue button click karo to subscribe', 'info', 4000);
 
   logPayment('click', plan.id, '', '');
 
