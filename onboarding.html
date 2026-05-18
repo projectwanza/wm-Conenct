@@ -1300,7 +1300,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 // ──────────────────────────────────────────────────────────────
 //  ⚙️ CONFIG  — change these two lines
 // ──────────────────────────────────────────────────────────────
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbwoxYVS02uXoqg4b7mISFqfHIFdeHkvaD0m7dC-9CTdqDUDQ8p3H9s0KVKslPQSetZH/exec';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbzrE-KF49oRBheC9Lbg24P6zdDuA2n4TThD4REjprBJzFRBZqINP2lHR1i-AN2_HiP9/exec';
 
 // ★ NEW: Support contact numbers — change to your own numbers
 var SUPPORT_PHONE     = '+918910475493';   // call button
@@ -1764,47 +1764,150 @@ function updatePayBtn() {
 // ──────────────────────────────────────────────────────────────
 //  HANDLE PAYMENT
 // ──────────────────────────────────────────────────────────────
-function handlePayment() {
-  var plan = PLANS.find(function(p){ return p.id===STATE.selectedPlan; });
-  if (!plan) return;
-  if (plan.id==='free') { savePlan('free','','free'); return; }
-  if (!plan.payLink) { toast('⚠️ Payment link not configured. Contact support.','err',5000); return; }
+// ── STATE: track which link_id was served to this session ────────
+// We store this so we can mark it failed/used on return
+STATE.activeLinkId = '';
 
+function handlePayment() {
+  var plan = PLANS.find(function(p){ return p.id === STATE.selectedPlan; });
+  if (!plan) return;
+
+  // Free plan — no payment needed
+  if (plan.id === 'free') { savePlan('free', '', 'free'); return; }
+
+  // Log the click intent immediately
   logPayment('click', plan.id, '', '');
 
-  // ★ NEW: Save referral before redirect
+  // Save referral before redirect
   if (STATE.referralCode) {
     try {
       apiPost('saveReferral', {
-        client_id: STATE.clientId, client_name: STATE.profileName,
-        referral_code: STATE.referralCode, owner_name: STATE.referralOwner, plan_id: plan.id
+        client_id:     STATE.clientId,
+        client_name:   STATE.profileName,
+        referral_code: STATE.referralCode,
+        owner_name:    STATE.referralOwner,
+        plan_id:       plan.id
       }).catch(function(){});
     } catch(e) {}
   }
 
-  var pendingData = {
-    clientId:STATE.clientId, profileName:STATE.profileName, planId:plan.id, planName:plan.name,
-    referralCode:STATE.referralCode, referralOwner:STATE.referralOwner, timestamp:Date.now()
-  };
-  try { localStorage.setItem('wanza_pending_payment', JSON.stringify(pendingData)); } catch(e) {}
-
-  var returnUrl = window.location.origin + window.location.pathname
-    + '?payment_return=1&client_id='+encodeURIComponent(STATE.clientId)+'&plan_id='+encodeURIComponent(plan.id);
-
-  toast('Redirecting to secure payment… 🔒','info',3000);
+  // Disable button and show loading
   var payBtn = document.getElementById('pay-btn');
-  if (payBtn) { payBtn.disabled=true; payBtn.textContent='⏳ Opening payment…'; }
+  if (payBtn) { payBtn.disabled = true; payBtn.textContent = '⏳ Preparing payment…'; }
+  toast('Preparing secure payment… 🔒', 'info', 5000);
 
-  setTimeout(function() {
-    var finalUrl = plan.payLink + (plan.payLink.indexOf('?')>=0?'&':'?')
-      + 'callback_url='+encodeURIComponent(returnUrl);
-    // ★ NEW: Pass referral + client info in URL notes for Razorpay
-    if (STATE.clientId)    finalUrl += '&notes[client_id]='   + encodeURIComponent(STATE.clientId);
-    if (STATE.clientId)    finalUrl += '&notes[client_name]=' + encodeURIComponent(STATE.profileName||'');
-    if (plan.id)           finalUrl += '&notes[plan_id]='     + encodeURIComponent(plan.id);
-    if (STATE.referralCode)finalUrl += '&notes[referral_code]='+ encodeURIComponent(STATE.referralCode);
-    window.location.href = finalUrl;
-  }, 600);
+  var device = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+
+  // ★ NEW: Fetch next available payment link from the pool
+  apiGet('getNextAvailableLink', {
+    plan_id:     plan.id,
+    client_id:   STATE.clientId,
+    client_name: encodeURIComponent(STATE.profileName || ''),
+    device:      device
+  })
+  .then(function(linkData) {
+    if (!linkData || !linkData.found || !linkData.url) {
+      // No links available — show error
+      if (payBtn) { payBtn.disabled = false; updatePayBtn(); }
+      toast('⚠️ Payment links unavailable right now. Please contact support.', 'err', 8000);
+      // Show support message in a friendly way
+      _showNoLinksError(plan);
+      return;
+    }
+
+    // Store the link_id so we can mark it failed/used on return
+    STATE.activeLinkId = linkData.link_id;
+
+    var payLink = linkData.url;
+
+    // Build return URL for Razorpay callback
+    var returnUrl = window.location.origin + window.location.pathname
+      + '?payment_return=1'
+      + '&client_id='  + encodeURIComponent(STATE.clientId)
+      + '&plan_id='    + encodeURIComponent(plan.id)
+      + '&link_id='    + encodeURIComponent(linkData.link_id);
+
+    // Save pending payment data to localStorage
+    // (in case user refreshes page after returning)
+    var pendingData = {
+      clientId:      STATE.clientId,
+      profileName:   STATE.profileName,
+      planId:        plan.id,
+      planName:      plan.name,
+      linkId:        linkData.link_id,
+      referralCode:  STATE.referralCode,
+      referralOwner: STATE.referralOwner,
+      timestamp:     Date.now()
+    };
+    try { localStorage.setItem('wanza_pending_payment', JSON.stringify(pendingData)); } catch(e) {}
+
+    toast('Redirecting to secure payment… 🔒', 'info', 3000);
+
+    // Build final payment URL with all tracking params
+    var sep      = payLink.indexOf('?') >= 0 ? '&' : '?';
+    var finalUrl = payLink + sep
+      + 'callback_url='       + encodeURIComponent(returnUrl)
+      + '&notes[client_id]='  + encodeURIComponent(STATE.clientId)
+      + '&notes[client_name]='+ encodeURIComponent(STATE.profileName || '')
+      + '&notes[plan_id]='    + encodeURIComponent(plan.id)
+      + '&notes[link_id]='    + encodeURIComponent(linkData.link_id);
+
+    if (STATE.referralCode) {
+      finalUrl += '&notes[referral_code]=' + encodeURIComponent(STATE.referralCode);
+    }
+
+    // Short delay so user sees the toast
+    setTimeout(function() {
+      window.location.href = finalUrl;
+    }, 600);
+  })
+  .catch(function(e) {
+    // API error — fallback to hardcoded plan link if available
+    if (payBtn) { payBtn.disabled = false; updatePayBtn(); }
+    toast('Connection error. Retrying…', 'warn', 3000);
+
+    // Retry once
+    setTimeout(function() {
+      if (plan.payLink) {
+        // Use hardcoded fallback if available
+        STATE.activeLinkId = 'fallback';
+        var returnUrl2 = window.location.origin + window.location.pathname
+          + '?payment_return=1&client_id=' + encodeURIComponent(STATE.clientId)
+          + '&plan_id=' + encodeURIComponent(plan.id);
+        var sep2     = plan.payLink.indexOf('?') >= 0 ? '&' : '?';
+        var fallback = plan.payLink + sep2
+          + 'callback_url='       + encodeURIComponent(returnUrl2)
+          + '&notes[client_id]='  + encodeURIComponent(STATE.clientId)
+          + '&notes[plan_id]='    + encodeURIComponent(plan.id);
+        window.location.href = fallback;
+      } else {
+        toast('⚠️ Payment system temporarily unavailable. Please try again in a minute.', 'err', 6000);
+      }
+    }, 1500);
+  });
+}
+
+// ── Show friendly error when no payment links are available ───────
+function _showNoLinksError(plan) {
+  var sadEl = document.getElementById('sad-banner');
+  if (!sadEl) return;
+  sadEl.innerHTML =
+    '<div style="font-size:2rem;flex-shrink:0">😔</div>'
+    + '<div style="flex:1">'
+    + '<div class="sad-title" style="color:var(--amber)">⚠️ Payment Links Exhausted</div>'
+    + '<div class="sad-sub" style="margin-bottom:12px">'
+    + 'All ' + (plan.name||'') + ' plan payment slots are currently full.<br>'
+    + 'Please contact our support team and we\'ll activate your plan manually.'
+    + '</div>'
+    + '<div style="display:flex;gap:10px;flex-wrap:wrap">'
+    + '<a href="https://wa.me/' + SUPPORT_WHATSAPP + '?text='
+    + encodeURIComponent('Hi! I want to subscribe to Wanza ' + (plan.name||'') + ' plan. Client ID: ' + STATE.clientId)
+    + '" class="btn btn-ghost btn-sm" target="_blank" rel="noopener" style="height:40px;font-size:13px;width:auto;padding:0 20px;text-decoration:none;border:1.5px solid rgba(16,185,129,.4);color:var(--grn)">'
+    + '💬 WhatsApp Support</a>'
+    + '<button class="btn btn-ghost btn-sm" onclick="skipToFree()" style="height:40px;font-size:13px;width:auto;padding:0 16px">Free Plan Se Continue</button>'
+    + '</div></div>';
+  sadEl.style.borderColor = 'rgba(245,158,11,.40)';
+  sadEl.classList.add('show');
 }
 
 function checkPaymentReturn() {
@@ -1814,31 +1917,58 @@ function checkPaymentReturn() {
 
   var returnClientId = params.get('client_id') || '';
   var returnPlanId   = params.get('plan_id')   || '';
+  var returnLinkId   = params.get('link_id')   || ''; // ★ NEW: track which link was used
   var rzpStatus      = params.get('razorpay_payment_link_status') || '';
   var rzpPaymentId   = params.get('razorpay_payment_id')         || '';
 
   var pending = null;
-  try { var r=localStorage.getItem('wanza_pending_payment'); if(r) pending=JSON.parse(r); } catch(e) {}
+  try { var r = localStorage.getItem('wanza_pending_payment'); if(r) pending = JSON.parse(r); } catch(e) {}
 
-  var clientId = returnClientId || (pending&&pending.clientId) || '';
-  var planId   = returnPlanId   || (pending&&pending.planId)   || '';
+  var clientId = returnClientId || (pending && pending.clientId) || '';
+  var planId   = returnPlanId   || (pending && pending.planId)   || '';
+  // ★ NEW: Get linkId from URL params or localStorage
+  var linkId   = returnLinkId   || (pending && pending.linkId)   || '';
 
   if (!clientId || !planId) return false;
 
   STATE.clientId      = clientId;
-  STATE.profileName   = (pending&&pending.profileName) || '';
+  STATE.profileName   = (pending && pending.profileName) || '';
   STATE.selectedPlan  = planId;
-  STATE.referralCode  = (pending&&pending.referralCode)  || '';
-  STATE.referralOwner = (pending&&pending.referralOwner) || '';
+  STATE.referralCode  = (pending && pending.referralCode)  || '';
+  STATE.referralOwner = (pending && pending.referralOwner) || '';
+  STATE.activeLinkId  = linkId; // ★ NEW
+
   try { localStorage.removeItem('wanza_pending_payment'); } catch(e) {}
 
-  if (rzpStatus==='paid' && rzpPaymentId) {
+  var device = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+
+  if (rzpStatus === 'paid' && rzpPaymentId) {
+    // ★ NEW: Mark payment link as USED in the pool
+    if (linkId && linkId !== 'fallback') {
+      apiPost('markLinkUsed', {
+        link_id:    linkId,
+        client_id:  clientId,
+        payment_id: rzpPaymentId,
+        device:     device
+      }).catch(function(){});
+    }
+
     STATE.paymentStatus = 'paid';
-    toast('✅ Payment successful! Activating plan…','ok',4000);
+    toast('✅ Payment successful! Activating plan…', 'ok', 4000);
     logPayment('success', planId, rzpPaymentId, 'paid');
     goToStep(2);
     setTimeout(function(){ savePlan(planId, rzpPaymentId, 'paid'); }, 500);
     return true;
+  }
+
+  // ★ NEW: Mark link attempt as FAILED (link stays usable)
+  if (linkId && linkId !== 'fallback') {
+    apiPost('markLinkFailed', {
+      link_id:   linkId,
+      client_id: clientId,
+      device:    device,
+      notes:     'User cancelled or payment failed. rzpStatus=' + (rzpStatus || 'unknown')
+    }).catch(function(){});
   }
 
   logPayment('failed', planId, '', 'cancelled_or_failed');
