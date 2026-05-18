@@ -11,6 +11,240 @@
    <!-- QR Scanner Library -->
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
    <style>
+      /* ── QR ONBOARDING SCAN SECTION ─────────────────────────────── */
+.qr-ob-section {
+  margin: 0 var(--pad) 16px;
+  background: linear-gradient(135deg,rgba(37,99,235,.08),rgba(79,70,229,.06));
+  border: 1.5px solid rgba(37,99,235,.25);
+  border-radius: var(--r3);
+  padding: 20px;
+  box-shadow: 0 0 24px rgba(37,99,235,.08);
+}
+.qr-ob-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+.qr-ob-ico {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(37,99,235,.15);
+  border: 2px solid rgba(37,99,235,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.qr-ob-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--blue2);
+}
+.qr-ob-sub {
+  font-size: 11px;
+  color: var(--txt3);
+  margin-top: 2px;
+}
+.qr-ob-toggle {
+  margin-left: auto;
+  color: var(--txt3);
+  font-size: .8rem;
+  transition: transform .25s;
+}
+.qr-ob-toggle.open { transform: rotate(180deg); }
+.qr-ob-body { display: none; }
+.qr-ob-body.open { display: block; }
+
+/* Scan + paste tabs */
+.qr-ob-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.qr-ob-tab {
+  flex: 1;
+  height: 38px;
+  border-radius: var(--r2);
+  border: 1.5px solid var(--bdr);
+  background: rgba(255,255,255,.03);
+  color: var(--txt2);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+}
+.qr-ob-tab.active {
+  background: rgba(37,99,235,.15);
+  border-color: rgba(37,99,235,.4);
+  color: var(--blue2);
+}
+
+/* Mini camera viewfinder (re-uses qr scanner vars) */
+.qr-ob-viewfinder {
+  border-radius: var(--r2);
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 1;
+  max-height: 240px;
+  position: relative;
+  margin-bottom: 12px;
+}
+.qr-ob-viewfinder #qr-ob-reader { width: 100%; height: 100%; }
+.qr-ob-viewfinder #qr-ob-reader video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+.qr-ob-viewfinder #qr-ob-reader img,
+.qr-ob-viewfinder #qr-ob-reader__dashboard,
+.qr-ob-viewfinder #qr-ob-reader__scan_region > img { display: none !important; }
+
+/* Corner brackets (mini version) */
+.qr-ob-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  z-index: 3;
+  pointer-events: none;
+}
+.qr-ob-tl { top:8px;left:8px;border-top:3px solid var(--blue2);border-left:3px solid var(--blue2);border-radius:3px 0 0 0; }
+.qr-ob-tr { top:8px;right:8px;border-top:3px solid var(--blue2);border-right:3px solid var(--blue2);border-radius:0 3px 0 0; }
+.qr-ob-bl { bottom:8px;left:8px;border-bottom:3px solid var(--blue2);border-left:3px solid var(--blue2);border-radius:0 0 0 3px; }
+.qr-ob-br { bottom:8px;right:8px;border-bottom:3px solid var(--blue2);border-right:3px solid var(--blue2);border-radius:0 0 3px 0; }
+.qr-ob-scan-line {
+  position: absolute;
+  left: 8px; right: 8px;
+  height: 2px;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(90deg,transparent,var(--blue2),var(--amber),var(--blue2),transparent);
+  border-radius: 2px;
+  animation: qrScanLine 2s ease-in-out infinite;
+  opacity: .8;
+}
+
+/* Paste URL input row */
+.qr-ob-paste-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.qr-ob-paste-inp {
+  flex: 1;
+  background: rgba(255,255,255,.04);
+  border: 1.5px solid rgba(37,99,235,.2);
+  border-radius: var(--r2);
+  color: var(--txt);
+  padding: 11px 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.qr-ob-paste-inp:focus {
+  border-color: rgba(37,99,235,.6);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.10);
+}
+.qr-ob-paste-inp::placeholder { color: var(--txt3); }
+.qr-ob-parse-btn {
+  height: 44px;
+  padding: 0 16px;
+  background: rgba(37,99,235,.18);
+  border: 1.5px solid var(--bdr2);
+  border-radius: var(--r2);
+  color: var(--blue2);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .2s;
+}
+.qr-ob-parse-btn:hover { background: rgba(37,99,235,.30); }
+
+/* Result / status boxes */
+.qr-ob-result {
+  padding: 12px 14px;
+  border-radius: var(--r2);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.55;
+  display: none;
+  margin-bottom: 10px;
+}
+.qr-ob-result.found {
+  background: rgba(16,185,129,.10);
+  border: 1.5px solid rgba(16,185,129,.30);
+  color: var(--grn);
+}
+.qr-ob-result.notfound {
+  background: rgba(245,158,11,.08);
+  border: 1.5px solid rgba(245,158,11,.25);
+  color: var(--amber);
+}
+.qr-ob-result.error {
+  background: rgba(239,68,68,.08);
+  border: 1.5px solid rgba(239,68,68,.25);
+  color: var(--red);
+}
+.qr-ob-result.scanning {
+  background: rgba(37,99,235,.08);
+  border: 1.5px solid rgba(37,99,235,.20);
+  color: var(--blue2);
+}
+
+/* Mode badge shown in form header when QR mode is active */
+.qr-mode-badge {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin: 0 var(--pad) 14px;
+  background: linear-gradient(135deg,rgba(16,185,129,.10),rgba(37,99,235,.08));
+  border: 1.5px solid rgba(16,185,129,.30);
+  border-radius: var(--r2);
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--grn);
+  animation: slideUp .3s cubic-bezier(.22,1,.36,1);
+}
+.qr-mode-badge.visible { display: flex; }
+.qr-mode-badge-ico { font-size: 1.1rem; flex-shrink: 0; }
+.qr-mode-badge-txt { flex: 1; line-height: 1.5; }
+.qr-mode-badge-clear {
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.25);
+  border-radius: var(--pill);
+  padding: 3px 10px;
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .2s;
+}
+.qr-mode-badge-clear:hover { background: rgba(239,68,68,.22); }
+
+/* Hint text inside scanner panel */
+.qr-ob-hint {
+  font-size: 12px;
+  color: var(--txt2);
+  text-align: center;
+  padding: 8px 12px;
+  background: rgba(37,99,235,.06);
+  border: 1px solid rgba(37,99,235,.12);
+  border-radius: var(--r2);
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+/* END QR ONBOARDING STYLES */
 /* ── ACTIVATION CODE SYSTEM ─────────────────────────────────── */
 .act-code-section{
   margin:0 var(--pad) 16px;
@@ -697,6 +931,113 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
     <p class="screen-sub">Get a professional digital profile, QR code &amp; start collecting Google reviews automatically.</p>
   </div>
 
+ <!-- ★ QR ONBOARDING SECTION — scan existing client QR to update profile -->
+  <div class="qr-ob-section" id="qr-ob-section">
+    <div class="qr-ob-header" onclick="toggleQROBSection()">
+      <div class="qr-ob-ico">📲</div>
+      <div>
+        <div class="qr-ob-title">Already have a Wanza profile?</div>
+        <div class="qr-ob-sub">Scan your QR code to update an existing profile</div>
+      </div>
+      <span class="qr-ob-toggle" id="qr-ob-toggle">▼</span>
+    </div>
+    <div class="qr-ob-body" id="qr-ob-body">
+
+      <!-- Tabs: Camera Scan vs Paste URL -->
+      <div class="qr-ob-tabs">
+        <button class="qr-ob-tab active" id="qr-ob-tab-scan" onclick="switchQROBTab('scan')">
+          📷 Scan QR Code
+        </button>
+        <button class="qr-ob-tab" id="qr-ob-tab-paste" onclick="switchQROBTab('paste')">
+          🔗 Paste URL / Code
+        </button>
+      </div>
+
+      <!-- Camera Scanner Panel -->
+      <div id="qr-ob-scan-panel">
+        <div class="qr-ob-viewfinder" id="qr-ob-viewfinder-wrap">
+          <div id="qr-ob-reader"></div>
+          <div class="qr-ob-corner qr-ob-tl"></div>
+          <div class="qr-ob-corner qr-ob-tr"></div>
+          <div class="qr-ob-corner qr-ob-bl"></div>
+          <div class="qr-ob-corner qr-ob-br"></div>
+          <div class="qr-ob-scan-line"></div>
+        </div>
+        <div class="qr-ob-hint" id="qr-ob-camera-hint">
+          📱 Point camera at your Wanza profile QR code
+        </div>
+        <button
+          id="qr-ob-start-btn"
+          onclick="startQROBScanner()"
+          style="width:100%;height:44px;background:var(--g-blue);border:none;
+            border-radius:var(--pill);color:#fff;font-size:13px;font-weight:800;
+            cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+            transition:opacity .2s;margin-bottom:10px">
+          📷 Start Camera
+        </button>
+        <button
+          id="qr-ob-stop-btn"
+          onclick="stopQROBScanner()"
+          style="display:none;width:100%;height:40px;background:rgba(239,68,68,.12);
+            border:1.5px solid rgba(239,68,68,.3);border-radius:var(--pill);
+            color:var(--red);font-size:13px;font-weight:700;cursor:pointer;
+            font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:10px">
+          ✕ Stop Camera
+        </button>
+      </div>
+
+      <!-- Paste URL Panel -->
+      <div id="qr-ob-paste-panel" style="display:none">
+        <div class="qr-ob-paste-row">
+          <input
+            class="qr-ob-paste-inp"
+            id="qr-ob-url-inp"
+            placeholder="Paste profile URL or client_id (e.g. CLT_…)"
+            autocomplete="off"
+            oninput="onQROBPasteInput(this.value)"
+            onkeydown="if(event.key==='Enter') parseQROBUrl()"
+          >
+          <button class="qr-ob-parse-btn" onclick="parseQROBUrl()">
+            🔍 Check
+          </button>
+        </div>
+        <div style="font-size:11px;color:var(--txt3);line-height:1.6;margin-bottom:10px">
+          💡 Paste any Wanza profile URL, or type your Client ID directly (starts with CLT_)
+        </div>
+      </div>
+
+      <!-- Result Box (shared between scan and paste) -->
+      <div class="qr-ob-result" id="qr-ob-result"></div>
+
+      <!-- Clear QR mode button -->
+      <button
+        id="qr-ob-clear-btn"
+        onclick="clearQRMode()"
+        style="display:none;width:100%;height:36px;background:rgba(239,68,68,.08);
+          border:1px solid rgba(239,68,68,.2);border-radius:var(--pill);
+          color:var(--red);font-size:12px;font-weight:700;cursor:pointer;
+          font-family:'Plus Jakarta Sans',sans-serif">
+        ✕ Clear — Use New Client ID Instead
+      </button>
+
+    </div><!-- .qr-ob-body -->
+  </div><!-- .qr-ob-section -->
+
+  <!-- ★ QR MODE BADGE — shown above form when existing client detected -->
+  <div class="qr-mode-badge" id="qr-mode-badge">
+    <span class="qr-mode-badge-ico">✅</span>
+    <div class="qr-mode-badge-txt">
+      <div style="font-size:13px;font-weight:800;color:var(--grn)" id="qr-mode-badge-name">
+        Updating existing profile
+      </div>
+      <div style="font-size:10px;color:rgba(16,185,129,.7);margin-top:1px" id="qr-mode-badge-id">
+        Client ID: —
+      </div>
+    </div>
+    <button class="qr-mode-badge-clear" onclick="clearQRMode()">Clear</button>
+  </div>
+  <!-- ★ END QR ONBOARDING SECTION -->
+
   <div class="form-card">
     <div class="form-section">Business Details</div>
     <div class="form-grid">
@@ -813,7 +1154,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
   </div><!-- form-card -->
 
   <div class="btn-wrap">
-    <button class="btn btn-primary" onclick="submitProfile()">
+  <button class="btn btn-primary" id="step1-submit-btn" onclick="submitProfile()">
       🚀 Create My Business Profile
     </button>
   </div>
@@ -1300,7 +1641,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 // ──────────────────────────────────────────────────────────────
 //  ⚙️ CONFIG  — change these two lines
 // ──────────────────────────────────────────────────────────────
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbwr0wElwG04PZZ3k1e56QY-cZLgJHWlrxkey9-g4wZhCNaQspguVu9nKTO_ZuOQ58WW/exec';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbznKueYTxJm7N3XiCGOdMspGszS1RKF6xEyl0AQgFDH8AIfUTjME1CytLZMqptnSE5h/exec';
 
 // ★ NEW: Support contact numbers — change to your own numbers
 var SUPPORT_PHONE     = '+918910475493';   // call button
@@ -1378,15 +1719,18 @@ var PLANS = [
 //  STATE
 // ──────────────────────────────────────────────────────────────
 var STATE = {
-  currentStep:   1,
-  clientId:      '',
-  selectedPlan:  'pro',
-  logoUrl:       '',
-  profileName:   '',
-  paymentStatus: '',     // '' | 'paid' | 'free' | 'failed'
-  referralCode:  '',     // ★ NEW
-  referralOwner: '',     // ★ NEW
-  verifiedPlan:  null    // ★ NEW — set when payment verified via API
+  currentStep:    1,
+  clientId:       '',
+  selectedPlan:   'pro',
+  logoUrl:        '',
+  profileName:    '',
+  paymentStatus:  '',     // '' | 'paid' | 'free' | 'failed'
+  referralCode:   '',
+  referralOwner:  '',
+  verifiedPlan:   null,
+  // ★ QR SCAN STATE — new fields
+  existingClientId: '',   // set when QR scan finds an existing client_id
+  isQRMode:         false // true when user scanned a QR with valid client_id
 };
 
 // ──────────────────────────────────────────────────────────────
@@ -2675,6 +3019,551 @@ document.addEventListener('keydown', function(e) {
     closeQRScanner();
   }
 });
+   // ══════════════════════════════════════════════════════════════════
+//  QR ONBOARDING SYSTEM v1.0
+//  Scan existing client QR → detect client_id → update vs create
+// ══════════════════════════════════════════════════════════════════
+
+// ── QR Scanner instance for onboarding (separate from payment QR) ─
+var _qrOBScanner     = null;
+var _qrOBScanActive  = false;
+var _qrOBScanSuccess = false;
+var _qrOBCurrentTab  = 'scan'; // 'scan' | 'paste'
+var _qrOBCheckTimer  = null;   // debounce timer for paste input
+
+// ── Toggle the QR onboarding section open/closed ──────────────────
+function toggleQROBSection() {
+  var body    = document.getElementById('qr-ob-body');
+  var toggle  = document.getElementById('qr-ob-toggle');
+  var isOpen  = body.classList.contains('open');
+
+  if (isOpen) {
+    // Closing — stop camera if running
+    body.classList.remove('open');
+    toggle.classList.remove('open');
+    stopQROBScanner();
+  } else {
+    body.classList.add('open');
+    toggle.classList.add('open');
+  }
+}
+
+// ── Switch between Scan tab and Paste tab ─────────────────────────
+function switchQROBTab(tab) {
+  _qrOBCurrentTab = tab;
+
+  var scanTab   = document.getElementById('qr-ob-tab-scan');
+  var pasteTab  = document.getElementById('qr-ob-tab-paste');
+  var scanPanel = document.getElementById('qr-ob-scan-panel');
+  var pastePanel= document.getElementById('qr-ob-paste-panel');
+
+  if (tab === 'scan') {
+    scanTab.classList.add('active');
+    pasteTab.classList.remove('active');
+    scanPanel.style.display  = 'block';
+    pastePanel.style.display = 'none';
+  } else {
+    pasteTab.classList.add('active');
+    scanTab.classList.remove('active');
+    scanPanel.style.display  = 'none';
+    pastePanel.style.display = 'block';
+    // Stop camera when switching to paste tab
+    stopQROBScanner();
+  }
+}
+
+// ── Start camera QR scanner ───────────────────────────────────────
+function startQROBScanner() {
+  // Check if library loaded
+  if (typeof Html5Qrcode === 'undefined') {
+    showQROBResult('error', '❌ QR scanner not loaded. Please refresh page.');
+    return;
+  }
+
+  // Check camera support
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showQROBResult('error', '📵 Camera not supported. Please use Paste URL tab instead.');
+    switchQROBTab('paste');
+    return;
+  }
+
+  if (_qrOBScanActive) return; // Already running
+
+  _qrOBScanSuccess = false;
+
+  // Show/hide buttons
+  document.getElementById('qr-ob-start-btn').style.display = 'none';
+  document.getElementById('qr-ob-stop-btn').style.display  = 'block';
+  document.getElementById('qr-ob-camera-hint').textContent  = '📷 Scanning… point at your Wanza QR code';
+
+  showQROBResult('scanning', '⏳ Camera starting…');
+
+  try {
+    _qrOBScanner = new Html5Qrcode('qr-ob-reader', { verbose: false });
+
+    var config = {
+      fps:         10,
+      qrbox:       { width: 200, height: 200 },
+      aspectRatio: 1.0
+    };
+
+    _qrOBScanner.start(
+      { facingMode: 'environment' },
+      config,
+      onQROBScanSuccess,   // fired once on successful decode
+      function() {}        // silent error handler (no-QR-in-frame fires constantly)
+    ).then(function() {
+      _qrOBScanActive = true;
+      showQROBResult('scanning', '📷 Camera active — scanning for QR code…');
+    }).catch(function(err) {
+      _qrOBScanActive = false;
+      document.getElementById('qr-ob-start-btn').style.display = 'block';
+      document.getElementById('qr-ob-stop-btn').style.display  = 'none';
+      var msg = String(err || '');
+      if (msg.toLowerCase().indexOf('permission') > -1 || msg.toLowerCase().indexOf('denied') > -1) {
+        showQROBResult('error', '📵 Camera permission denied. Please allow camera and try again, or use Paste URL tab.');
+      } else {
+        showQROBResult('error', '⚠️ Camera failed: ' + msg + '. Try Paste URL tab instead.');
+      }
+    });
+  } catch(e) {
+    _qrOBScanActive = false;
+    document.getElementById('qr-ob-start-btn').style.display = 'block';
+    document.getElementById('qr-ob-stop-btn').style.display  = 'none';
+    showQROBResult('error', '⚠️ Scanner error: ' + (e.message || 'Unknown'));
+  }
+}
+
+// ── Stop camera scanner ───────────────────────────────────────────
+function stopQROBScanner() {
+  if (_qrOBScanner) {
+    try {
+      _qrOBScanner.stop().then(function() {
+        _qrOBScanner.clear();
+        _qrOBScanner = null;
+      }).catch(function() {
+        _qrOBScanner = null;
+      });
+    } catch(e) {
+      _qrOBScanner = null;
+    }
+  }
+  _qrOBScanActive = false;
+
+  document.getElementById('qr-ob-start-btn').style.display = 'block';
+  document.getElementById('qr-ob-stop-btn').style.display  = 'none';
+  document.getElementById('qr-ob-camera-hint').textContent  = '📱 Point camera at your Wanza profile QR code';
+}
+
+// ── Called when QR scanner decodes a code ────────────────────────
+function onQROBScanSuccess(decodedText) {
+  if (_qrOBScanSuccess) return; // Only handle once
+  _qrOBScanSuccess = true;
+
+  // Stop camera immediately
+  stopQROBScanner();
+
+  toast('QR scanned! Checking…', 'info', 2500);
+
+  // Parse and handle the decoded text (URL or client_id)
+  processQROBValue(decodedText.trim());
+}
+
+// ── Handle paste input with debounce ─────────────────────────────
+function onQROBPasteInput(val) {
+  clearTimeout(_qrOBCheckTimer);
+  if (!val.trim()) return;
+  // Auto-trigger after 800ms pause in typing
+  _qrOBCheckTimer = setTimeout(function() {
+    parseQROBUrl();
+  }, 800);
+}
+
+// ── Parse URL from paste tab ──────────────────────────────────────
+function parseQROBUrl() {
+  var inp = document.getElementById('qr-ob-url-inp');
+  if (!inp) return;
+  var val = (inp.value || '').trim();
+  if (!val) {
+    showQROBResult('error', '❌ Please paste a URL or enter a Client ID');
+    return;
+  }
+  processQROBValue(val);
+}
+
+// ── CORE: Extract client_id and check existence ───────────────────
+// This handles ANY input:
+//   1. Full URL with ?client_id=CLT_xxx
+//   2. Raw client_id string (CLT_xxx)
+//   3. URL with #client_id=CLT_xxx (hash)
+function processQROBValue(rawValue) {
+  if (!rawValue) return;
+
+  showQROBResult('scanning', '⏳ Checking…');
+
+  // Step 1: Extract client_id from whatever was scanned/pasted
+  var clientId = extractClientIdFromValue(rawValue);
+
+  if (!clientId) {
+    showQROBResult('error',
+      '❌ No valid Client ID found in this QR/URL.\n' +
+      'Scanned: ' + rawValue.substring(0, 80) + (rawValue.length > 80 ? '…' : '')
+    );
+    return;
+  }
+
+  showQROBResult('scanning', '⏳ Client ID found: ' + clientId + '\nChecking database…');
+
+  // Step 2: Check if client_id exists in Google Sheet
+  apiGet('checkClientExists', { client_id: clientId })
+    .then(function(data) {
+      if (data && data.found && data.client) {
+        // ✅ EXISTING CLIENT — enter update mode
+        handleQROBExistingClient(clientId, data.client);
+      } else {
+        // ⚠️ NOT FOUND — warn but allow using this as a reference or proceed fresh
+        handleQROBNewClient(clientId, rawValue);
+      }
+    })
+    .catch(function(e) {
+      showQROBResult('error',
+        '❌ Could not verify Client ID. Check your connection.\n' +
+        'Error: ' + (e.message || 'Unknown')
+      );
+      toast('Connection error. Try again.', 'err');
+    });
+}
+
+// ── Extract client_id from ANY string input ───────────────────────
+// Handles: full URLs, query params, hash params, raw IDs
+function extractClientIdFromValue(rawValue) {
+  if (!rawValue) return '';
+
+  rawValue = rawValue.trim();
+
+  // Case 1: Direct client_id format (CLT_timestamp_random)
+  // e.g. "CLT_1776853040566_jt8xqa"
+  if (/^CLT_\d+_[a-zA-Z0-9]+$/i.test(rawValue)) {
+    return rawValue;
+  }
+
+  // Case 2: Try to parse as URL and extract client_id query param
+  // Works for ANY domain — only client_id matters
+  try {
+    // Handle URLs that might be missing protocol
+    var urlStr = rawValue;
+    if (urlStr.indexOf('http') !== 0 && urlStr.indexOf('//') !== 0) {
+      urlStr = 'https://' + urlStr;
+    }
+
+    var url = new URL(urlStr);
+
+    // Check query string: ?client_id=CLT_xxx
+    var cidFromQuery = url.searchParams.get('client_id');
+    if (cidFromQuery && cidFromQuery.indexOf('CLT_') === 0) {
+      return cidFromQuery.trim();
+    }
+
+    // Check hash: #client_id=CLT_xxx  or  #?client_id=CLT_xxx
+    var hash = url.hash || '';
+    if (hash) {
+      // Remove leading # and optional ?
+      var hashStr = hash.replace(/^#\??/, '');
+      var hashParams = new URLSearchParams(hashStr);
+      var cidFromHash = hashParams.get('client_id');
+      if (cidFromHash && cidFromHash.indexOf('CLT_') === 0) {
+        return cidFromHash.trim();
+      }
+    }
+
+    // Check path segments: /profile/CLT_xxx or similar
+    var pathParts = url.pathname.split('/');
+    for (var i = 0; i < pathParts.length; i++) {
+      if (pathParts[i].indexOf('CLT_') === 0 && /^CLT_\d+_[a-zA-Z0-9]+$/i.test(pathParts[i])) {
+        return pathParts[i].trim();
+      }
+    }
+
+  } catch(urlErr) {
+    // URL parsing failed — try regex fallback on raw string
+  }
+
+  // Case 3: Regex fallback — search for CLT_ pattern anywhere in string
+  // This handles malformed URLs, custom formats, etc.
+  var regexMatch = rawValue.match(/CLT_\d+_[a-zA-Z0-9]+/i);
+  if (regexMatch && regexMatch[0]) {
+    return regexMatch[0];
+  }
+
+  // Nothing found
+  return '';
+}
+
+// ── Handle EXISTING client found in sheet ─────────────────────────
+function handleQROBExistingClient(clientId, clientData) {
+  var name         = clientData.name         || clientId;
+  var businessType = clientData.business_type || '';
+  var phone        = clientData.phone         || '';
+  var plan         = String(clientData.plan   || 'free').toUpperCase();
+
+  // Set QR mode in STATE
+  STATE.existingClientId = clientId;
+  STATE.isQRMode         = true;
+
+  // Show result box
+  showQROBResult('found',
+    '✅ Profile Found!\n\n' +
+    '🏢 Business: ' + name + '\n' +
+    (businessType ? '📂 Type: ' + businessType + '\n' : '') +
+    (phone        ? '📞 Phone: ' + phone        + '\n' : '') +
+    '🎯 Current Plan: ' + plan + '\n\n' +
+    '👆 Fill the form below and click Update to save changes.'
+  );
+
+  // Pre-fill form fields with existing data (user can override)
+  prefillFormFromQR(clientData);
+
+  // Show the QR mode badge above the form
+  var badge = document.getElementById('qr-mode-badge');
+  if (badge) {
+    badge.classList.add('visible');
+    var badgeName = document.getElementById('qr-mode-badge-name');
+    var badgeId   = document.getElementById('qr-mode-badge-id');
+    if (badgeName) badgeName.textContent = '✅ Updating: ' + name;
+    if (badgeId)   badgeId.textContent   = 'Client ID: ' + clientId;
+  }
+
+  // Update submit button text
+  var submitBtn = document.getElementById('step1-submit-btn');
+  if (submitBtn) submitBtn.textContent = '💾 Update My Business Profile';
+
+  // Show clear button
+  var clearBtn = document.getElementById('qr-ob-clear-btn');
+  if (clearBtn) clearBtn.style.display = 'block';
+
+  toast('✅ Existing profile found — form pre-filled!', 'ok', 4000);
+}
+
+// ── Handle client_id that does NOT exist in sheet ─────────────────
+function handleQROBNewClient(clientId, rawValue) {
+  // Not found — inform user. Don't block them.
+  // They can still proceed with a fresh registration.
+  STATE.existingClientId = '';
+  STATE.isQRMode         = false;
+
+  showQROBResult('notfound',
+    '⚠️ Client ID not found in database.\n\n' +
+    'ID scanned: ' + clientId + '\n\n' +
+    'This might be:\n' +
+    '• A QR from a different system\n' +
+    '• An ID that was deleted\n\n' +
+    'A NEW profile will be created when you submit the form.'
+  );
+
+  // Reset submit button
+  var submitBtn = document.getElementById('step1-submit-btn');
+  if (submitBtn) submitBtn.textContent = '🚀 Create My Business Profile';
+
+  toast('⚠️ Client ID not found — new profile will be created.', 'warn', 4000);
+}
+
+// ── Pre-fill form with existing client data ───────────────────────
+// Fills fields that have data; does NOT overwrite fields already typed by user
+function prefillFormFromQR(clientData) {
+  var fieldMap = {
+    'c-nm': 'name',
+    'c-ty': 'business_type',
+    'c-ph': 'phone',
+    'c-wa': 'whatsapp_number',
+    'c-em': 'email',
+    'c-ad': 'address',
+    'c-gl': 'google_review_link',
+    'c-pl': 'payment_link',
+    'c-ds': 'description',
+    'c-lo': 'logo_url'
+  };
+
+  Object.keys(fieldMap).forEach(function(inputId) {
+    var dataKey = fieldMap[inputId];
+    var el      = document.getElementById(inputId);
+    if (!el) return;
+
+    // Only pre-fill if the field is currently empty (don't overwrite user input)
+    var currentVal = (el.value || '').trim();
+    var newVal     = String(clientData[dataKey] || '').trim();
+
+    if (!currentVal && newVal) {
+      el.value = newVal;
+      // Trigger logo preview if it's the logo field
+      if (inputId === 'c-lo') {
+        previewLogoUrl(newVal);
+      }
+    }
+  });
+}
+
+// ── Clear QR mode — revert to normal new-profile flow ────────────
+function clearQRMode() {
+  STATE.existingClientId = '';
+  STATE.isQRMode         = false;
+
+  // Hide badge
+  var badge = document.getElementById('qr-mode-badge');
+  if (badge) badge.classList.remove('visible');
+
+  // Reset submit button
+  var submitBtn = document.getElementById('step1-submit-btn');
+  if (submitBtn) submitBtn.textContent = '🚀 Create My Business Profile';
+
+  // Hide clear button
+  var clearBtn = document.getElementById('qr-ob-clear-btn');
+  if (clearBtn) clearBtn.style.display = 'none';
+
+  // Reset result box
+  var resultEl = document.getElementById('qr-ob-result');
+  if (resultEl) { resultEl.style.display = 'none'; resultEl.className = 'qr-ob-result'; }
+
+  // Clear paste input
+  var inp = document.getElementById('qr-ob-url-inp');
+  if (inp) inp.value = '';
+
+  // Stop camera if running
+  stopQROBScanner();
+
+  toast('QR mode cleared — a new profile will be created.', 'info', 3000);
+}
+
+// ── Show result box in QR section ────────────────────────────────
+// type: 'found' | 'notfound' | 'error' | 'scanning'
+function showQROBResult(type, message) {
+  var el = document.getElementById('qr-ob-result');
+  if (!el) return;
+  el.style.display    = 'block';
+  el.className        = 'qr-ob-result ' + type;
+  // Convert newlines to <br> for display
+  el.innerHTML = message.replace(/\n/g, '<br>');
+}
+
+// ── Modify submitProfile to handle QR update mode ─────────────────
+// This WRAPS existing submitProfile — the original function is renamed
+// to _submitProfileOriginal and we call it from here.
+// ── IMPORTANT: patch submitProfile to support QR update mode ─────
+// We save reference to original BEFORE defining the override below.
+var _submitProfileOriginal = submitProfile; // save original
+
+// Override submitProfile to intercept QR mode
+submitProfile = function() {
+
+  // ── GUARD: If QR mode is NOT active, use original flow unchanged ──
+  if (!STATE.isQRMode || !STATE.existingClientId) {
+    _submitProfileOriginal();
+    return;
+  }
+
+  // ── QR UPDATE MODE ────────────────────────────────────────────────
+  var name  = (document.getElementById('c-nm').value || '').trim();
+  var phone = (document.getElementById('c-ph').value || '').trim();
+  var pw    = (document.getElementById('c-pw').value || '').trim();
+  var pw2   = (document.getElementById('c-pw2').value || '').trim();
+
+  // Validation (same as original)
+  if (!name)  { toast('Business name is required!', 'err'); document.getElementById('c-nm').focus(); return; }
+  if (!phone) { toast('Phone number is required!', 'err'); document.getElementById('c-ph').focus(); return; }
+
+  // Password validation ONLY if user filled it (optional in update mode)
+  if (pw && pw.length < 6) {
+    toast('Password must be at least 6 characters!', 'err');
+    document.getElementById('c-pw').focus();
+    return;
+  }
+  if (pw && pw !== pw2) {
+    toast('Passwords do not match!', 'err');
+    document.getElementById('c-pw2').focus();
+    return;
+  }
+
+  var logoUrl = STATE.logoUrl || (document.getElementById('c-lo').value || '').trim();
+  var btn     = document.getElementById('step1-submit-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Updating profile…'; }
+  setProgress(33);
+
+  var device = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+
+  // Build payload — same fields as original
+  var clientPayload = {
+    name:               name,
+    business_type:      (document.getElementById('c-ty').value || '').trim(),
+    phone:              phone,
+    whatsapp_number:    (document.getElementById('c-wa').value || '').trim(),
+    email:              (document.getElementById('c-em').value || '').trim(),
+    address:            (document.getElementById('c-ad').value || '').trim(),
+    google_review_link: (document.getElementById('c-gl').value || '').trim(),
+    payment_link:       (document.getElementById('c-pl').value || '').trim(),
+    description:        (document.getElementById('c-ds').value || '').trim(),
+    logo_url:           logoUrl
+  };
+
+  // Only include password if user typed one
+  if (pw) clientPayload.password = pw;
+
+  // Call new updateClientFromQR API
+  apiPost('updateClientFromQR', {
+    client_id: STATE.existingClientId,
+    payload:   { client: clientPayload, socialLinks: [] },
+    device:    device
+  })
+  .then(function(result) {
+    // Re-use the existing client_id (DO NOT generate new one)
+    STATE.clientId    = STATE.existingClientId;
+    STATE.profileName = name;
+
+    // Update session so Step 2 and 3 work correctly
+    saveSession({
+      clientId:    STATE.clientId,
+      profileName: name,
+      plan:        'free',
+      created:     new Date().toISOString(),
+      profileUrl:  buildProfileUrl(STATE.clientId)
+    });
+
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Update My Business Profile'; }
+    setProgress(50);
+
+    // Proceed to Step 2 (plan selection) — same as original
+    goToStep(2);
+    toast('Profile updated! ✅', 'ok', 4000);
+  })
+  .catch(function(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Update My Business Profile'; }
+    setProgress(0);
+    toast('Update failed: ' + (e.message || 'Check connection.'), 'err');
+  });
+};
+
+// ── Auto-close QR section after successful scan ───────────────────
+// Called internally after QR mode is set
+function _collapseQROBSection() {
+  var body   = document.getElementById('qr-ob-body');
+  var toggle = document.getElementById('qr-ob-toggle');
+  if (body && body.classList.contains('open')) {
+    body.classList.remove('open');
+    if (toggle) toggle.classList.remove('open');
+  }
+}
+
+// Patch handleQROBExistingClient to also collapse section after delay
+var _handleQROBExistingClientOriginal = handleQROBExistingClient;
+handleQROBExistingClient = function(clientId, clientData) {
+  _handleQROBExistingClientOriginal(clientId, clientData);
+  // Auto-collapse scanner after 1.5 seconds so user sees the result
+  setTimeout(_collapseQROBSection, 1500);
+};
+
+// ── Cleanup on page unload ────────────────────────────────────────
+window.addEventListener('beforeunload', function() {
+  stopQROBScanner();
+});
+// ══ END QR ONBOARDING SYSTEM ══════════════════════════════════════
 </script>
 </body>
 </html>
