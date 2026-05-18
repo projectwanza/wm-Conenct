@@ -886,6 +886,139 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
   box-shadow:0 6px 24px rgba(37,99,235,.20)}
 .btn-create-another:active{transform:scale(.96)!important}
 /* END CREATE ANOTHER BUTTON */
+
+/* ── QR CASE 1: Empty profile found — minimal notice ────────── */
+.qr-case1-notice {
+  display: none;
+  margin: 0 var(--pad) 14px;
+  background: rgba(16,185,129,.08);
+  border: 1.5px solid rgba(16,185,129,.28);
+  border-radius: var(--r2);
+  padding: 12px 16px;
+  animation: slideUp .3s cubic-bezier(.22,1,.36,1);
+}
+.qr-case1-notice.visible { display: flex; align-items: center; gap: 10px; }
+.qr-case1-ico { font-size: 1.2rem; flex-shrink: 0; }
+.qr-case1-txt {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--grn);
+  line-height: 1.5;
+}
+.qr-case1-sub {
+  font-size: 11px;
+  color: rgba(16,185,129,.7);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ── QR CASE 2: Profile already exists — block entire form ───── */
+.qr-case2-block {
+  display: none;
+  margin: 0 var(--pad) 20px;
+  background: linear-gradient(135deg,rgba(239,68,68,.10),rgba(245,158,11,.07));
+  border: 2px solid rgba(239,68,68,.35);
+  border-radius: var(--r3);
+  padding: 28px 24px;
+  text-align: center;
+  animation: slideUp .35s cubic-bezier(.22,1,.36,1);
+  box-shadow: 0 0 40px rgba(239,68,68,.10);
+}
+.qr-case2-block.visible { display: block; }
+.qr-case2-ico {
+  font-size: 2.8rem;
+  margin-bottom: 14px;
+  display: block;
+  animation: sadBounce 1.5s ease infinite alternate;
+}
+.qr-case2-title {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--red);
+  margin-bottom: 8px;
+  letter-spacing: -.2px;
+}
+.qr-case2-biz {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--amber);
+  background: rgba(245,158,11,.10);
+  border: 1px solid rgba(245,158,11,.25);
+  border-radius: var(--pill);
+  padding: 6px 18px;
+  display: inline-block;
+  margin: 6px 0 14px;
+  letter-spacing: .2px;
+}
+.qr-case2-sub {
+  font-size: 13px;
+  color: var(--txt2);
+  line-height: 1.7;
+  margin-bottom: 18px;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.qr-case2-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 320px;
+  margin: 0 auto;
+}
+.qr-case2-btn-fresh {
+  height: 48px;
+  background: var(--g-blue);
+  border: none;
+  border-radius: var(--pill);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: var(--sh-blue);
+}
+.qr-case2-btn-fresh:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 36px rgba(37,99,235,.45);
+}
+.qr-case2-btn-support {
+  height: 44px;
+  background: rgba(16,185,129,.10);
+  border: 1.5px solid rgba(16,185,129,.30);
+  border-radius: var(--pill);
+  color: var(--grn);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background .2s;
+}
+.qr-case2-btn-support:hover { background: rgba(16,185,129,.20); }
+.qr-case2-id-box {
+  margin-top: 14px;
+  padding: 8px 14px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r1);
+  font-size: 10px;
+  color: var(--txt3);
+  font-family: monospace;
+  word-break: break-all;
+}
+
+/* ── Form hide when Case 2 is active ────────────────────────── */
+.form-hidden-qr2 {
+  display: none !important;
+}
+/* END QR CASE 1/2 STYLES */
 </style>
 </head>
 <body>
@@ -1023,6 +1156,16 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
     </div><!-- .qr-ob-body -->
   </div><!-- .qr-ob-section -->
 
+  <!-- ★ QR CASE 1 NOTICE — shown when QR found but profile is empty -->
+  <!-- Visible only in Case 1: client_id exists, fields are blank -->
+  <div class="qr-case1-notice" id="qr-case1-notice">
+    <span class="qr-case1-ico">✅</span>
+    <div>
+      <div class="qr-case1-txt">QR Found! Profile Slot Reserved</div>
+      <div class="qr-case1-sub">Your QR is linked — complete your profile below to activate it.</div>
+    </div>
+  </div>
+
   <!-- ★ QR MODE BADGE — shown above form when existing client detected -->
   <div class="qr-mode-badge" id="qr-mode-badge">
     <span class="qr-mode-badge-ico">✅</span>
@@ -1038,7 +1181,35 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
   </div>
   <!-- ★ END QR ONBOARDING SECTION -->
 
-  <div class="form-card">
+  <!-- ★ QR CASE 2 BLOCKER — shown when QR is already used by an existing profile -->
+  <!-- When visible, the form card below is hidden -->
+  <div class="qr-case2-block" id="qr-case2-block">
+    <span class="qr-case2-ico">🔒</span>
+    <div class="qr-case2-title">QR Already Registered</div>
+    <div class="qr-case2-biz" id="qr-case2-biz-name">Business Name</div>
+    <div class="qr-case2-sub">
+      This QR code is already linked to an active business profile.<br>
+      Each QR can only be used once to create a profile.<br>
+      If this is your business, please contact support.
+    </div>
+    <div class="qr-case2-actions">
+      <button class="qr-case2-btn-fresh" onclick="startFreshOnboarding()">
+        ➕ Create a Brand New Profile Instead
+      </button>
+      <a class="qr-case2-btn-support"
+        id="qr-case2-wa-btn"
+        href="#"
+        target="_blank"
+        rel="noopener">
+        💬 Contact Support on WhatsApp
+      </a>
+    </div>
+    <div class="qr-case2-id-box" id="qr-case2-id-box">
+      Client ID: —
+    </div>
+  </div>
+
+  <div class="form-card" id="main-form-card">
     <div class="form-section">Business Details</div>
     <div class="form-grid">
 
@@ -1641,7 +1812,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 // ──────────────────────────────────────────────────────────────
 //  ⚙️ CONFIG  — change these two lines
 // ──────────────────────────────────────────────────────────────
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbznKueYTxJm7N3XiCGOdMspGszS1RKF6xEyl0AQgFDH8AIfUTjME1CytLZMqptnSE5h/exec';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbwVQfi6iLaMKMoeehaB6voaPutXlCc9gyRBBOtybsnv8QRz5RCNlADjO_Il3WsNL020/exec';
 
 // ★ NEW: Support contact numbers — change to your own numbers
 var SUPPORT_PHONE     = '+918910475493';   // call button
@@ -3192,10 +3363,9 @@ function parseQROBUrl() {
 }
 
 // ── CORE: Extract client_id and check existence ───────────────────
-// This handles ANY input:
-//   1. Full URL with ?client_id=CLT_xxx
-//   2. Raw client_id string (CLT_xxx)
-//   3. URL with #client_id=CLT_xxx (hash)
+// Handles: full URLs, query params, hash params, raw IDs
+// ★ NEW: Passes is_profile_empty to handleQROBExistingClient
+//        so it can route to Case 1 or Case 2
 function processQROBValue(rawValue) {
   if (!rawValue) return;
 
@@ -3212,16 +3382,24 @@ function processQROBValue(rawValue) {
     return;
   }
 
-  showQROBResult('scanning', '⏳ Client ID found: ' + clientId + '\nChecking database…');
+  showQROBResult('scanning', '⏳ Client ID found: ' + clientId + '\nVerifying profile…');
 
   // Step 2: Check if client_id exists in Google Sheet
+  // ★ API now returns is_profile_empty (true = Case 1, false = Case 2)
   apiGet('checkClientExists', { client_id: clientId })
     .then(function(data) {
       if (data && data.found && data.client) {
-        // ✅ EXISTING CLIENT — enter update mode
-        handleQROBExistingClient(clientId, data.client);
+
+        // ★ Read the is_profile_empty flag from backend
+        // true  → Case 1: profile slot exists but no data filled yet
+        // false → Case 2: profile already has real business data
+        var isProfileEmpty = (data.is_profile_empty === true);
+
+        // Route to Case 1 or Case 2
+        handleQROBExistingClient(clientId, data.client, isProfileEmpty);
+
       } else {
-        // ⚠️ NOT FOUND — warn but allow using this as a reference or proceed fresh
+        // ⚠️ client_id NOT FOUND in sheet — treat as new registration
         handleQROBNewClient(clientId, rawValue);
       }
     })
@@ -3300,50 +3478,137 @@ function extractClientIdFromValue(rawValue) {
 }
 
 // ── Handle EXISTING client found in sheet ─────────────────────────
-function handleQROBExistingClient(clientId, clientData) {
-  var name         = clientData.name         || clientId;
-  var businessType = clientData.business_type || '';
-  var phone        = clientData.phone         || '';
-  var plan         = String(clientData.plan   || 'free').toUpperCase();
+// ★ NEW LOGIC: Routes to Case 1 or Case 2 based on profile fill status
+//
+// CASE 1 (is_profile_empty = true):
+//   QR exists but no real data yet → allow normal onboarding, attach client_id
+//
+// CASE 2 (is_profile_empty = false):
+//   QR has real profile data → BLOCK form, show "already used" message
+function handleQROBExistingClient(clientId, clientData, isProfileEmpty) {
 
-  // Set QR mode in STATE
+  // ── ROUTE DECISION ────────────────────────────────────────────
+  if (isProfileEmpty) {
+    // ══ CASE 1: QR found but profile is empty ════════════════
+    _handleQRCase1(clientId, clientData);
+  } else {
+    // ══ CASE 2: QR found and profile already exists ═══════════
+    _handleQRCase2(clientId, clientData);
+  }
+}
+
+// ── CASE 1 Handler ────────────────────────────────────────────────
+// QR found but profile fields are blank
+// → Silent attachment: just link client_id to this session
+// → Keep form normal, show only a small green notice
+function _handleQRCase1(clientId, clientData) {
+
+  // Set QR mode — we'll reuse this existing client_id on submit
   STATE.existingClientId = clientId;
   STATE.isQRMode         = true;
 
-  // Show result box
-  showQROBResult('found',
-    '✅ Profile Found!\n\n' +
-    '🏢 Business: ' + name + '\n' +
-    (businessType ? '📂 Type: ' + businessType + '\n' : '') +
-    (phone        ? '📞 Phone: ' + phone        + '\n' : '') +
-    '🎯 Current Plan: ' + plan + '\n\n' +
-    '👆 Fill the form below and click Update to save changes.'
-  );
+  // Hide the Case 2 blocker (safety reset)
+  var blocker = document.getElementById('qr-case2-block');
+  if (blocker) blocker.classList.remove('visible');
 
-  // Pre-fill form fields with existing data (user can override)
-  prefillFormFromQR(clientData);
+  // Show the small Case 1 notice (green bar)
+  var notice = document.getElementById('qr-case1-notice');
+  if (notice) notice.classList.add('visible');
 
-  // Show the QR mode badge above the form
-  var badge = document.getElementById('qr-mode-badge');
-  if (badge) {
-    badge.classList.add('visible');
-    var badgeName = document.getElementById('qr-mode-badge-name');
-    var badgeId   = document.getElementById('qr-mode-badge-id');
-    if (badgeName) badgeName.textContent = '✅ Updating: ' + name;
-    if (badgeId)   badgeId.textContent   = 'Client ID: ' + clientId;
+  // Make sure form card is visible (it might have been hidden by a previous Case 2)
+  var formCard = document.getElementById('main-form-card');
+  if (formCard) formCard.classList.remove('form-hidden-qr2');
+
+  // Make sure submit button is visible and enabled
+  var submitBtn = document.getElementById('step1-submit-btn');
+  if (submitBtn) {
+    submitBtn.style.display = '';
+    submitBtn.disabled      = false;
+    // Keep original text — don't say "Update", just create normally
+    submitBtn.textContent   = '🚀 Create My Business Profile';
   }
 
-  // Update submit button text
-  var submitBtn = document.getElementById('step1-submit-btn');
-  if (submitBtn) submitBtn.textContent = '💾 Update My Business Profile';
+  // Also make the btn-wrap visible
+  var btnWrap = document.querySelector('#step-1 .btn-wrap');
+  if (btnWrap) btnWrap.style.display = '';
 
-  // Show clear button
+  // Hide the full QR mode badge (we don't want to show "Updating existing profile")
+  var badge = document.getElementById('qr-mode-badge');
+  if (badge) badge.classList.remove('visible');
+
+  // Show the QR scanner result as a simple confirmation
+  showQROBResult('found', '✅ QR verified! Profile slot reserved.\nFill the form below to complete setup.');
+
+  // Show clear button so user can detach QR if needed
   var clearBtn = document.getElementById('qr-ob-clear-btn');
   if (clearBtn) clearBtn.style.display = 'block';
 
-  toast('✅ Existing profile found — form pre-filled!', 'ok', 4000);
+  toast('✅ QR verified! Complete your profile below.', 'ok', 4000);
 }
 
+// ── CASE 2 Handler ────────────────────────────────────────────────
+// QR found AND profile already has real data
+// → BLOCK form completely
+// → Show "QR already used by [Business Name]" message
+function _handleQRCase2(clientId, clientData) {
+
+  // Reset QR mode — we do NOT want any update to happen
+  STATE.existingClientId = '';
+  STATE.isQRMode         = false;
+
+  // Get business name for display
+  var bizName = String(clientData.name || '').trim();
+  if (!bizName) bizName = 'an existing business';
+
+  // ── HIDE the entire form card ─────────────────────────────
+  var formCard = document.getElementById('main-form-card');
+  if (formCard) formCard.classList.add('form-hidden-qr2');
+
+  // ── HIDE the submit button wrapper ────────────────────────
+  var btnWrap = document.querySelector('#step-1 .btn-wrap');
+  if (btnWrap) btnWrap.style.display = 'none';
+
+  // ── HIDE QR mode badge (we show Case 2 block instead) ─────
+  var badge = document.getElementById('qr-mode-badge');
+  if (badge) badge.classList.remove('visible');
+
+  // ── HIDE Case 1 notice (safety) ───────────────────────────
+  var notice = document.getElementById('qr-case1-notice');
+  if (notice) notice.classList.remove('visible');
+
+  // ── SHOW the Case 2 blocker ───────────────────────────────
+  var blocker = document.getElementById('qr-case2-block');
+  if (blocker) {
+    // Set business name
+    var bizEl = document.getElementById('qr-case2-biz-name');
+    if (bizEl) bizEl.textContent = '🏢 ' + bizName;
+
+    // Set client ID display
+    var idEl = document.getElementById('qr-case2-id-box');
+    if (idEl) idEl.textContent = 'Client ID: ' + clientId;
+
+    // Set WhatsApp support link with context
+    var waBtn = document.getElementById('qr-case2-wa-btn');
+    if (waBtn) {
+      var waMsg = 'Hi! This QR code is already registered to "'
+        + bizName + '". I need help. Client ID: ' + clientId;
+      waBtn.href = 'https://wa.me/' + SUPPORT_WHATSAPP
+        + '?text=' + encodeURIComponent(waMsg);
+    }
+
+    blocker.classList.add('visible');
+  }
+
+  // Show result in QR scanner as error
+  showQROBResult('error',
+    '🔒 QR Already Registered\n\n'
+    + 'This QR belongs to: ' + bizName + '\n'
+    + 'Each QR code can only be used once.\n'
+    + 'Contact support if this is your business.'
+  );
+
+  toast('🔒 This QR is already registered to: ' + bizName, 'warn', 6000);
+}
 // ── Handle client_id that does NOT exist in sheet ─────────────────
 function handleQROBNewClient(clientId, rawValue) {
   // Not found — inform user. Don't block them.
@@ -3403,17 +3668,38 @@ function prefillFormFromQR(clientData) {
 }
 
 // ── Clear QR mode — revert to normal new-profile flow ────────────
+// ★ UPDATED: also resets Case 1 and Case 2 UI elements
 function clearQRMode() {
   STATE.existingClientId = '';
   STATE.isQRMode         = false;
 
-  // Hide badge
+  // Hide Case 1 notice
+  var notice = document.getElementById('qr-case1-notice');
+  if (notice) notice.classList.remove('visible');
+
+  // Hide Case 2 blocker
+  var blocker = document.getElementById('qr-case2-block');
+  if (blocker) blocker.classList.remove('visible');
+
+  // Restore form card (was hidden in Case 2)
+  var formCard = document.getElementById('main-form-card');
+  if (formCard) formCard.classList.remove('form-hidden-qr2');
+
+  // Restore submit button wrapper
+  var btnWrap = document.querySelector('#step-1 .btn-wrap');
+  if (btnWrap) btnWrap.style.display = '';
+
+  // Restore submit button state
+  var submitBtn = document.getElementById('step1-submit-btn');
+  if (submitBtn) {
+    submitBtn.style.display = '';
+    submitBtn.disabled      = false;
+    submitBtn.textContent   = '🚀 Create My Business Profile';
+  }
+
+  // Hide the QR mode badge
   var badge = document.getElementById('qr-mode-badge');
   if (badge) badge.classList.remove('visible');
-
-  // Reset submit button
-  var submitBtn = document.getElementById('step1-submit-btn');
-  if (submitBtn) submitBtn.textContent = '🚀 Create My Business Profile';
 
   // Hide clear button
   var clearBtn = document.getElementById('qr-ob-clear-btn');
@@ -3431,6 +3717,29 @@ function clearQRMode() {
   stopQROBScanner();
 
   toast('QR mode cleared — a new profile will be created.', 'info', 3000);
+}
+
+// ── Start Fresh Onboarding (Case 2 "Create New Profile" button) ───
+// Clears QR state completely so user can register a fresh profile
+function startFreshOnboarding() {
+  // Full reset — same as clearQRMode but also collapses the QR section
+  clearQRMode();
+
+  // Collapse the QR onboarding section so it's out of the way
+  var body   = document.getElementById('qr-ob-body');
+  var toggle = document.getElementById('qr-ob-toggle');
+  if (body && body.classList.contains('open')) {
+    body.classList.remove('open');
+    if (toggle) toggle.classList.remove('open');
+  }
+
+  // Scroll to top of form
+  var formCard = document.getElementById('main-form-card');
+  if (formCard) {
+    formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  toast('Starting fresh — fill in your new business details below.', 'info', 3500);
 }
 
 // ── Show result box in QR section ────────────────────────────────
@@ -3551,12 +3860,16 @@ function _collapseQROBSection() {
   }
 }
 
-// Patch handleQROBExistingClient to also collapse section after delay
+// ★ UPDATED: Patch handleQROBExistingClient to also collapse section after delay
+// Now passes isProfileEmpty as third argument to support Case 1 / Case 2 routing
 var _handleQROBExistingClientOriginal = handleQROBExistingClient;
-handleQROBExistingClient = function(clientId, clientData) {
-  _handleQROBExistingClientOriginal(clientId, clientData);
-  // Auto-collapse scanner after 1.5 seconds so user sees the result
-  setTimeout(_collapseQROBSection, 1500);
+handleQROBExistingClient = function(clientId, clientData, isProfileEmpty) {
+  // Pass all three args including the new isProfileEmpty flag
+  _handleQROBExistingClientOriginal(clientId, clientData, isProfileEmpty);
+  // Auto-collapse scanner after 1.5 seconds
+  // Case 2 keeps it open longer so user can read the error
+  var delay = (isProfileEmpty === false) ? 2500 : 1500;
+  setTimeout(_collapseQROBSection, delay);
 };
 
 // ── Cleanup on page unload ────────────────────────────────────────
