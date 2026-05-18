@@ -1868,31 +1868,41 @@ function renderPlans() {
 
     // ADD THIS — Custom buttons with hidden Razorpay containers
     if (p.id === 'free') {
-      // Free plan — simple custom button
-      ctaBlock = '<button '
-        +'class="rzp-custom-trigger-btn" '
+      // FIX THIS — Free plan: simple button with its own onclick (no overlay needed)
+      ctaBlock =
+        '<div class="plan-cta-wrap">'
+        +'<button '
+        +'class="rzp-custom-trigger-btn rzp-trigger-free" '
         +'style="background:transparent;border:1.5px solid var(--bdr);color:var(--txt2);" '
         +'onclick="event.stopPropagation();selectPlan(\'free\');handlePayment()">'
         +'✅ Get Started Free'
-        +'</button>';
+        +'</button>'
+        +'</div>';
     } else {
-      // Paid plans — Custom visible button + Hidden Razorpay container
+      // FIX THIS — Paid plans: visible button (neeche) + transparent Razorpay overlay (upar)
       var btnLabel = p.id === 'starter' ? '⚡ Start STARTER — Subscribe Now'
                    : p.id === 'pro'     ? '🔥 Start PRO — Subscribe Now'
                    : '💎 Start PREMIUM — Subscribe Now';
 
       ctaBlock =
-        // CUSTOM BUTTON — ye visible rahega
-        '<button '
+        // WRAPPER — position:relative taaki overlay iske andar fit ho
+        '<div class="plan-cta-wrap">'
+
+        // LAYER 1 (neeche) — Hamara visible custom button
+        // pointer-events:none CSS se already set hai — clicks overlay tak jayenge
+        +'<button '
         +'class="rzp-custom-trigger-btn rzp-trigger-'+p.id+'" '
-        +'id="custom-trigger-'+p.id+'" '
-        +'onclick="event.stopPropagation();triggerRazorpayPlan(\''+p.id+'\')">'
+        +'id="custom-trigger-'+p.id+'">'
         +btnLabel
         +'</button>'
-        // RAZORPAY CONTAINER — ye invisible rahega, sirf kaam karega background me
-        +'<div id="rzp-btn-wrap-'+p.id+'">'
+
+        // LAYER 2 (upar) — Razorpay transparent overlay
+        // User yahan click karta hai → genuine click → Razorpay opens!
+        +'<div class="rzp-overlay-container" id="rzp-btn-wrap-'+p.id+'">'
         +'<div id="rzp-btn-'+p.id+'"></div>'
-        +'</div>';
+        +'</div>'
+
+        +'</div>'; // end plan-cta-wrap
     }
 
     return '<div class="plan-card '+p.css+(isSelected?' selected':'')+'" '
@@ -1933,6 +1943,7 @@ function renderPlans() {
 }
 
 // ADD THIS — New _injectRazorpayButtons (hidden Razorpay + custom trigger)
+// FIX THIS — _injectRazorpayButtons: Overlay approach ke liye
 function _injectRazorpayButtons() {
   PLANS.forEach(function(p) {
     if (!p.subscriptionButtonId) return; // free plan skip
@@ -1943,13 +1954,12 @@ function _injectRazorpayButtons() {
     // Pehle clear karo (duplicate avoid karne ke liye)
     container.innerHTML = '';
 
-    // Razorpay form banana (Razorpay ke liye zaruri hai)
+    // Razorpay form — overlay ke andar full size
     var form = document.createElement('form');
-    // Form hidden rahega (CSS se already hide hai)
-    form.style.cssText = 'width:100%;';
     form.id = 'rzp-form-' + p.id;
+    form.style.cssText = 'display:block;position:absolute;top:0;left:0;width:100%;height:100%;margin:0;padding:0;';
 
-    // Razorpay script banana
+    // Razorpay subscription button script
     var script = document.createElement('script');
     script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
     script.setAttribute('data-subscription_button_id', p.subscriptionButtonId);
@@ -1957,10 +1967,17 @@ function _injectRazorpayButtons() {
     script.async = true;
     script.id = 'rzp-script-' + p.id;
 
-    // Script load hone ke baad pending data save karo
-    script.onload = (function(planId) {
+    // Script load hone ke baad:
+    // 1. Plan select karo
+    // 2. Pending data save karo
+    // 3. Razorpay generated element ko full-size transparent overlay banao
+    script.onload = (function(planId, formEl, containerId) {
       return function() {
+
+        // Plan select
         selectPlan(planId);
+
+        // Pending payment data save karo (return ke baad kaam aayega)
         try {
           var pending = JSON.parse(localStorage.getItem('wanza_pending_payment') || '{}');
           pending.planId      = planId;
@@ -1968,8 +1985,48 @@ function _injectRazorpayButtons() {
           pending.profileName = STATE.profileName;
           localStorage.setItem('wanza_pending_payment', JSON.stringify(pending));
         } catch(e) {}
+
+        // Razorpay ka generated anchor/button dhundho aur invisible+full-size banao
+        // (Razorpay button async create hota hai, isliye multiple attempts)
+        var attempts = 0;
+        var maxAttempts = 10;
+        var interval = setInterval(function() {
+          attempts++;
+          var rzpEl = formEl.querySelector('a, button, [role="button"], input[type="submit"]');
+
+          if (rzpEl) {
+            // Full-size transparent overlay element — CLICKS WORK!
+            rzpEl.style.cssText = [
+              'position:absolute!important',
+              'top:0!important',
+              'left:0!important',
+              'width:100%!important',
+              'height:100%!important',
+              'opacity:0!important',
+              'pointer-events:auto!important',
+              'cursor:pointer!important',
+              'border:none!important',
+              'background:transparent!important',
+              'font-size:0!important',
+              'padding:0!important',
+              'margin:0!important',
+              'display:block!important',
+              'text-decoration:none!important'
+            ].join(';');
+            clearInterval(interval);
+
+          } else if (attempts >= maxAttempts) {
+            // Fallback: Pura container ko clickable banao
+            var cont = document.getElementById('rzp-btn-wrap-' + planId);
+            if (cont) {
+              cont.style.cursor = 'pointer';
+            }
+            clearInterval(interval);
+          }
+        }, 300); // Har 300ms check karo, 10 baar tak
+
       };
-    })(p.id);
+    })(p.id, form, 'rzp-btn-wrap-' + p.id);
 
     form.appendChild(script);
     container.appendChild(form);
