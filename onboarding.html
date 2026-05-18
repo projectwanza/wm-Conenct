@@ -653,41 +653,91 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;
 .btn-create-another:active{transform:scale(.96)!important}
 /* END CREATE ANOTHER BUTTON */
 
-      /* ADD THIS — Razorpay Subscription Button Container Styling */
+     /* ADD THIS — Razorpay Hidden Container */
+/* Razorpay white box ko completely hide karo */
 #rzp-btn-wrap-starter,
 #rzp-btn-wrap-pro,
 #rzp-btn-wrap-premium {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  top: -9999px !important;
+  left: -9999px !important;
+}
+
+/* Razorpay ke andar form aur button bhi hide */
+#rzp-btn-starter, #rzp-btn-pro, #rzp-btn-premium,
+#rzp-btn-starter form, #rzp-btn-pro form, #rzp-btn-premium form,
+#rzp-btn-starter iframe, #rzp-btn-pro iframe, #rzp-btn-premium iframe,
+#rzp-btn-starter button, #rzp-btn-pro button, #rzp-btn-premium button {
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+/* Custom trigger button styles */
+.rzp-custom-trigger-btn {
   margin-top: 14px;
   width: 100%;
-}
-
-/* Make Razorpay button full width inside cards */
-#rzp-btn-starter form,
-#rzp-btn-pro form,
-#rzp-btn-premium form {
-  width: 100% !important;
-  display: flex !important;
-  justify-content: center !important;
-}
-
-/* Loading placeholder while Razorpay button loads */
-.rzp-loading-placeholder {
-  width: 100%;
-  height: 42px;
-  background: rgba(37,99,235,.08);
-  border: 1.5px dashed rgba(37,99,235,.3);
+  height: 46px;
+  border: none;
   border-radius: var(--pill);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  color: var(--blue2);
-  font-weight: 600;
+  gap: 8px;
+  transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
-/* END Razorpay Styling */
-</style>
-</head>
-<body>
+.rzp-custom-trigger-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.12), transparent);
+  pointer-events: none;
+}
+.rzp-custom-trigger-btn:active { transform: scale(0.96) !important; }
+.rzp-custom-trigger-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* Plan-wise custom button colors */
+.rzp-trigger-starter {
+  background: linear-gradient(135deg, #1D4ED8, #2563EB, #3B82F6);
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(37,99,235,.35);
+}
+.rzp-trigger-starter:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 44px rgba(37,99,235,.5);
+}
+.rzp-trigger-pro {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED, #8B5CF6);
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(139,92,246,.5), 0 12px 60px rgba(79,70,229,.35);
+  animation: proPulse 2s ease infinite;
+}
+.rzp-trigger-pro:hover {
+  transform: translateY(-4px) scale(1.01) !important;
+  animation: none;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.75), 0 24px 90px rgba(79,70,229,.65) !important;
+}
+.rzp-trigger-premium {
+  background: linear-gradient(135deg, #D97706, #F59E0B, #FCD34D);
+  color: #0A0F2C;
+  box-shadow: 0 8px 32px rgba(245,158,11,.35);
+  animation: amberPulse 2.5s ease infinite;
+}
+.rzp-trigger-premium:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 50px rgba(245,158,11,.55);
+}
+/* END Razorpay Hidden Container */
 
 <!-- LOADER -->
 <div id="ls">
@@ -1771,21 +1821,32 @@ function renderPlans() {
     // CTA button block — Free plan gets normal button, paid plans get Razorpay widget
     var ctaBlock = '';
 
+    // ADD THIS — Custom buttons with hidden Razorpay containers
     if (p.id === 'free') {
-      // Free plan — simple button, no Razorpay needed
+      // Free plan — simple custom button
       ctaBlock = '<button '
-        +'style="margin-top:14px;width:100%;height:42px;background:transparent;'
-        +'border:1.5px solid var(--bdr);border-radius:var(--pill);color:var(--txt2);'
-        +'font-size:13px;font-weight:700;cursor:pointer;'
-        +'font-family:\'Plus Jakarta Sans\',sans-serif" '
+        +'class="rzp-custom-trigger-btn" '
+        +'style="background:transparent;border:1.5px solid var(--bdr);color:var(--txt2);" '
         +'onclick="event.stopPropagation();selectPlan(\'free\');handlePayment()">'
         +'✅ Get Started Free'
         +'</button>';
     } else {
-      // Paid plans — Razorpay Subscription Button + store plan on click
-      ctaBlock = '<div id="rzp-btn-wrap-'+p.id+'" '
-        +'style="margin-top:14px;min-height:48px;display:flex;align-items:center;justify-content:center">'
-        +'<div id="rzp-btn-'+p.id+'" style="width:100%"></div>'
+      // Paid plans — Custom visible button + Hidden Razorpay container
+      var btnLabel = p.id === 'starter' ? '⚡ Start STARTER — Subscribe Now'
+                   : p.id === 'pro'     ? '🔥 Start PRO — Subscribe Now'
+                   : '💎 Start PREMIUM — Subscribe Now';
+
+      ctaBlock =
+        // CUSTOM BUTTON — ye visible rahega
+        '<button '
+        +'class="rzp-custom-trigger-btn rzp-trigger-'+p.id+'" '
+        +'id="custom-trigger-'+p.id+'" '
+        +'onclick="event.stopPropagation();triggerRazorpayPlan(\''+p.id+'\')">'
+        +btnLabel
+        +'</button>'
+        // RAZORPAY CONTAINER — ye invisible rahega, sirf kaam karega background me
+        +'<div id="rzp-btn-wrap-'+p.id+'">'
+        +'<div id="rzp-btn-'+p.id+'"></div>'
         +'</div>';
     }
 
@@ -1826,36 +1887,39 @@ function renderPlans() {
   updatePayBtn();
 }
 
-// ADD THIS — Inject Razorpay Subscription Buttons into plan cards
+// ADD THIS — New _injectRazorpayButtons (hidden Razorpay + custom trigger)
 function _injectRazorpayButtons() {
   PLANS.forEach(function(p) {
-    if (!p.subscriptionButtonId) return; // skip free plan
-    var container = document.getElementById('rzp-btn-'+p.id);
+    if (!p.subscriptionButtonId) return; // free plan skip
+
+    var container = document.getElementById('rzp-btn-' + p.id);
     if (!container) return;
 
-    // Clear previous content (avoid duplicates on re-render)
+    // Pehle clear karo (duplicate avoid karne ke liye)
     container.innerHTML = '';
 
-    // Create wrapper form (Razorpay requires form tag)
+    // Razorpay form banana (Razorpay ke liye zaruri hai)
     var form = document.createElement('form');
-    form.style.cssText = 'width:100%;display:flex;justify-content:center';
+    // Form hidden rahega (CSS se already hide hai)
+    form.style.cssText = 'width:100%;';
+    form.id = 'rzp-form-' + p.id;
 
-    // Create script tag for Razorpay button
+    // Razorpay script banana
     var script = document.createElement('script');
     script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
     script.setAttribute('data-subscription_button_id', p.subscriptionButtonId);
     script.setAttribute('data-button_theme', 'brand-color');
     script.async = true;
+    script.id = 'rzp-script-' + p.id;
 
-    // Before payment — save which plan was selected
+    // Script load hone ke baad pending data save karo
     script.onload = (function(planId) {
       return function() {
         selectPlan(planId);
-        // Store in session so after redirect we know which plan
         try {
           var pending = JSON.parse(localStorage.getItem('wanza_pending_payment') || '{}');
-          pending.planId    = planId;
-          pending.clientId  = STATE.clientId;
+          pending.planId      = planId;
+          pending.clientId    = STATE.clientId;
           pending.profileName = STATE.profileName;
           localStorage.setItem('wanza_pending_payment', JSON.stringify(pending));
         } catch(e) {}
@@ -1864,84 +1928,115 @@ function _injectRazorpayButtons() {
 
     form.appendChild(script);
     container.appendChild(form);
-
-    // On container click — also save plan selection
-    container.addEventListener('click', (function(planId) {
-      return function() {
-        selectPlan(planId);
-        logPayment('click', planId, '', '');
-        // Save pending payment info before redirect
-        try {
-          var pending = {
-            clientId:    STATE.clientId,
-            profileName: STATE.profileName,
-            planId:      planId,
-            timestamp:   Date.now()
-          };
-          localStorage.setItem('wanza_pending_payment', JSON.stringify(pending));
-        } catch(e) {}
-      };
-    })(p.id));
   });
 }
 
-// ADD THIS — Inject Razorpay Subscription Buttons into plan cards
-function _injectRazorpayButtons() {
-  PLANS.forEach(function(p) {
-    if (!p.subscriptionButtonId) return; // skip free plan
-    var container = document.getElementById('rzp-btn-'+p.id);
-    if (!container) return;
+// ADD THIS — Custom button click pe Razorpay trigger karne ka function
+function triggerRazorpayPlan(planId) {
+  // Plan select karo
+  selectPlan(planId);
 
-    // Clear previous content (avoid duplicates on re-render)
-    container.innerHTML = '';
+  // Pending payment data save karo (redirect ke baad kaam aayega)
+  try {
+    var pending = {
+      clientId:    STATE.clientId,
+      profileName: STATE.profileName,
+      planId:      planId,
+      timestamp:   Date.now()
+    };
+    localStorage.setItem('wanza_pending_payment', JSON.stringify(pending));
+  } catch(e) {}
 
-    // Create wrapper form (Razorpay requires form tag)
-    var form = document.createElement('form');
-    form.style.cssText = 'width:100%;display:flex;justify-content:center';
+  // Payment log karo
+  logPayment('click', planId, '', '');
 
-    // Create script tag for Razorpay button
-    var script = document.createElement('script');
-    script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-    script.setAttribute('data-subscription_button_id', p.subscriptionButtonId);
-    script.setAttribute('data-button_theme', 'brand-color');
-    script.async = true;
+  // Referral code save karo agar hai
+  if (STATE.referralCode) {
+    try {
+      apiPost('saveReferral', {
+        client_id:     STATE.clientId,
+        client_name:   STATE.profileName,
+        referral_code: STATE.referralCode,
+        owner_name:    STATE.referralOwner,
+        plan_id:       planId
+      }).catch(function(){});
+    } catch(e) {}
+  }
 
-    // Before payment — save which plan was selected
-    script.onload = (function(planId) {
-      return function() {
-        selectPlan(planId);
-        // Store in session so after redirect we know which plan
-        try {
-          var pending = JSON.parse(localStorage.getItem('wanza_pending_payment') || '{}');
-          pending.planId    = planId;
-          pending.clientId  = STATE.clientId;
-          pending.profileName = STATE.profileName;
-          localStorage.setItem('wanza_pending_payment', JSON.stringify(pending));
-        } catch(e) {}
-      };
-    })(p.id);
+  // Custom button ka loading state dikhao
+  var customBtn = document.getElementById('custom-trigger-' + planId);
+  if (customBtn) {
+    customBtn.disabled    = true;
+    customBtn.textContent = '⏳ Opening payment…';
+  }
 
-    form.appendChild(script);
-    container.appendChild(form);
+  // Razorpay ke andar jo actual button/link generate hota hai usse click karo
+  setTimeout(function() {
+    var rzpContainer = document.getElementById('rzp-btn-' + planId);
 
-    // On container click — also save plan selection
-    container.addEventListener('click', (function(planId) {
-      return function() {
-        selectPlan(planId);
-        logPayment('click', planId, '', '');
-        // Save pending payment info before redirect
-        try {
-          var pending = {
-            clientId:    STATE.clientId,
-            profileName: STATE.profileName,
-            planId:      planId,
-            timestamp:   Date.now()
-          };
-          localStorage.setItem('wanza_pending_payment', JSON.stringify(pending));
-        } catch(e) {}
-      };
-    })(p.id));
-  });
+    if (rzpContainer) {
+      // Method 1: Razorpay ke generated anchor/button ko click karo
+      var rzpLink = rzpContainer.querySelector('a, button, [role="button"]');
+      if (rzpLink) {
+        // Temporarily pointer-events enable karo sirf click ke liye
+        rzpLink.style.pointerEvents = 'auto';
+        rzpLink.click();
+        setTimeout(function() {
+          rzpLink.style.pointerEvents = 'none';
+        }, 500);
+      } else {
+        // Method 2: Form submit karo (fallback)
+        var rzpForm = document.getElementById('rzp-form-' + planId);
+        if (rzpForm) {
+          rzpForm.style.pointerEvents = 'auto';
+          rzpForm.submit();
+        } else {
+          // Method 3: Script ko phir se inject karo aur click karo
+          _retryRazorpayClick(planId);
+        }
+      }
+    }
+
+    // Button restore karo 3 second baad (agar user payment cancel kare)
+    setTimeout(function() {
+      if (customBtn) {
+        customBtn.disabled = false;
+        var labels = {
+          starter: '⚡ Start STARTER — Subscribe Now',
+          pro:     '🔥 Start PRO — Subscribe Now',
+          premium: '💎 Start PREMIUM — Subscribe Now'
+        };
+        customBtn.textContent = labels[planId] || 'Subscribe Now';
+      }
+    }, 3000);
+
+  }, 300);
+}
+
+// ADD THIS — Retry function agar pehli baar click kaam na kare
+function _retryRazorpayClick(planId) {
+  var plan = PLANS.find(function(p) { return p.id === planId; });
+  if (!plan || !plan.subscriptionButtonId) return;
+
+  // Ek temporary visible form banao, submit karo, phir chhupa do
+  var tempForm = document.createElement('form');
+  tempForm.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+  var tempScript = document.createElement('script');
+  tempScript.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+  tempScript.setAttribute('data-subscription_button_id', plan.subscriptionButtonId);
+  tempScript.setAttribute('data-button_theme', 'brand-color');
+  tempScript.async = true;
+  tempScript.onload = function() {
+    setTimeout(function() {
+      var btn = tempForm.querySelector('a, button');
+      if (btn) btn.click();
+    }, 800);
+  };
+  tempForm.appendChild(tempScript);
+  document.body.appendChild(tempForm);
+  setTimeout(function() {
+    try { document.body.removeChild(tempForm); } catch(e) {}
+  }, 5000);
 }
 
 function selectPlan(planId) {
