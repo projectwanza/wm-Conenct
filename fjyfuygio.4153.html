@@ -362,6 +362,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
      <button class="nav-btn" onclick="nav('cmi')" id="nb-cmi">🔑 CMI Groups</button>
      <button class="nav-btn" onclick="nav('referrals')" id="nb-referrals">🎁 Referrals</button>
      <button class="nav-btn" onclick="nav('activation')" id="nb-activation">🔑 Activation Codes</button>
+     <button class="nav-btn" onclick="nav('paylinks')" id="nb-paylinks">💳 Payment Links</button>
 <button class="nav-btn" onclick="nav('actlogs')" id="nb-actlogs">📋 Activity Logs</button>
 <button class="nav-btn" onclick="nav('productivity')" id="nb-productivity">📊 Productivity</button>
     <div class="sb-bottom">
@@ -1327,6 +1328,129 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
     </div>
   </div>
 </div>
+ <!-- ═══ PAYMENT LINKS PANEL ══════════════════════════════════════ -->
+<div class="panel" id="panel-paylinks">
+  <div class="topbar">
+    <div class="tb-title">💳 Payment Link Pool</div>
+    <div class="tb-acts">
+      <button class="btn btn-pri btn-sm" onclick="openAddLinkModal()">➕ Add Link</button>
+      <button class="btn btn-warn btn-sm" onclick="openBulkAddModal()">⚡ Bulk Add</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadPayLinks()">🔄 Refresh</button>
+    </div>
+  </div>
+
+  <!-- Analytics Summary Cards -->
+  <div class="stats" style="margin-bottom:16px" id="pl-stats-row">
+    <div class="stat"><div class="stat-ico">🔗</div><div class="stat-n" id="pl-total">–</div><div class="stat-l">Total Links</div></div>
+    <div class="stat"><div class="stat-ico">✅</div><div class="stat-n" id="pl-active">–</div><div class="stat-l">Available</div></div>
+    <div class="stat"><div class="stat-ico">🔒</div><div class="stat-n" id="pl-used">–</div><div class="stat-l">Used</div></div>
+    <div class="stat"><div class="stat-ico">⛔</div><div class="stat-n" id="pl-disabled">–</div><div class="stat-l">Disabled</div></div>
+    <div class="stat"><div class="stat-ico">👁️</div><div class="stat-n" id="pl-opens">–</div><div class="stat-l">Total Opens</div></div>
+    <div class="stat"><div class="stat-ico">💰</div><div class="stat-n" id="pl-success">–</div><div class="stat-l">Successful</div></div>
+  </div>
+
+  <!-- Per-Plan Summary -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-hd"><span class="card-tt">📊 Links by Plan</span></div>
+    <div class="card-bd">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px" id="pl-plan-breakdown">
+        <div class="empty"><span class="spin"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Row -->
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <select class="sel" id="plf-plan" onchange="loadPayLinks()" style="flex:1;min-width:120px;font-size:12px;padding:7px 10px;height:36px">
+      <option value="all">All Plans</option>
+      <option value="starter">Starter</option>
+      <option value="pro">Pro</option>
+      <option value="premium">Premium</option>
+    </select>
+    <select class="sel" id="plf-status" onchange="filterPayLinksTable()" style="flex:1;min-width:120px;font-size:12px;padding:7px 10px;height:36px">
+      <option value="all">All Status</option>
+      <option value="active">✅ Active</option>
+      <option value="used">🔒 Used</option>
+      <option value="disabled">⛔ Disabled</option>
+    </select>
+    <input class="inp" id="plf-search" placeholder="🔍 Search URL or label…"
+      oninput="filterPayLinksTable()"
+      style="flex:2;min-width:160px;height:36px;padding:7px 12px;font-size:12px">
+  </div>
+
+  <!-- Links Table -->
+  <div class="card">
+    <div class="card-hd">
+      <span class="card-tt">All Payment Links</span>
+      <span id="pl-count-badge" style="font-size:12px;color:var(--txt2)"></span>
+    </div>
+    <div class="card-bd" style="padding:0">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Plan</th>
+              <th>Label</th>
+              <th>Razorpay URL</th>
+              <th>Status</th>
+              <th>Opens</th>
+              <th>✅</th>
+              <th>❌</th>
+              <th>Resets</th>
+              <th>Last Used</th>
+              <th>Enable</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="pl-tbody">
+            <tr><td colspan="12" style="text-align:center;padding:28px;color:var(--txt2)">
+              Click 🔄 to load payment links
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attempt History Section -->
+  <div class="card" style="margin-top:4px">
+    <div class="card-hd">
+      <span class="card-tt">📋 Recent Payment Attempts</span>
+      <div style="display:flex;gap:8px">
+        <select class="sel" id="pa-plan-filter" onchange="loadAttempts()" style="font-size:12px;padding:6px 10px;height:32px">
+          <option value="all">All Plans</option>
+          <option value="starter">Starter</option>
+          <option value="pro">Pro</option>
+          <option value="premium">Premium</option>
+        </select>
+        <select class="sel" id="pa-event-filter" onchange="loadAttempts()" style="font-size:12px;padding:6px 10px;height:32px">
+          <option value="all">All Events</option>
+          <option value="opened">Opened</option>
+          <option value="success">Success</option>
+          <option value="failed">Failed</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="loadAttempts()">🔄</button>
+      </div>
+    </div>
+    <div class="card-bd" style="padding:0">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th><th>Plan</th><th>Event</th><th>Client</th>
+              <th>Link ID</th><th>Payment ID</th><th>Device</th><th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="pa-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:24px;color:var(--txt2)">Click 🔄 to load</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
   </main>
 </div>
 </div><!-- #app -->
@@ -1500,6 +1624,138 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
   </div>
 </div>
 
+   <!-- ══ PAYMENT LINK MODALS ════════════════════════════════════════ -->
+
+<!-- Add / Edit Link Modal -->
+<div class="modal-ov" id="m-paylink">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-hd">
+      <span class="modal-tt" id="m-paylink-title">➕ Add Payment Link</span>
+      <button class="modal-x" onclick="closeModal('m-paylink')">✕</button>
+    </div>
+    <div class="modal-bd">
+      <input type="hidden" id="pl-edit-id">
+      <div class="form-grid">
+        <div class="fg">
+          <label class="lbl">Plan *</label>
+          <select class="sel" id="pl-plan-id">
+            <option value="">— Select Plan —</option>
+            <option value="starter">Starter</option>
+            <option value="pro">Pro ⭐</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="lbl">Label / Note</label>
+          <input class="inp" id="pl-label" placeholder="e.g. Pro Link #1 — Oct batch">
+        </div>
+        <div class="fg fg-full">
+          <label class="lbl">Razorpay Payment URL *</label>
+          <input class="inp" id="pl-url" type="url"
+            placeholder="https://rzp.io/rzp/XXXXXXX"
+            style="font-family:monospace;font-size:12px">
+          <small style="color:var(--txt2);font-size:11px;margin-top:5px;display:block">
+            ℹ️ Copy the full payment link from your Razorpay dashboard
+          </small>
+        </div>
+        <div class="fg">
+          <label class="lbl">Sort Order (lower = served first)</label>
+          <input class="inp" id="pl-sort" type="number" value="99" min="1">
+        </div>
+        <div class="fg">
+          <label class="lbl">Status</label>
+          <select class="sel" id="pl-status">
+            <option value="active">✅ Active</option>
+            <option value="disabled">⛔ Disabled</option>
+          </select>
+        </div>
+        <div class="fg fg-full">
+          <label class="lbl">Notes (internal)</label>
+          <textarea class="ta" id="pl-notes" rows="2" placeholder="Any admin notes about this link…"></textarea>
+        </div>
+      </div>
+      <!-- Live preview -->
+      <div id="pl-preview" style="margin-top:14px;background:#fff8f0;border:1.5px solid var(--bdr2);
+        border-radius:var(--r2);padding:12px 14px;display:none">
+        <div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;
+          letter-spacing:.8px;margin-bottom:6px">Link Preview</div>
+        <div id="pl-preview-url" style="font-family:monospace;font-size:11px;color:var(--org1);
+          word-break:break-all"></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('m-paylink')">Cancel</button>
+      <button class="btn btn-pri" onclick="submitPayLink()">💾 Save Link</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Add Links Modal -->
+<div class="modal-ov" id="m-bulk-paylink">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-hd">
+      <span class="modal-tt">⚡ Bulk Add Payment Links</span>
+      <button class="modal-x" onclick="closeModal('m-bulk-paylink')">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="fg" style="margin-bottom:14px">
+        <label class="lbl">Plan (applied to all links below)</label>
+        <select class="sel" id="bulk-pl-plan">
+          <option value="">— Select Plan —</option>
+          <option value="starter">Starter</option>
+          <option value="pro">Pro ⭐</option>
+          <option value="premium">Premium</option>
+        </select>
+      </div>
+      <div class="fg" style="margin-bottom:14px">
+        <label class="lbl">Paste Razorpay URLs (one per line)</label>
+        <textarea class="ta" id="bulk-pl-urls" rows="8"
+          placeholder="https://rzp.io/rzp/AAAAAAA&#10;https://rzp.io/rzp/BBBBBBB&#10;https://rzp.io/rzp/CCCCCCC&#10;…"
+          style="font-family:monospace;font-size:12px;line-height:1.8"
+          oninput="updateBulkLinkPreview()"></textarea>
+      </div>
+      <div id="bulk-pl-preview" style="background:#fff8f0;border:1.5px solid var(--bdr2);
+        border-radius:var(--r2);padding:10px 14px;font-size:12px;color:var(--txt2);display:none">
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('m-bulk-paylink')">Cancel</button>
+      <button class="btn btn-ok" id="bulk-pl-submit" onclick="submitBulkLinks()">
+        ⚡ Add All Links
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Link History Modal -->
+<div class="modal-ov" id="m-link-history">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-hd">
+      <span class="modal-tt" id="m-lh-title">📋 Link History</span>
+      <button class="modal-x" onclick="closeModal('m-link-history')">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div id="lh-summary" style="background:#fff8f0;border:1.5px solid var(--bdr2);
+        border-radius:var(--r2);padding:12px 14px;margin-bottom:14px;font-size:13px;
+        color:var(--txt2);line-height:1.8"></div>
+      <div style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;
+        letter-spacing:.8px;margin-bottom:8px">Attempt History</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Time</th><th>Event</th><th>Client</th><th>Payment ID</th><th>Device</th></tr>
+          </thead>
+          <tbody id="lh-tbody">
+            <tr><td colspan="5" style="text-align:center;padding:20px"><span class="spin"></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('m-link-history')">Close</button>
+    </div>
+  </div>
+</div>
 <script>
 // ════════════════════════════════════════════════════════════════
 //  WANZA ADMIN v7 — Full JavaScript
@@ -1515,7 +1771,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 // ── CONFIG ────────────────────────────────────────────────────
 var GAS_URL = (function(){
   try { return localStorage.getItem('wanza_gas_url') || ''; } catch(e){ return ''; }
-})() || 'https://script.google.com/macros/s/AKfycbwoxYVS02uXoqg4b7mISFqfHIFdeHkvaD0m7dC-9CTdqDUDQ8p3H9s0KVKslPQSetZH/exec';
+})() || 'https://script.google.com/macros/s/AKfycbwr0wElwG04PZZ3k1e56QY-cZLgJHWlrxkey9-g4wZhCNaQspguVu9nKTO_ZuOQ58WW/exec';
 
 var CLIENT_URL = (function(){
   try { return localStorage.getItem('wanza_client_url') || ''; } catch(e){ return ''; }
@@ -4106,6 +4362,462 @@ function _renderProductivityTable(rows) {
     _origNavRef(id);
     if (id === 'referrals')   loadReferralLogs();
     if (id === 'productivity') loadProductivity();
+  };
+})();
+
+// ================================================================
+//  PAYMENT LINK POOL MANAGER — Admin JS
+// ================================================================
+
+var _allPayLinks = [];
+
+// ── Load all payment links ────────────────────────────────────────
+function loadPayLinks() {
+  var tbody   = document.getElementById('pl-tbody');
+  var planFil = (document.getElementById('plf-plan') || {}).value || 'all';
+  tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:28px"><span class="spin"></span> Loading…</td></tr>';
+
+  apiGet('getPaymentLinkAnalytics', {})
+    .then(function(d) {
+      var summary = d.summary || {};
+      _allPayLinks = Array.isArray(d.links) ? d.links : [];
+
+      // Update stat cards
+      animNum(document.getElementById('pl-total'),    summary.total_links    || 0);
+      animNum(document.getElementById('pl-active'),   summary.active_links   || 0);
+      animNum(document.getElementById('pl-used'),     summary.used_links     || 0);
+      animNum(document.getElementById('pl-disabled'), summary.disabled_links || 0);
+      animNum(document.getElementById('pl-opens'),    summary.total_opens    || 0);
+      animNum(document.getElementById('pl-success'),  summary.total_success  || 0);
+
+      // Per-plan breakdown
+      var breakEl = document.getElementById('pl-plan-breakdown');
+      if (breakEl && summary.by_plan) {
+        var planColors = { starter: 'var(--blue)', pro: 'var(--purple)', premium: 'var(--org1)' };
+        breakEl.innerHTML = ['starter','pro','premium'].map(function(p) {
+          var pd = summary.by_plan[p] || { total:0, active:0, used:0, disabled:0 };
+          return '<div style="background:#fff8f0;border:1.5px solid var(--bdr2);border-radius:var(--r2);padding:14px">'
+            + '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:' + (planColors[p]||'var(--txt2)') + ';margin-bottom:8px">' + p.toUpperCase() + '</div>'
+            + '<div style="font-size:1.5rem;font-weight:800;color:var(--txt);margin-bottom:4px">' + pd.total + '</div>'
+            + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+            + '<span class="badge b-grn" style="font-size:10px">' + pd.active + ' free</span>'
+            + '<span class="badge b-red" style="font-size:10px">' + pd.used + ' used</span>'
+            + (pd.disabled ? '<span class="badge" style="font-size:10px;background:rgba(0,0,0,.08)">' + pd.disabled + ' off</span>' : '')
+            + '</div></div>';
+        }).join('');
+      }
+
+      // Filter and render
+      filterPayLinksTable();
+    })
+    .catch(function(e) {
+      tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:28px;color:var(--red)">❌ ' + esc(e.message) + '</td></tr>';
+    });
+}
+
+// ── Filter links table ────────────────────────────────────────────
+function filterPayLinksTable() {
+  var planFil   = (document.getElementById('plf-plan')   || {}).value || 'all';
+  var statusFil = (document.getElementById('plf-status') || {}).value || 'all';
+  var search    = ((document.getElementById('plf-search') || {}).value || '').toLowerCase();
+
+  var filtered = _allPayLinks.filter(function(l) {
+    var matchPlan  = planFil   === 'all' || l.plan_id === planFil;
+    var matchStat  = statusFil === 'all' || l.status  === statusFil;
+    var matchSearch= !search
+      || (l.label        || '').toLowerCase().indexOf(search) > -1
+      || (l.razorpay_url || '').toLowerCase().indexOf(search) > -1
+      || (l.link_id      || '').toLowerCase().indexOf(search) > -1;
+    return matchPlan && matchStat && matchSearch;
+  });
+
+  var badge = document.getElementById('pl-count-badge');
+  if (badge) badge.textContent = filtered.length + ' link' + (filtered.length !== 1 ? 's' : '');
+
+  _renderPayLinksTable(filtered);
+}
+
+// ── Render links table ────────────────────────────────────────────
+function _renderPayLinksTable(links) {
+  var tbody = document.getElementById('pl-tbody');
+  if (!links || !links.length) {
+    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:36px;color:var(--txt2)">'
+      + '<div style="font-size:2rem;margin-bottom:8px">🔗</div>No payment links found. Click ➕ to add.</td></tr>';
+    return;
+  }
+
+  var planColors = { starter: '#3B82F6', pro: '#8B5CF6', premium: '#F59E0B' };
+
+  tbody.innerHTML = '';
+
+  links.forEach(function(l, idx) {
+    var isActive  = l.status === 'active' && String(l.is_used||'FALSE').toUpperCase() !== 'TRUE';
+    var isUsed    = String(l.is_used||'FALSE').toUpperCase() === 'TRUE';
+    var isDisabled= l.status === 'disabled';
+
+    var statusBadge = isUsed    ? '<span class="badge b-red">🔒 Used</span>'
+                    : isDisabled? '<span class="badge" style="background:rgba(0,0,0,.08)">⛔ Off</span>'
+                    :             '<span class="badge b-grn">✅ Active</span>';
+
+    var planColor = planColors[l.plan_id] || '#666';
+    var planBadge = '<span class="badge" style="background:' + planColor + '22;color:' + planColor + ';border:1px solid ' + planColor + '44">'
+                  + (l.plan_id || '—').toUpperCase() + '</span>';
+
+    // Short URL display
+    var urlShort = (l.razorpay_url || '').replace('https://rzp.io/rzp/', 'rzp.io/…/').replace('https://', '');
+    var urlDisplay = urlShort.length > 32 ? urlShort.substr(0, 32) + '…' : urlShort;
+
+    var lastUsed = l.used_at
+      ? new Date(l.used_at).toLocaleDateString('en-IN')
+      : (l.last_opened_at ? new Date(l.last_opened_at).toLocaleDateString('en-IN') : '—');
+
+    var tr = document.createElement('tr');
+    tr.id  = 'plr-' + esc(l.link_id);
+
+    tr.innerHTML =
+      '<td style="color:var(--txt3);font-size:11px">' + (idx + 1) + '</td>'
+      + '<td>' + planBadge + '</td>'
+      + '<td style="font-size:12px;font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'
+        + esc(l.label || '—') + '</td>'
+      + '<td style="font-family:monospace;font-size:11px;color:var(--org1);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"'
+        + ' title="' + esc(l.razorpay_url||'') + '">'
+        + esc(urlDisplay)
+        + ' <button class="btn btn-ghost btn-sm" style="padding:2px 6px;font-size:10px" data-copy-url="' + esc(l.razorpay_url||'') + '">📋</button>'
+        + '</td>'
+      + '<td>' + statusBadge + '</td>'
+      + '<td style="text-align:center;font-weight:700">' + (parseInt(l.open_count)||0) + '</td>'
+      + '<td style="text-align:center"><span class="badge b-grn" style="font-size:10px">' + (parseInt(l.success_count)||0) + '</span></td>'
+      + '<td style="text-align:center"><span class="badge b-red" style="font-size:10px">' + (parseInt(l.fail_count)||0) + '</span></td>'
+      + '<td style="text-align:center;font-size:12px">' + (parseInt(l.reset_count)||0) + '</td>'
+      + '<td style="font-size:11px;color:var(--txt2)">' + lastUsed + '</td>'
+      + '<td><label class="toggle-switch"><input type="checkbox" ' + (isActive||isUsed?'checked':'')
+        + ' data-toggle-id="' + esc(l.link_id) + '" data-is-used="' + isUsed + '">'
+        + '<span class="toggle-slider"></span></label></td>'
+      + '<td><div style="display:flex;gap:4px;flex-wrap:wrap">'
+        + '<button class="btn btn-ghost btn-sm" style="font-size:11px;padding:4px 8px" data-edit-id="' + esc(l.link_id) + '">✏️</button>'
+        + '<button class="btn btn-warn btn-sm" style="font-size:11px;padding:4px 8px" data-reset-id="' + esc(l.link_id) + '" title="Reset (mark as unused)">🔄</button>'
+        + '<button class="btn btn-ghost btn-sm" style="font-size:11px;padding:4px 8px" data-hist-id="' + esc(l.link_id) + '" data-hist-plan="' + esc(l.plan_id||'') + '">📋</button>'
+        + '<button class="btn btn-del btn-sm" style="font-size:11px;padding:4px 8px" data-del-id="' + esc(l.link_id) + '">🗑️</button>'
+        + '</div></td>';
+
+    tbody.appendChild(tr);
+  });
+
+  // ✅ Event delegation
+  tbody.onclick = function(e) {
+    var btn = e.target.closest('[data-copy-url],[data-edit-id],[data-reset-id],[data-hist-id],[data-del-id]');
+    if (!btn) return;
+
+    if (btn.getAttribute('data-copy-url')) {
+      var url = btn.getAttribute('data-copy-url');
+      if (navigator.clipboard) navigator.clipboard.writeText(url).then(function(){ toast('URL copied! 📋', 'ok', 2000); });
+      return;
+    }
+    if (btn.getAttribute('data-edit-id'))  { editPayLink(btn.getAttribute('data-edit-id')); return; }
+    if (btn.getAttribute('data-reset-id')) { resetPayLinkAdmin(btn.getAttribute('data-reset-id')); return; }
+    if (btn.getAttribute('data-hist-id'))  { openLinkHistory(btn.getAttribute('data-hist-id'), btn.getAttribute('data-hist-plan')||''); return; }
+    if (btn.getAttribute('data-del-id'))   { deletePayLinkAdmin(btn.getAttribute('data-del-id')); return; }
+  };
+
+  tbody.onchange = function(e) {
+    var cb = e.target;
+    if (!cb.getAttribute('data-toggle-id')) return;
+    var linkId = cb.getAttribute('data-toggle-id');
+    var isUsed = cb.getAttribute('data-is-used') === 'true';
+    if (isUsed && cb.checked) {
+      toast('⚠️ This link was already used — cannot re-enable as active. Use 🔄 Reset first.', 'warn', 5000);
+      cb.checked = false;
+      return;
+    }
+    doTogglePayLink(linkId, cb.checked);
+  };
+}
+
+// ── Open Add Link Modal ───────────────────────────────────────────
+function openAddLinkModal() {
+  document.getElementById('pl-edit-id').value  = '';
+  document.getElementById('m-paylink-title').textContent = '➕ Add Payment Link';
+  document.getElementById('pl-plan-id').value  = '';
+  document.getElementById('pl-label').value    = '';
+  document.getElementById('pl-url').value      = '';
+  document.getElementById('pl-sort').value     = '99';
+  document.getElementById('pl-status').value   = 'active';
+  document.getElementById('pl-notes').value    = '';
+  document.getElementById('pl-preview').style.display = 'none';
+  openModal('m-paylink');
+}
+
+// ── Open Edit Link Modal ──────────────────────────────────────────
+function editPayLink(linkId) {
+  var link = _allPayLinks.find(function(l){ return l.link_id === linkId; });
+  if (!link) { toast('Link not found', 'err'); return; }
+
+  document.getElementById('pl-edit-id').value  = linkId;
+  document.getElementById('m-paylink-title').textContent = '✏️ Edit: ' + esc(link.label || linkId);
+  document.getElementById('pl-plan-id').value  = link.plan_id    || '';
+  document.getElementById('pl-label').value    = link.label      || '';
+  document.getElementById('pl-url').value      = link.razorpay_url || '';
+  document.getElementById('pl-sort').value     = link.sort_order  || '99';
+  document.getElementById('pl-status').value   = link.status      || 'active';
+  document.getElementById('pl-notes').value    = link.notes       || '';
+
+  var prev = document.getElementById('pl-preview');
+  var prevUrl = document.getElementById('pl-preview-url');
+  if (link.razorpay_url) {
+    prev.style.display = 'block';
+    prevUrl.textContent = link.razorpay_url;
+  }
+
+  openModal('m-paylink');
+}
+
+// ── Live preview inside modal ─────────────────────────────────────
+(function() {
+  var urlEl = document.getElementById('pl-url');
+  if (urlEl) urlEl.addEventListener('input', function() {
+    var v    = urlEl.value.trim();
+    var prev = document.getElementById('pl-preview');
+    var pUrl = document.getElementById('pl-preview-url');
+    if (v) { prev.style.display = 'block'; pUrl.textContent = v; }
+    else   { prev.style.display = 'none'; }
+  });
+})();
+
+// ── Submit Add/Edit Link ──────────────────────────────────────────
+function submitPayLink() {
+  var planId = (document.getElementById('pl-plan-id').value || '').trim();
+  var url    = (document.getElementById('pl-url').value     || '').trim();
+  var linkId = (document.getElementById('pl-edit-id').value || '').trim();
+
+  if (!planId) { toast('Plan selection required!', 'err'); return; }
+  if (!url)    { toast('Razorpay URL required!',   'err'); return; }
+  if (!url.startsWith('http')) { toast('URL must start with https://', 'err'); return; }
+
+  var payload = {
+    link_id:      linkId,
+    plan_id:      planId,
+    plan_name:    planId.charAt(0).toUpperCase() + planId.slice(1),
+    razorpay_url: url,
+    label:        (document.getElementById('pl-label').value  || '').trim(),
+    sort_order:   parseInt(document.getElementById('pl-sort').value) || 99,
+    status:       document.getElementById('pl-status').value  || 'active',
+    notes:        (document.getElementById('pl-notes').value  || '').trim()
+  };
+
+  showLoad(linkId ? 'Updating link…' : 'Adding link…');
+
+  var pr = linkId
+    ? apiPost('updatePaymentLink', payload)
+    : apiPost('addPaymentLink',    payload);
+
+  pr.then(function() {
+    hideLoad();
+    toast(linkId ? 'Link updated! ✅' : 'Link added! ✅', 'ok');
+    closeModal('m-paylink');
+    loadPayLinks();
+  })
+  .catch(function(e) {
+    hideLoad();
+    toast('Failed: ' + e.message, 'err');
+  });
+}
+
+// ── Toggle link enabled/disabled ─────────────────────────────────
+function doTogglePayLink(linkId, enabled) {
+  apiPost('togglePaymentLink', { link_id: linkId, enabled: enabled })
+    .then(function() {
+      toast(enabled ? 'Link enabled! ✅' : 'Link disabled.', 'ok', 2500);
+      loadPayLinks();
+    })
+    .catch(function(e) { toast('Toggle failed: ' + e.message, 'err'); loadPayLinks(); });
+}
+
+// ── Reset link (mark as unused) ───────────────────────────────────
+function resetPayLinkAdmin(linkId) {
+  var link = _allPayLinks.find(function(l){ return l.link_id === linkId; });
+  var label = link ? (link.label || linkId) : linkId;
+
+  confirmDlg(
+    'Reset "' + label + '"?\n\nThis will mark it as UNUSED so it can be served again.\n'
+    + '⚠️ Only do this if the Razorpay link itself supports multiple payments!',
+    function() {
+      showLoad('Resetting link…');
+      apiPost('resetPaymentLink', { link_id: linkId, admin_note: 'Manual reset by admin' })
+        .then(function() {
+          hideLoad();
+          toast('Link reset! It is now available again. 🔄', 'ok', 4000);
+          loadPayLinks();
+        })
+        .catch(function(e) { hideLoad(); toast('Failed: ' + e.message, 'err'); });
+    }
+  );
+}
+
+// ── Delete link ───────────────────────────────────────────────────
+function deletePayLinkAdmin(linkId) {
+  var link  = _allPayLinks.find(function(l){ return l.link_id === linkId; });
+  var label = link ? (link.label || linkId) : linkId;
+
+  confirmDlg('Delete "' + label + '" permanently?\nAttempt history will be preserved.', function() {
+    apiPost('deletePaymentLink', { link_id: linkId })
+      .then(function() { toast('Link deleted.', 'ok'); loadPayLinks(); })
+      .catch(function(e) { toast('Failed: ' + e.message, 'err'); });
+  });
+}
+
+// ── Open Link History Modal ───────────────────────────────────────
+function openLinkHistory(linkId, planId) {
+  var link  = _allPayLinks.find(function(l){ return l.link_id === linkId; });
+  var label = link ? (link.label || linkId) : linkId;
+
+  document.getElementById('m-lh-title').textContent = '📋 History: ' + esc(label);
+
+  // Summary
+  var sumEl = document.getElementById('lh-summary');
+  if (link) {
+    sumEl.innerHTML =
+      '<strong>' + esc(link.razorpay_url||'') + '</strong><br>'
+      + 'Plan: <strong>' + esc((link.plan_id||'').toUpperCase()) + '</strong> | '
+      + 'Status: <strong>' + esc(link.status||'—') + '</strong> | '
+      + 'Opens: <strong>' + (parseInt(link.open_count)||0) + '</strong> | '
+      + 'Success: <strong style="color:var(--grn)">' + (parseInt(link.success_count)||0) + '</strong> | '
+      + 'Failed: <strong style="color:var(--red)">' + (parseInt(link.fail_count)||0) + '</strong>'
+      + (link.used_by_client ? '<br>Used by: <code>' + esc(link.used_by_client) + '</code> at ' + esc(link.used_at||'') : '');
+  }
+
+  openModal('m-link-history');
+
+  // Load attempts
+  var tbody = document.getElementById('lh-tbody');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px"><span class="spin"></span></td></tr>';
+
+  apiGet('getLinkAttemptHistory', { link_id: linkId })
+    .then(function(d) {
+      var rows = Array.isArray(d) ? d : [];
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--txt2)">No attempts yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map(function(r) {
+        var dt    = r.timestamp ? new Date(r.timestamp).toLocaleString('en-IN') : '—';
+        var eBadge= r.event_type === 'success'
+          ? '<span class="badge b-grn">' + esc(r.event_type) + '</span>'
+          : r.event_type === 'opened'
+          ? '<span class="badge b-org">' + esc(r.event_type) + '</span>'
+          : '<span class="badge b-red">' + esc(r.event_type||'—') + '</span>';
+        return '<tr>'
+          + '<td style="font-size:11px;color:var(--txt2);white-space:nowrap">' + esc(dt) + '</td>'
+          + '<td>' + eBadge + '</td>'
+          + '<td style="font-size:11px;font-family:monospace;color:var(--txt2)">' + esc((r.client_id||'—').substr(0,20)) + '</td>'
+          + '<td style="font-size:11px;font-family:monospace;color:var(--org1)">' + esc(r.payment_id||'—') + '</td>'
+          + '<td style="font-size:11px">' + esc(r.device||'—') + '</td>'
+          + '</tr>';
+      }).join('');
+    })
+    .catch(function(e) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--red)">❌ ' + esc(e.message) + '</td></tr>';
+    });
+}
+
+// ── Bulk Add Modal ────────────────────────────────────────────────
+function openBulkAddModal() {
+  document.getElementById('bulk-pl-plan').value = '';
+  document.getElementById('bulk-pl-urls').value = '';
+  document.getElementById('bulk-pl-preview').style.display = 'none';
+  openModal('m-bulk-paylink');
+}
+
+function updateBulkLinkPreview() {
+  var raw     = (document.getElementById('bulk-pl-urls').value || '');
+  var lines   = raw.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+  var prevEl  = document.getElementById('bulk-pl-preview');
+  var submitEl= document.getElementById('bulk-pl-submit');
+  if (lines.length) {
+    prevEl.style.display = 'block';
+    prevEl.innerHTML     = '📊 <strong>' + lines.length + ' URL' + (lines.length>1?'s':'') + '</strong> detected. '
+      + lines.filter(function(l){ return l.startsWith('http'); }).length + ' valid.';
+    if (submitEl) submitEl.textContent = '⚡ Add ' + lines.length + ' Links';
+  } else {
+    prevEl.style.display = 'none';
+    if (submitEl) submitEl.textContent = '⚡ Add All Links';
+  }
+}
+
+function submitBulkLinks() {
+  var planId = (document.getElementById('bulk-pl-plan').value || '').trim();
+  var raw    = (document.getElementById('bulk-pl-urls').value || '');
+  var urls   = raw.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.startsWith('http'); });
+
+  if (!planId) { toast('Select a plan first!', 'err'); return; }
+  if (!urls.length) { toast('No valid URLs found (must start with http)', 'err'); return; }
+
+  var linksPayload = urls.map(function(u, i) {
+    return {
+      plan_id:      planId,
+      plan_name:    planId.charAt(0).toUpperCase() + planId.slice(1),
+      razorpay_url: u,
+      label:        planId.toUpperCase() + ' Link #' + (i + 1),
+      sort_order:   i + 1
+    };
+  });
+
+  showLoad('Adding ' + urls.length + ' links…');
+
+  apiPost('bulkAddPaymentLinks', { links: linksPayload })
+    .then(function(d) {
+      hideLoad();
+      toast('✅ Added ' + d.added + '/' + urls.length + ' links!', 'ok', 4000);
+      closeModal('m-bulk-paylink');
+      loadPayLinks();
+    })
+    .catch(function(e) { hideLoad(); toast('Failed: ' + e.message, 'err'); });
+}
+
+// ── Load Payment Attempts ─────────────────────────────────────────
+function loadAttempts() {
+  var tbody   = document.getElementById('pa-tbody');
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px"><span class="spin"></span></td></tr>';
+
+  var planFil  = (document.getElementById('pa-plan-filter')  || {}).value || 'all';
+  var eventFil = (document.getElementById('pa-event-filter') || {}).value || 'all';
+
+  apiGet('getPaymentAttempts', { plan_id: planFil, event_type: eventFil })
+    .then(function(d) {
+      var rows = Array.isArray(d) ? d : [];
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--txt2)">No attempts found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.slice(0,100).map(function(r) {
+        var dt    = r.timestamp ? new Date(r.timestamp).toLocaleString('en-IN') : '—';
+        var eBadge= r.event_type === 'success'
+          ? '<span class="badge b-grn">' + esc(r.event_type||'—') + '</span>'
+          : r.event_type === 'opened'
+          ? '<span class="badge b-org">' + esc(r.event_type||'—') + '</span>'
+          : '<span class="badge b-red">' + esc(r.event_type||'—') + '</span>';
+        return '<tr>'
+          + '<td style="font-size:11px;color:var(--txt2);white-space:nowrap">' + esc(dt) + '</td>'
+          + '<td><span class="badge b-org" style="font-size:10px">' + esc(r.plan_id||'—') + '</span></td>'
+          + '<td>' + eBadge + '</td>'
+          + '<td style="font-size:11px;font-family:monospace;color:var(--txt2)">' + esc((r.client_id||'—').substr(0,18)) + '</td>'
+          + '<td style="font-size:10px;font-family:monospace;color:var(--txt3)">' + esc((r.link_id||'—').substr(0,16)) + '</td>'
+          + '<td style="font-size:11px;font-family:monospace;color:var(--org1)">' + esc(r.payment_id||'—') + '</td>'
+          + '<td style="font-size:11px">' + esc(r.device||'—') + '</td>'
+          + '<td style="font-size:11px;color:var(--txt3)">' + esc((r.notes||'').substr(0,40)) + '</td>'
+          + '</tr>';
+      }).join('');
+    })
+    .catch(function(e) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--red)">❌ ' + esc(e.message) + '</td></tr>';
+    });
+}
+
+// ── Hook nav() for paylinks panel ────────────────────────────────
+(function() {
+  var _origNavPaylink = window.nav;
+  window.nav = function(id) {
+    _origNavPaylink(id);
+    if (id === 'paylinks') { loadPayLinks(); loadAttempts(); }
   };
 })();
 </script>
